@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/behouba/dsapi/cmd/server/router"
+	"github.com/behouba/dsapi/cmd/server/handler"
 )
 
 func main() {
-	r := router.Setup()
+	r := handler.SetupRouter()
 	r.Run()
 }
