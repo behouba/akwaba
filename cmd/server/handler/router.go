@@ -5,20 +5,26 @@ import (
 )
 
 const (
-	customerBaseURL = "v0/customer"
-	adminBaseURL    = "v0/admin"
+	guestBaseURL    = "/v0/guest"
+	customerBaseURL = "/v0/customer"
+	adminBaseURL    = "/v0/admin"
 )
 
 // SetupRouter create routes and return *gin.Engine
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	guest := r.Group(guestBaseURL)
+	{
+		// customer authentication routes
+		guest.GET("/phone/check", checkGuestPhone)
+		guest.POST("/phone/confirm", phoneValidation)
+		guest.POST("/registration", registerGuest)
+	}
 	// customer routes group
 	customer := r.Group(customerBaseURL)
 	{
-		// customer authentication routes
-		customer.POST("/registration", registerCustomer)
-		customer.POST("/phone/confirm", phoneValidation)
+		// logout
 		customer.POST("/logout", customerLogout)
 
 		// customer orders routes
