@@ -18,3 +18,8 @@ func SaveNewCustomer(c customer.NewCustomer) (userID int, err error) {
 func CheckPhone(phone string) (userID int, err error) {
 	return
 }
+
+// CustomerIDFromPhone take customer phone number and return customer id
+func CustomerIDFromPhone(phone string) (id int, err error) {
+	return 5, nil
+}

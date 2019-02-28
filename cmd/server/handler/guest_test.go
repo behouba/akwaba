@@ -46,20 +46,20 @@ func TestCheckGuestPhone(t *testing.T) {
 
 	pp := map[string]int{
 		"45001685":            http.StatusOK,
-		"343":                 http.StatusBadRequest,
+		"3433":                http.StatusBadRequest,
 		"saitama":             http.StatusBadRequest,
 		"4893489348934893493": http.StatusBadRequest,
 		"58753408":            http.StatusOK,
 	}
 	for p, c := range pp {
-		url := guestBaseURL + "/phone/check"
+		url := guestBaseURL + "/phone/check/"
 
-		req, err := http.NewRequest("GET", url+"?p="+p, nil)
+		req, err := http.NewRequest("GET", url+p, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 		r := gin.Default()
-		r.GET(url, checkGuestPhone)
+		r.GET(url+":phone", checkGuestPhone)
 
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)

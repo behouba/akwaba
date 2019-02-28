@@ -14,11 +14,16 @@ const (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	r.GET("/auth_state", checkAuthState)
 	guest := r.Group(guestBaseURL)
 	{
-		// customer authentication routes
-		guest.GET("/phone/check", checkGuestPhone)
-		guest.POST("/phone/confirm", phoneValidation)
+		// guest authentication routes
+
+		// first guest auth step
+		guest.GET("/phone/check/:phone", checkGuestPhone)
+		// 2nd step for already registred customer
+		guest.GET("/phone/confirm/:phone", phoneValidation)
+		// 2nd step for new customer before doing to 2nd step for registered customer
 		guest.POST("/registration", registerGuest)
 	}
 	// customer routes group
