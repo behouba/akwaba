@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/behouba/dsapi/internal/platform/redis"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +39,7 @@ func TestRegisterGuest(t *testing.T) {
 			t.Fatalf("handler returned wrong status code: got %v want %v",
 				status, c)
 		}
-		t.Log("success")
+		t.Log("success with response: ", w.Body.String())
 	}
 
 }
@@ -69,6 +71,62 @@ func TestCheckGuestPhone(t *testing.T) {
 				status, c, p)
 		}
 		t.Log("phone check success", w.Body.String())
+	}
+
+}
+
+func TestPhoneValidation(t *testing.T) {
+	// create code for testing validation handler
+	values := []struct {
+		Phone     string
+		Code      string
+		GuestCode string
+		Status    int
+	}{{
+		"45001685",
+		"4545",
+		"4545",
+		http.StatusOK,
+	},
+		{
+			"48239342",
+			"3434",
+			"343454",
+			http.StatusBadRequest,
+		},
+		{
+			"58753408",
+			"4344",
+			"4348",
+			http.StatusUnauthorized,
+		},
+	}
+
+	for _, v := range values {
+
+		err := redis.SaveAuthCode(v.Phone, v.Code)
+		if err != nil {
+			t.Fatalf("Test failed while trying to save code to redis: %v", err)
+		}
+
+		url := guestBaseURL + "/phone/confirm/" + v.Phone + "?code=" + v.GuestCode
+
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		r := gin.Default()
+		r.GET(guestBaseURL+"/phone/confirm/:phone", phoneValidation)
+
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+
+		if status := w.Code; status != v.Status {
+			t.Fatalf("phone check failed: handler returned wrong status code: got %v want %v. err : %v",
+				status, v.Status, w.Body.String())
+		}
+		t.Log("phone confirmation succed", w.Body.String())
+
 	}
 
 }

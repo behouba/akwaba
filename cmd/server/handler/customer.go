@@ -6,9 +6,7 @@ import (
 
 // cutomerLogout receive POST request without data
 // will then remove the access token for current user
-func customerLogout(c *gin.Context) {
-
-}
+func customerLogout(c *gin.Context) {}
 
 func createNewOrder(c *gin.Context) {
 

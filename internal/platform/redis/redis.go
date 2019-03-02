@@ -24,8 +24,7 @@ func init() {
 
 // SaveAuthCode store code send to user by sms to redis
 func SaveAuthCode(phone, code string) (err error) {
-	err = redisClient.Set(phone, code, 15*time.Minute).Err()
-	return
+	return redisClient.Set(phone, code, 15*time.Minute).Err()
 }
 
 // ConfirmSMSCode take guest user phone number with verification code

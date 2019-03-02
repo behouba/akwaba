@@ -21,7 +21,7 @@ func SetupRouter() *gin.Engine {
 
 		// first guest auth step
 		guest.GET("/phone/check/:phone", checkGuestPhone)
-		// 2nd step for already registred customer
+		// 2nd step is phone number match any registred customer
 		guest.GET("/phone/confirm/:phone", phoneValidation)
 		// 2nd step for new customer before doing to 2nd step for registered customer
 		guest.POST("/registration", registerGuest)
@@ -29,7 +29,10 @@ func SetupRouter() *gin.Engine {
 	// customer routes group
 	customer := r.Group(customerBaseURL)
 	{
-		// logout
+		// Logout handler not yet implemented on server side
+		// for now client must only delete his own access token
+		// plan to implement blacklist of deleted access token
+		// on redis in order to keep track of all deleted token.
 		customer.POST("/logout", customerLogout)
 
 		// customer orders routes

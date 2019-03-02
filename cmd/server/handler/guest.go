@@ -19,11 +19,6 @@ const (
 	cookieMaxAge = 31557600
 )
 
-// checkCustomerPhone handle customer registration/authentification
-// first step. We check received phone number in our customer database
-// if user is here we send verification sms to phone number
-// else we notify that request came from new customer so that client could ask
-// supplementary registration information before registration
 func checkGuestPhone(c *gin.Context) {
 	phone := c.Param("phone")
 
@@ -57,18 +52,11 @@ func checkGuestPhone(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Authentication sms sent to: " + phone,
 	})
 }
 
-// customerRegister receive POST request with json object
-// with customer information
-// customer information will be validated
-// and stored to database
-// if all right return status ok
-// else will responde will corresponding status error
 func registerGuest(c *gin.Context) {
 	// donnee json a traiter contenant les info sur l'utilisateur
 	bs, err := ioutil.ReadAll(c.Request.Body)
@@ -96,12 +84,12 @@ func registerGuest(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Authentication sms sent to: " + newCust.Phone,
+	})
 }
 
-// phoneValidation receive POST request with validation code
-// entrered by user. The provided code will be checked against the
-// original sent. If match will send json token to user in response
-// to remember about him
+// phoneValidation handler make validation of customer phone number
 func phoneValidation(c *gin.Context) {
 	code := c.Query("code")
 	phone := c.Param("phone")
