@@ -7,9 +7,18 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-var (
-	custSecretKEY = []byte("customer_secret_key")
-)
+// Authenticator provide methods to use json web token
+type Authenticator struct {
+	claims    *claims
+	secretKEY []byte
+}
+
+// NewAuthenticator return new jwt authenticator
+func NewAuthenticator(secret []byte) *Authenticator {
+	return &Authenticator{
+		secretKEY: []byte(secret),
+	}
+}
 
 type claims struct {
 	CustID int `json:"custId,omiempty"`
@@ -18,18 +27,18 @@ type claims struct {
 }
 
 // MakeCustomerJWT take customer id create new jwt and return jwt string
-func MakeCustomerJWT(customerID int) (token string, err error) {
+func (a *Authenticator) MakeCustomerJWT(customerID int) (token string, err error) {
 
 	expiration := time.Now().Add(1 * time.Minute)
-	c := &claims{
+	a.claims = &claims{
 		CustID: customerID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiration.Unix(),
 		},
 	}
-	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
+	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, a.claims)
 
-	token, err = tk.SignedString(custSecretKEY)
+	token, err = tk.SignedString(a.secretKEY)
 
 	if err != nil {
 		return
@@ -38,10 +47,9 @@ func MakeCustomerJWT(customerID int) (token string, err error) {
 }
 
 // ValidateJWT validate passed  jwt token
-func ValidateJWT(token string) (customerID int, err error) {
-	c := &claims{}
-	tkn, err := jwt.ParseWithClaims(token, c, func(t *jwt.Token) (interface{}, error) {
-		return custSecretKEY, nil
+func (a Authenticator) ValidateJWT(token string) (customerID int, err error) {
+	tkn, err := jwt.ParseWithClaims(token, a.claims, func(t *jwt.Token) (interface{}, error) {
+		return a.secretKEY, nil
 	})
 	if err != nil {
 		return
@@ -50,6 +58,6 @@ func ValidateJWT(token string) (customerID int, err error) {
 	if !tkn.Valid {
 		return 0, errors.New("Invalid token")
 	}
-	customerID = c.CustID
+	customerID = a.claims.CustID
 	return
 }

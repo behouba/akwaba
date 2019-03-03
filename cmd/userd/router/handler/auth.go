@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/behouba/dsapi/internal/customer"
-	"github.com/behouba/dsapi/internal/notifier/sms"
+	"github.com/behouba/dsapi/internal/notifier"
 	"github.com/behouba/dsapi/internal/platform/jwt"
 	"github.com/behouba/dsapi/internal/platform/postgres"
 	"github.com/behouba/dsapi/internal/platform/redis"
@@ -19,7 +19,16 @@ const (
 	cookieMaxAge = 31557600
 )
 
-func checkGuestPhone(c *gin.Context) {
+// User represents the User API methods set
+type User struct {
+	Db    *postgres.DB
+	Cache *redis.Cache
+	Auth  *jwt.Authenticator
+	Sms   *notifier.SMS
+}
+
+// CheckPhone handler phone number verification to see if user is registered or not
+func (u *User) CheckPhone(c *gin.Context) {
 	phone := c.Param("phone")
 
 	// phone number format validation
@@ -31,7 +40,7 @@ func checkGuestPhone(c *gin.Context) {
 		return
 	}
 
-	userID, err := postgres.CheckPhone(phone)
+	userID, err := u.Db.CheckPhone(phone)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": phone + " is not yet registered, pleasse register it.",
@@ -39,7 +48,7 @@ func checkGuestPhone(c *gin.Context) {
 		return
 	}
 
-	code, err := sms.SendAuthCode(userID, phone)
+	code, err := u.Sms.SendAuthCode(userID, phone)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Sorry we failed to send you authentication sms to :" + phone,
@@ -47,7 +56,7 @@ func checkGuestPhone(c *gin.Context) {
 		return
 	}
 
-	err = redis.SaveAuthCode(phone, code)
+	err = u.Cache.SaveAuthCode(phone, code)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
@@ -57,7 +66,8 @@ func checkGuestPhone(c *gin.Context) {
 	})
 }
 
-func registerGuest(c *gin.Context) {
+// Registration handler new customer registration
+func (u *User) Registration(c *gin.Context) {
 	// donnee json a traiter contenant les info sur l'utilisateur
 	bs, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -69,17 +79,17 @@ func registerGuest(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	userID, err := postgres.SaveNewCustomer(newCust)
+	userID, err := u.Db.SaveNewCustomer(newCust)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	code, err := sms.SendAuthCode(userID, newCust.Phone)
+	code, err := u.Sms.SendAuthCode(userID, newCust.Phone)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	err = redis.SaveAuthCode(newCust.Phone, code)
+	err = u.Cache.SaveAuthCode(newCust.Phone, code)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
@@ -89,8 +99,8 @@ func registerGuest(c *gin.Context) {
 	})
 }
 
-// phoneValidation handler make validation of customer phone number
-func phoneValidation(c *gin.Context) {
+// ConfirmPhone handler make validation of customer phone number
+func (u *User) ConfirmPhone(c *gin.Context) {
 	code := c.Query("code")
 	phone := c.Param("phone")
 
@@ -106,7 +116,7 @@ func phoneValidation(c *gin.Context) {
 		return
 	}
 
-	if !redis.ConfirmSMSCode(phone, code) {
+	if !u.Cache.ConfirmSMSCode(phone, code) {
 		// should check error for internal server errors also
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Provided code is not correct.",
@@ -114,7 +124,7 @@ func phoneValidation(c *gin.Context) {
 		return
 	}
 
-	customerID, err := postgres.CustomerIDFromPhone(phone)
+	customerID, err := u.Db.CustomerIDFromPhone(phone)
 	if err != nil {
 		// should check error for internal server errors also
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -123,7 +133,7 @@ func phoneValidation(c *gin.Context) {
 		return
 	}
 
-	token, err := jwt.MakeCustomerJWT(customerID)
+	token, err := u.Auth.MakeCustomerJWT(customerID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something went wrong with this request.",
@@ -140,7 +150,8 @@ func phoneValidation(c *gin.Context) {
 
 }
 
-func checkAuthState(c *gin.Context) {
+// CheckAuthState handle request to check whenever user is authenticated
+func (u *User) CheckAuthState(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if token == "" || err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -148,7 +159,7 @@ func checkAuthState(c *gin.Context) {
 		})
 		return
 	}
-	customerID, err := jwt.ValidateJWT(token)
+	customerID, err := u.Auth.ValidateJWT(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": err.Error(),

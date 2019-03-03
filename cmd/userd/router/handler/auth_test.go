@@ -6,10 +6,58 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/behouba/dsapi/internal/notifier"
+	"github.com/behouba/dsapi/internal/platform/jwt"
+	"github.com/behouba/dsapi/internal/platform/postgres"
 	"github.com/behouba/dsapi/internal/platform/redis"
 
 	"github.com/gin-gonic/gin"
 )
+
+func Userhandler() *User {
+	// ==================================================
+	// Database connection
+	// ==================================================
+
+	db, err := postgres.Open()
+	if err != nil {
+		panic(err)
+	}
+
+	// =================================================
+	// Redis cache connection // should after pass config
+	// =================================================
+
+	cache, err := redis.New()
+	if err != nil {
+		panic(err)
+	}
+
+	// =================================================
+	// JSON web token authenticator // should after pass config
+	// =================================================
+	auth := jwt.NewAuthenticator([]byte("my_secret_customer_key_should_be_in_config_file"))
+
+	// =================================================
+	// SMS notifier service // should after pass config
+	// =================================================
+	sms := notifier.NewSMS()
+
+	return &User{
+		Db:    db,
+		Cache: cache,
+		Auth:  auth,
+		Sms:   sms,
+	}
+}
+
+const (
+	guestBaseURL    = "/v0/guest"
+	customerBaseURL = "/v0/customer"
+	adminBaseURL    = "/v0/admin"
+)
+
+var u = Userhandler()
 
 func TestRegisterGuest(t *testing.T) {
 	url := customerBaseURL + "/registration"
@@ -30,7 +78,7 @@ func TestRegisterGuest(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 
 		r := gin.Default()
-		r.POST(url, registerGuest)
+		r.POST(url, u.Registration)
 
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)
@@ -61,14 +109,14 @@ func TestCheckGuestPhone(t *testing.T) {
 			t.Fatal(err)
 		}
 		r := gin.Default()
-		r.GET(url+":phone", checkGuestPhone)
+		r.GET(url+":phone", u.CheckPhone)
 
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)
 
 		if status := w.Code; status != c {
-			t.Fatalf("phone check failed: handler returned wrong status code: got %v want %v for %s",
-				status, c, p)
+			t.Fatalf("phone check failed: handler returned wrong status code: got %v want %v for %s with body = %v",
+				status, c, p, w.Body.String())
 		}
 		t.Log("phone check success", w.Body.String())
 	}
@@ -104,7 +152,7 @@ func TestPhoneValidation(t *testing.T) {
 
 	for _, v := range values {
 
-		err := redis.SaveAuthCode(v.Phone, v.Code)
+		err := u.Cache.SaveAuthCode(v.Phone, v.Code)
 		if err != nil {
 			t.Fatalf("Test failed while trying to save code to redis: %v", err)
 		}
@@ -116,7 +164,7 @@ func TestPhoneValidation(t *testing.T) {
 			t.Fatal(err)
 		}
 		r := gin.Default()
-		r.GET(guestBaseURL+"/phone/confirm/:phone", phoneValidation)
+		r.GET(guestBaseURL+"/phone/confirm/:phone", u.ConfirmPhone)
 
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)
