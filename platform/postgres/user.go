@@ -4,34 +4,34 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/behouba/dsapi/internal/customer"
+	"github.com/behouba/dsapi"
 )
 
-// DB hold database connection
-type DB struct {
+// UserDB hold database connection for users
+type UserDB struct {
 	db *sql.DB
 }
 
 // Open function open DB database
-func Open() (database *DB, err error) {
+func Open() (database *UserDB, err error) {
 	// will open database connection here
 	return
 }
 
 // SaveNewCustomer save new customer info into database
 // and return user id from database with error
-func (d *DB) SaveNewCustomer(c customer.NewCustomer) (userID int, err error) {
+func (d *UserDB) SaveNewCustomer(u *dsapi.User) (userID int, err error) {
 	fmt.Println("user data saved to database")
 	return
 }
 
 // CheckPhone check if phone number exist in database then return nil
 // is phone exit and error if not
-func (d *DB) CheckPhone(phone string) (userID int, err error) {
+func (d *UserDB) CheckPhone(phone string) (userID int, err error) {
 	return
 }
 
 // CustomerIDFromPhone take customer phone number and return customer id
-func (d *DB) CustomerIDFromPhone(phone string) (id int, err error) {
+func (d *UserDB) CustomerIDFromPhone(phone string) (id int, err error) {
 	return 5, nil
 }

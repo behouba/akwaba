@@ -1,4 +1,4 @@
-package api
+package userapi
 
 import (
 	"bytes"
@@ -6,10 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/behouba/dsapi/internal/notifier"
-	"github.com/behouba/dsapi/internal/platform/jwt"
-	"github.com/behouba/dsapi/internal/platform/postgres"
-	"github.com/behouba/dsapi/internal/platform/redis"
+	"github.com/behouba/dsapi/platform/jwt"
+	"github.com/behouba/dsapi/platform/notifier"
+	"github.com/behouba/dsapi/platform/postgres"
+	"github.com/behouba/dsapi/platform/redis"
 
 	"github.com/gin-gonic/gin"
 )

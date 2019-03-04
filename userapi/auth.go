@@ -1,18 +1,25 @@
-package api
+package userapi
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/behouba/dsapi/internal/customer"
-	"github.com/behouba/dsapi/internal/notifier"
-	"github.com/behouba/dsapi/internal/platform/jwt"
-	"github.com/behouba/dsapi/internal/platform/postgres"
-	"github.com/behouba/dsapi/internal/platform/redis"
+	"github.com/behouba/dsapi"
+	"github.com/behouba/dsapi/platform/jwt"
+	"github.com/behouba/dsapi/platform/notifier"
+	"github.com/behouba/dsapi/platform/postgres"
+	"github.com/behouba/dsapi/platform/redis"
 	"github.com/gin-gonic/gin"
+)
+
+var (
+	errInvalidPhone       = errors.New("Le numéro de téléphone fourni est invalid")
+	errFullNameIsRequired = errors.New("Merci de fournir votre nom complet")
 )
 
 const (
@@ -21,7 +28,7 @@ const (
 
 // Handler represents the API handler methods set
 type Handler struct {
-	Db    *postgres.DB
+	Db    *postgres.UserDB
 	Cache *redis.Cache
 	Auth  *jwt.Authenticator
 	Sms   *notifier.SMS
@@ -74,28 +81,29 @@ func (u *Handler) registration(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	newCust, err := customer.ParseCustomerInfo(bs)
+	var user dsapi.User
+	err = unmarshalUser(bs, &user)
 	if err != nil {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	userID, err := u.Db.SaveNewCustomer(newCust)
+	userID, err := u.Db.SaveNewCustomer(&user)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	code, err := u.Sms.SendAuthCode(userID, newCust.Phone)
+	code, err := u.Sms.SendAuthCode(userID, user.Phone)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	err = u.Cache.SaveAuthCode(newCust.Phone, code)
+	err = u.Cache.SaveAuthCode(user.Phone, code)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Authentication sms sent to: " + newCust.Phone,
+		"message": "Authentication sms sent to: " + user.Phone,
 	})
 }
 
@@ -170,4 +178,26 @@ func (u *Handler) checkAuthState(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": fmt.Sprintf("Welcome you are authenticated dear customer %d", customerID),
 	})
+}
+
+// unmarshalUser validate new user information
+// before registration
+func unmarshalUser(bs []byte, u *dsapi.User) (err error) {
+	err = json.Unmarshal(bs, u)
+	if err != nil {
+		return
+	}
+	if len(u.Phone) != 8 {
+		err = errInvalidPhone
+		return
+	}
+	if _, e := strconv.Atoi(u.Phone); e != nil {
+		err = errInvalidPhone
+		return
+	}
+	if u.FirstName == "" || u.LastName == "" {
+		err = errFullNameIsRequired
+		return
+	}
+	return
 }

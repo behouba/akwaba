@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/behouba/dsapi/cmd/userd/api"
-	"github.com/behouba/dsapi/internal/notifier"
-	"github.com/behouba/dsapi/internal/platform/jwt"
-	"github.com/behouba/dsapi/internal/platform/postgres"
-	"github.com/behouba/dsapi/internal/platform/redis"
+	"github.com/behouba/dsapi/platform/jwt"
+	"github.com/behouba/dsapi/platform/notifier"
+	"github.com/behouba/dsapi/platform/postgres"
+	"github.com/behouba/dsapi/platform/redis"
+	"github.com/behouba/dsapi/userapi"
 )
 
 func main() {
@@ -38,12 +38,12 @@ func main() {
 	// =================================================
 	sms := notifier.NewSMS()
 
-	handler := &api.Handler{
+	handler := &userapi.Handler{
 		Db:    db,
 		Cache: cache,
 		Auth:  auth,
 		Sms:   sms,
 	}
-	r := api.SetupRouter(handler)
+	r := userapi.SetupRouter(handler)
 	r.Run()
 }
