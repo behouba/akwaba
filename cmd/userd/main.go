@@ -1,8 +1,7 @@
 package main
 
 import (
-	"github.com/behouba/dsapi/cmd/userd/router"
-	"github.com/behouba/dsapi/cmd/userd/router/handler"
+	"github.com/behouba/dsapi/cmd/userd/api"
 	"github.com/behouba/dsapi/internal/notifier"
 	"github.com/behouba/dsapi/internal/platform/jwt"
 	"github.com/behouba/dsapi/internal/platform/postgres"
@@ -39,12 +38,12 @@ func main() {
 	// =================================================
 	sms := notifier.NewSMS()
 
-	userHandler := &handler.User{
+	handler := &api.Handler{
 		Db:    db,
 		Cache: cache,
 		Auth:  auth,
 		Sms:   sms,
 	}
-	r := router.Setup(userHandler)
+	r := api.SetupRouter(handler)
 	r.Run()
 }

@@ -1,4 +1,4 @@
-package handler
+package api
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Userhandler() *User {
+func Userhandler() *Handler {
 	// ==================================================
 	// Database connection
 	// ==================================================
@@ -43,7 +43,7 @@ func Userhandler() *User {
 	// =================================================
 	sms := notifier.NewSMS()
 
-	return &User{
+	return &Handler{
 		Db:    db,
 		Cache: cache,
 		Auth:  auth,
@@ -51,16 +51,10 @@ func Userhandler() *User {
 	}
 }
 
-const (
-	guestBaseURL    = "/v0/guest"
-	customerBaseURL = "/v0/customer"
-	adminBaseURL    = "/v0/admin"
-)
-
 var u = Userhandler()
 
 func TestRegisterGuest(t *testing.T) {
-	url := customerBaseURL + "/registration"
+	url := version + authBaseURL + "/registration"
 	cc := map[string]int{
 		`{"firstName": "Harry", "lastName": "Potter", "phone": "45001685"}`:                   http.StatusOK,
 		`{"firstName": "", "lastName": "Uzumaki", "phone": "58753408"}`:                       http.StatusBadRequest,
@@ -78,7 +72,7 @@ func TestRegisterGuest(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 
 		r := gin.Default()
-		r.POST(url, u.Registration)
+		r.POST(url, u.registration)
 
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)
@@ -102,14 +96,14 @@ func TestCheckGuestPhone(t *testing.T) {
 		"58753408":            http.StatusOK,
 	}
 	for p, c := range pp {
-		url := guestBaseURL + "/phone/check/"
+		url := version + authBaseURL + "/phone/check/"
 
 		req, err := http.NewRequest("GET", url+p, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 		r := gin.Default()
-		r.GET(url+":phone", u.CheckPhone)
+		r.GET(url+":phone", u.checkPhone)
 
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)
@@ -157,14 +151,14 @@ func TestPhoneValidation(t *testing.T) {
 			t.Fatalf("Test failed while trying to save code to redis: %v", err)
 		}
 
-		url := guestBaseURL + "/phone/confirm/" + v.Phone + "?code=" + v.GuestCode
+		url := version + authBaseURL + "/phone/confirm/" + v.Phone + "?code=" + v.GuestCode
 
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 		r := gin.Default()
-		r.GET(guestBaseURL+"/phone/confirm/:phone", u.ConfirmPhone)
+		r.GET(version+authBaseURL+"/phone/confirm/:phone", u.confirmPhone)
 
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)

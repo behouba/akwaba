@@ -1,4 +1,4 @@
-package handler
+package api
 
 import (
 	"fmt"
@@ -19,8 +19,8 @@ const (
 	cookieMaxAge = 31557600
 )
 
-// User represents the User API methods set
-type User struct {
+// Handler represents the API handler methods set
+type Handler struct {
 	Db    *postgres.DB
 	Cache *redis.Cache
 	Auth  *jwt.Authenticator
@@ -28,7 +28,7 @@ type User struct {
 }
 
 // CheckPhone handler phone number verification to see if user is registered or not
-func (u *User) CheckPhone(c *gin.Context) {
+func (u *Handler) checkPhone(c *gin.Context) {
 	phone := c.Param("phone")
 
 	// phone number format validation
@@ -67,7 +67,7 @@ func (u *User) CheckPhone(c *gin.Context) {
 }
 
 // Registration handler new customer registration
-func (u *User) Registration(c *gin.Context) {
+func (u *Handler) registration(c *gin.Context) {
 	// donnee json a traiter contenant les info sur l'utilisateur
 	bs, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -100,7 +100,7 @@ func (u *User) Registration(c *gin.Context) {
 }
 
 // ConfirmPhone handler make validation of customer phone number
-func (u *User) ConfirmPhone(c *gin.Context) {
+func (u *Handler) confirmPhone(c *gin.Context) {
 	code := c.Query("code")
 	phone := c.Param("phone")
 
@@ -151,7 +151,7 @@ func (u *User) ConfirmPhone(c *gin.Context) {
 }
 
 // CheckAuthState handle request to check whenever user is authenticated
-func (u *User) CheckAuthState(c *gin.Context) {
+func (u *Handler) checkAuthState(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if token == "" || err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
