@@ -63,7 +63,24 @@ func (h *Handler) computeOrderCost(c *gin.Context) {
 }
 
 func (h *Handler) trackOrder(c *gin.Context) {
-
+	orderID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	userID := c.GetInt("userID")
+	oTrace, err := h.Db.Track(userID, orderID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"response": oTrace,
+	})
 }
 
 func (h *Handler) allOrders(c *gin.Context) {

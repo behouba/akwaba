@@ -71,9 +71,9 @@ func TestCreateOrder(t *testing.T) {
 func TestCancelOrder(t *testing.T) {
 	url := version + orderBaseURL + "/cancel"
 	cc := map[string]int{
-		"5334334343": http.StatusOK,
-		"3343434343": http.StatusOK,
-		"gkjhkh":     http.StatusBadRequest,
+		"123":    http.StatusOK,
+		"232":    http.StatusOK,
+		"gkjhkh": http.StatusBadRequest,
 	}
 	for s, c := range cc {
 		req, err := http.NewRequest("PUT", url+"/"+s, nil)

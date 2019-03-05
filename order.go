@@ -32,6 +32,20 @@ type Address struct {
 	Description  string   `json:"description"`
 }
 
+// OrderTrace represent current updated tracking information about an order
+type OrderTrace struct {
+	Order  Order   `json:"order"`
+	Events []Event `json:"events"`
+}
+
+// Event represent an event in order way
+type Event struct {
+	Title      string    `json:"title"`
+	DateTime   time.Time `json:"dateTime"`
+	LocationID int       `json:"locationId"`
+	TowID      int       `json:"townId"`
+}
+
 // ValidateData function help validate data into new order before creation
 func (o *Order) ValidateData() (err error) {
 	// make checks and verification here

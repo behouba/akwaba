@@ -190,3 +190,15 @@ func (h *Handler) authRequired(c *gin.Context) {
 	}
 	c.Set("userID", userID)
 }
+
+func (h *Handler) setAuthState(c *gin.Context) {
+	token, err := c.Cookie("token")
+	if token == "" || err != nil {
+		return
+	}
+	userID, err := h.Auth.ValidateJWT(token)
+	if err != nil {
+		return
+	}
+	c.Set("userID", userID)
+}
