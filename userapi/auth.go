@@ -1,10 +1,6 @@
 package userapi
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,11 +11,6 @@ import (
 	"github.com/behouba/dsapi/platform/postgres"
 	"github.com/behouba/dsapi/platform/redis"
 	"github.com/gin-gonic/gin"
-)
-
-var (
-	errInvalidPhone       = errors.New("Le numéro de téléphone fourni est invalid")
-	errFullNameIsRequired = errors.New("Merci de fournir votre nom complet")
 )
 
 const (
@@ -35,7 +26,7 @@ type Handler struct {
 }
 
 // CheckPhone handler phone number verification to see if user is registered or not
-func (u *Handler) checkPhone(c *gin.Context) {
+func (h *Handler) checkPhone(c *gin.Context) {
 	phone := c.Param("phone")
 
 	// phone number format validation
@@ -47,7 +38,7 @@ func (u *Handler) checkPhone(c *gin.Context) {
 		return
 	}
 
-	userID, err := u.Db.CheckPhone(phone)
+	userID, err := h.Db.CheckPhone(phone)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": phone + " is not yet registered, pleasse register it.",
@@ -55,7 +46,7 @@ func (u *Handler) checkPhone(c *gin.Context) {
 		return
 	}
 
-	code, err := u.Sms.SendAuthCode(userID, phone)
+	code, err := h.Sms.SendAuthCode(userID, phone)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Sorry we failed to send you authentication sms to :" + phone,
@@ -63,7 +54,7 @@ func (u *Handler) checkPhone(c *gin.Context) {
 		return
 	}
 
-	err = u.Cache.SaveAuthCode(phone, code)
+	err = h.Cache.SaveAuthCode(phone, code)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
@@ -74,30 +65,29 @@ func (u *Handler) checkPhone(c *gin.Context) {
 }
 
 // Registration handler new customer registration
-func (u *Handler) registration(c *gin.Context) {
+func (h *Handler) registration(c *gin.Context) {
 	// donnee json a traiter contenant les info sur l'utilisateur
-	bs, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		c.Status(http.StatusBadRequest)
-		return
-	}
 	var user dsapi.User
-	err = unmarshalUser(bs, &user)
-	if err != nil {
+
+	if err := c.ShouldBind(&user); err != nil {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	userID, err := u.Db.SaveNewCustomer(&user)
+	if err := user.CheckNewUserData(); err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+	userID, err := h.Db.SaveNewCustomer(&user)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	code, err := u.Sms.SendAuthCode(userID, user.Phone)
+	code, err := h.Sms.SendAuthCode(userID, user.Phone)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	err = u.Cache.SaveAuthCode(user.Phone, code)
+	err = h.Cache.SaveAuthCode(user.Phone, code)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
@@ -108,7 +98,7 @@ func (u *Handler) registration(c *gin.Context) {
 }
 
 // ConfirmPhone handler make validation of customer phone number
-func (u *Handler) confirmPhone(c *gin.Context) {
+func (h *Handler) confirmPhone(c *gin.Context) {
 	code := c.Query("code")
 	phone := c.Param("phone")
 
@@ -124,7 +114,7 @@ func (u *Handler) confirmPhone(c *gin.Context) {
 		return
 	}
 
-	if !u.Cache.ConfirmSMSCode(phone, code) {
+	if !h.Cache.ConfirmSMSCode(phone, code) {
 		// should check error for internal server errors also
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Provided code is not correct.",
@@ -132,7 +122,7 @@ func (u *Handler) confirmPhone(c *gin.Context) {
 		return
 	}
 
-	customerID, err := u.Db.CustomerIDFromPhone(phone)
+	customerID, err := h.Db.CustomerIDFromPhone(phone)
 	if err != nil {
 		// should check error for internal server errors also
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -141,7 +131,7 @@ func (u *Handler) confirmPhone(c *gin.Context) {
 		return
 	}
 
-	token, err := u.Auth.MakeCustomerJWT(customerID)
+	token, err := h.Auth.MakeCustomerJWT(customerID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something went wrong with this request.",
@@ -159,45 +149,44 @@ func (u *Handler) confirmPhone(c *gin.Context) {
 }
 
 // CheckAuthState handle request to check whenever user is authenticated
-func (u *Handler) checkAuthState(c *gin.Context) {
+// func (h *Handler) checkAuthState(c *gin.Context) {
+// 	token, err := c.Cookie("token")
+// 	if token == "" || err != nil {
+// 		c.JSON(http.StatusUnauthorized, gin.H{
+// 			"message": "Sorry you are not authenticated.",
+// 		})
+// 		return
+// 	}
+// 	customerID, err := h.Auth.ValidateJWT(token)
+// 	if err != nil {
+// 		c.JSON(http.StatusUnauthorized, gin.H{
+// 			"message": err.Error(),
+// 			"token":   token,
+// 		})
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"message": fmt.Sprintf("Welcome you are authenticated dear customer %d", customerID),
+// 	})
+// }
+
+func (h *Handler) authRequired(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if token == "" || err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Sorry you are not authenticated.",
 		})
+		c.Abort()
 		return
 	}
-	customerID, err := u.Auth.ValidateJWT(token)
+	userID, err := h.Auth.ValidateJWT(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": err.Error(),
 			"token":   token,
 		})
+		c.Abort()
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("Welcome you are authenticated dear customer %d", customerID),
-	})
-}
-
-// unmarshalUser validate new user information
-// before registration
-func unmarshalUser(bs []byte, u *dsapi.User) (err error) {
-	err = json.Unmarshal(bs, u)
-	if err != nil {
-		return
-	}
-	if len(u.Phone) != 8 {
-		err = errInvalidPhone
-		return
-	}
-	if _, e := strconv.Atoi(u.Phone); e != nil {
-		err = errInvalidPhone
-		return
-	}
-	if u.FirstName == "" || u.LastName == "" {
-		err = errFullNameIsRequired
-		return
-	}
-	return
+	c.Set("userID", userID)
 }

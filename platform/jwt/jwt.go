@@ -47,17 +47,17 @@ func (a *Authenticator) MakeCustomerJWT(customerID int) (token string, err error
 }
 
 // ValidateJWT validate passed  jwt token
-func (a Authenticator) ValidateJWT(token string) (customerID int, err error) {
+func (a Authenticator) ValidateJWT(token string) (int, error) {
 	tkn, err := jwt.ParseWithClaims(token, a.claims, func(t *jwt.Token) (interface{}, error) {
 		return a.secretKEY, nil
 	})
 	if err != nil {
-		return
+		return 0, err
 	}
 
 	if !tkn.Valid {
 		return 0, errors.New("Invalid token")
 	}
-	customerID = a.claims.CustID
-	return
+
+	return a.claims.CustID, nil
 }

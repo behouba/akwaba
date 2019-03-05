@@ -18,7 +18,8 @@ func SetupRouter(h *Handler) *gin.Engine {
 
 	v := r.Group(version)
 	{
-		v.GET("/auth_state", h.checkAuthState)
+		// v.GET("/auth_state", h.checkAuthState)
+
 		// Logout handler not yet implemented on server side
 		// for now client must only delete his own access token
 		// plan to implement blacklist of deleted access token
@@ -34,9 +35,10 @@ func SetupRouter(h *Handler) *gin.Engine {
 		}
 
 		order := v.Group(orderBaseURL)
+		order.Use(h.authRequired) // authentication middleware handler
 		{
 			order.POST("/create", h.createOrder)
-			order.POST("/cancel/:id", h.cancelOrder)
+			order.PUT("/cancel/:id", h.cancelOrder)
 			order.GET("/orders", h.allOrders)
 		}
 
@@ -45,12 +47,12 @@ func SetupRouter(h *Handler) *gin.Engine {
 			public.POST("/compute", h.computeOrderCost)
 			public.GET("/tracking/:id", h.trackOrder)
 		}
-		// customer routes group
+
 		support := v.Group(supportBaseURL)
 		{
 			// support support routes
-			support.POST("/", h.trackOrder)
-			support.GET("/send_msg", h.trackOrder)
+			support.POST("/", h.sendMsgToSupport)
+			support.GET("/send_msg", h.fetchSupportConv)
 		}
 	}
 	return r
