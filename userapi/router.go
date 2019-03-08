@@ -44,7 +44,7 @@ func SetupRouter(h *Handler) *gin.Engine {
 
 		public := v.Group(publicBaseURL)
 		{
-			public.POST("/compute", h.computeOrderCost)
+			public.GET("/compute", h.computeOrderCost)
 			public.GET("/tracking/:id", h.setAuthState, h.trackOrder)
 		}
 

@@ -60,6 +60,22 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 func (h *Handler) computeOrderCost(c *gin.Context) {
 	// will need order's weight packing type distance in km and paymentType
 	// need more info and service to be properly implemented
+	from := c.Query("from")
+	to := c.Query("to")
+	weight, err := strconv.ParseFloat(c.Query("weight"), 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"from":   from,
+		"to":     to,
+		"weight": weight,
+		"price":  1500,
+	})
 }
 
 func (h *Handler) trackOrder(c *gin.Context) {
