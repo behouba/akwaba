@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/behouba/dsapi/cmd/admind/router"
+	"github.com/behouba/dsapi/adminapi"
 )
 
 func main() {
-	r := router.Setup()
+	h := adminapi.Handler{}
+	r := adminapi.SetupRouter(&h)
 	r.Run()
 }

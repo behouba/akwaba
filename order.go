@@ -14,6 +14,7 @@ type Order struct {
 	Description       string    `json:"description"`
 	PackingID         int       `json:"packingId"`
 	Address           Address   `json:"address"`
+	DeliveryAddress   Address   `json:"delivery_address"`
 }
 
 // MapPoint represent geolocation map address
