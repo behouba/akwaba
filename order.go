@@ -13,7 +13,7 @@ type Order struct {
 	CreatedAt         time.Time `json:"createdAt"`
 	Description       string    `json:"description"`
 	PackingID         int       `json:"packingId"`
-	Address           Address   `json:"address"`
+	OriginAddress     Address   `json:"origin_address"`
 	DeliveryAddress   Address   `json:"delivery_address"`
 }
 

@@ -6,10 +6,10 @@ import (
 	"strconv"
 
 	"github.com/behouba/dsapi"
-	"github.com/behouba/dsapi/platform/jwt"
-	"github.com/behouba/dsapi/platform/notifier"
-	"github.com/behouba/dsapi/platform/postgres"
-	"github.com/behouba/dsapi/platform/redis"
+	"github.com/behouba/dsapi/userapi/internal/jwt"
+	"github.com/behouba/dsapi/userapi/internal/notifier"
+	"github.com/behouba/dsapi/userapi/internal/postgres"
+	"github.com/behouba/dsapi/userapi/internal/redis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -147,28 +147,6 @@ func (h *Handler) confirmPhone(c *gin.Context) {
 	})
 
 }
-
-// CheckAuthState handle request to check whenever user is authenticated
-// func (h *Handler) checkAuthState(c *gin.Context) {
-// 	token, err := c.Cookie("token")
-// 	if token == "" || err != nil {
-// 		c.JSON(http.StatusUnauthorized, gin.H{
-// 			"message": "Sorry you are not authenticated.",
-// 		})
-// 		return
-// 	}
-// 	customerID, err := h.Auth.ValidateJWT(token)
-// 	if err != nil {
-// 		c.JSON(http.StatusUnauthorized, gin.H{
-// 			"message": err.Error(),
-// 			"token":   token,
-// 		})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"message": fmt.Sprintf("Welcome you are authenticated dear customer %d", customerID),
-// 	})
-// }
 
 func (h *Handler) authRequired(c *gin.Context) {
 	token, err := c.Cookie("token")

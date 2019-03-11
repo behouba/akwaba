@@ -7,7 +7,9 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-// Authenticator provide methods to use json web token
+var userTokenDuration = time.Now().Add(1 * time.Minute)
+
+// Authenticator provide methods to use json web token for users
 type Authenticator struct {
 	claims    *claims
 	secretKEY []byte
@@ -29,11 +31,10 @@ type claims struct {
 // MakeCustomerJWT take customer id create new jwt and return jwt string
 func (a *Authenticator) MakeCustomerJWT(customerID int) (token string, err error) {
 
-	expiration := time.Now().Add(1 * time.Minute)
 	a.claims = &claims{
 		CustID: customerID,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expiration.Unix(),
+			ExpiresAt: userTokenDuration.Unix(),
 		},
 	}
 	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, a.claims)
@@ -47,7 +48,7 @@ func (a *Authenticator) MakeCustomerJWT(customerID int) (token string, err error
 }
 
 // ValidateJWT validate passed  jwt token
-func (a Authenticator) ValidateJWT(token string) (int, error) {
+func (a *Authenticator) ValidateJWT(token string) (int, error) {
 	tkn, err := jwt.ParseWithClaims(token, a.claims, func(t *jwt.Token) (interface{}, error) {
 		return a.secretKEY, nil
 	})

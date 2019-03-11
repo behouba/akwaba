@@ -1,10 +1,12 @@
 package adminapi
 
+// Should implement a way to restrict access to this api (ip address, mac address etc...)
+
 import (
-	"github.com/behouba/dsapi/platform/jwt"
-	"github.com/behouba/dsapi/platform/notifier"
-	"github.com/behouba/dsapi/platform/postgres"
-	"github.com/behouba/dsapi/platform/redis"
+	"github.com/behouba/dsapi/adminapi/internal/jwt"
+	"github.com/behouba/dsapi/adminapi/internal/notifier"
+	"github.com/behouba/dsapi/adminapi/internal/postgres"
+	"github.com/behouba/dsapi/adminapi/internal/redis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +22,7 @@ const (
 
 // Handler represents the API handler methods set
 type Handler struct {
-	Db    *postgres.UserDB
+	Db    *postgres.AdminDB
 	Cache *redis.Cache
 	Auth  *jwt.Authenticator
 	Sms   *notifier.SMS
@@ -41,10 +43,11 @@ func SetupRouter(h *Handler) *gin.Engine {
 
 		order := v.Group(orderBaseURL)
 		{
-			order.POST("/news", h.pendingOrders)
-			order.PUT("/:id", h.orderInfo)
-			order.GET("/confirm/:id", h.confirmOrder)
-			order.GET("/cancel/:id", h.cancelOrder)
+			order.GET("/news", h.pendingOrders)
+			order.GET("/info/:id", h.orderInfo)
+			order.POST("/confirm/:id", h.confirmOrder)
+			order.GET("/receipt/:id", h.orderReceipt)
+			order.POST("/cancel/:id", h.cancelOrder)
 		}
 
 		collect := v.Group(collectBaseURL)
@@ -76,4 +79,28 @@ func SetupRouter(h *Handler) *gin.Engine {
 		}
 	}
 	return r
+}
+
+// AdminHandler build new handler and return it
+func AdminHandler(dbConfig string, redisConig string, jwtSecretKey string) *Handler {
+	db, err := postgres.Open()
+	if err != nil {
+		panic(err)
+	}
+
+	cache, err := redis.New()
+	if err != nil {
+		panic(err)
+	}
+
+	auth := jwt.NewAdminAuth(jwtSecretKey)
+
+	sms := notifier.NewSMS()
+
+	return &Handler{
+		Db:    db,
+		Cache: cache,
+		Auth:  auth,
+		Sms:   sms,
+	}
 }

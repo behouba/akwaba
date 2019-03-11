@@ -1,6 +1,10 @@
 package userapi
 
 import (
+	"github.com/behouba/dsapi/userapi/internal/jwt"
+	"github.com/behouba/dsapi/userapi/internal/notifier"
+	"github.com/behouba/dsapi/userapi/internal/postgres"
+	"github.com/behouba/dsapi/userapi/internal/redis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -56,4 +60,28 @@ func SetupRouter(h *Handler) *gin.Engine {
 		}
 	}
 	return r
+}
+
+// UserHandler create take configurations info and return new user handler
+func UserHandler(dbConfig string, redisConig string, jwtSecretKey string) *Handler {
+	db, err := postgres.Open()
+	if err != nil {
+		panic(err)
+	}
+
+	cache, err := redis.New()
+	if err != nil {
+		panic(err)
+	}
+
+	auth := jwt.NewAuthenticator([]byte(jwtSecretKey))
+
+	sms := notifier.NewSMS()
+
+	return &Handler{
+		Db:    db,
+		Cache: cache,
+		Auth:  auth,
+		Sms:   sms,
+	}
 }

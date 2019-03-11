@@ -13,8 +13,10 @@ type UserDB struct {
 }
 
 // Open function open DB database
+// each server should have it own database user with corresponding rights on database
 func Open() (database *UserDB, err error) {
 	// will open database connection here
+	// each server should have it own database user with corresponding rights on database
 	return
 }
 

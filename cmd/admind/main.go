@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	h := adminapi.Handler{}
-	r := adminapi.SetupRouter(&h)
-	r.Run()
+	h := adminapi.AdminHandler("", "", "admin_secret")
+	r := adminapi.SetupRouter(h)
+	r.Run(":8084")
 }
