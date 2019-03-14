@@ -1,20 +1,22 @@
 package dsapi
 
-import "time"
+import (
+	"time"
+)
 
 // Order struct represent order that will be created by users
 type Order struct {
-	ID                int       `json:"id"`
-	PaymentTypeID     int       `json:"paymentTypeId"`
-	CustomerID        int       `json:"customerId"`
-	ProductCategoryID int       `json:"productCategoryId"`
-	Weight            float64   `json:"weight"`
-	Cost              int       `json:"cost"`
-	CreatedAt         time.Time `json:"createdAt"`
-	Description       string    `json:"description"`
-	PackingID         int       `json:"packingId"`
-	OriginAddress     Address   `json:"origin_address"`
-	DeliveryAddress   Address   `json:"delivery_address"`
+	ID              int       `json:"id"`
+	PaymentType     int       `json:"paymentType"`
+	Customer        User      `json:"customer"`
+	Weight          float64   `json:"weight"`
+	Cost            int       `json:"cost"`
+	CreatedAt       time.Time `json:"createdAt"`
+	CurrentState    int       `json:"currentState"`
+	Description     string    `json:"description"`
+	PackingID       int       `json:"packingId"`
+	OriginAddress   Address   `json:"origin_address"`
+	DeliveryAddress Address   `json:"delivery_address"`
 }
 
 // MapPoint represent geolocation map address
@@ -34,17 +36,17 @@ type Address struct {
 }
 
 // OrderTrace represent current updated tracking information about an order
-type OrderTrace struct {
-	Order  Order   `json:"order"`
-	Events []Event `json:"events"`
-}
+// type OrderTrace struct {
+// 	Order  Order   `json:"order"`
+// 	Events []Event `json:"events"`
+// }
 
-// Event represent an event in order way
-type Event struct {
-	Title      string    `json:"title"`
-	DateTime   time.Time `json:"dateTime"`
-	LocationID int       `json:"locationId"`
-	TowID      int       `json:"townId"`
+// Track represent an event in order journey
+type Track struct {
+	OrderID  int       `json:"orderId"`
+	Time     time.Time `json:"time"`
+	OfficeID int       `json:"officeId"`
+	EventID  int       `json:"EventId"`
 }
 
 // ValidateData function help validate data into new order before creation

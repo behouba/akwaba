@@ -11,13 +11,12 @@ import (
 )
 
 const (
-	version         = "/v0"
-	authBaseURL     = "/auth"
-	orderBaseURL    = "/order"
-	collectBaseURL  = "/collect"
-	trackBaseURL    = "/track"
-	deliveryBaseURL = "/delivery"
-	supportBaseURL  = "/support"
+	version        = "/v0"
+	authBaseURL    = "/auth"
+	orderBaseURL   = "/order"
+	trackBaseURL   = "/tracking"
+	custBaseURL    = "/customer"
+	supportBaseURL = "/support"
 )
 
 // Handler represents the API handler methods set
@@ -38,37 +37,30 @@ func SetupRouter(h *Handler) *gin.Engine {
 		{
 			// authentication routes
 			auth.POST("/login", h.login)
-			auth.GET("/logout", h.logout)
+			// auth.GET("/logout", h.logout)
 		}
 
 		order := v.Group(orderBaseURL)
 		{
-			order.GET("/news", h.pendingOrders)
-			order.GET("/info/:id", h.orderInfo)
-			order.POST("/confirm/:id", h.confirmOrder)
-			order.GET("/receipt/:id", h.orderReceipt)
-			order.POST("/cancel/:id", h.cancelOrder)
+			order.POST("/create", h.createOrder)
+			order.GET("/pending", h.pendingOrders)
+			order.GET("/info/:orderId", h.orderInfo)
+			// order.PATCH("/confirm/:orderId", h.confirmOrder)
+			order.GET("/receipt/:orderId", h.orderReceipt)
+			order.PATCH("/cancel/:orderId", h.cancelOrder)
 		}
 
-		collect := v.Group(collectBaseURL)
+		tracking := v.Group(trackBaseURL)
 		{
-			collect.POST("/done/:orderId", h.collectDone)
-			collect.POST("/failed/:orderId", h.collectFailed)
-			collect.GET("/collects", h.pendingCollects)
-			collect.GET("/archives", h.archivedCollects)
+			tracking.POST("/record", h.recordTrack)
+			tracking.GET("/steps", h.trackingSteps)
 		}
 
-		track := v.Group(trackBaseURL)
+		cust := v.Group(custBaseURL)
 		{
-			track.POST("/update/:locationID", h.updateOrderLocation)
-		}
-
-		delivery := v.Group(deliveryBaseURL)
-		{
-			delivery.POST("/done/:orderId", h.deliveryDone)
-			delivery.POST("/failed/:orderId", h.deliveryFailed)
-			delivery.GET("/deliveries", h.pendingDeliveries)
-			delivery.GET("/archives", h.archivedDeliveries)
+			cust.GET("/info/:id")
+			cust.PATCH("/freeze/:id")
+			cust.PATCH("/unfreeze/:id")
 		}
 
 		support := v.Group(supportBaseURL)
