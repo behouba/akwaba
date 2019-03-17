@@ -6,17 +6,25 @@ import (
 
 // Order struct represent order that will be created by users
 type Order struct {
-	ID              int       `json:"id"`
-	PaymentType     int       `json:"paymentType"`
-	Customer        User      `json:"customer"`
-	Weight          float64   `json:"weight"`
-	Cost            int       `json:"cost"`
-	CreatedAt       time.Time `json:"createdAt"`
-	CurrentState    int       `json:"currentState"`
-	Description     string    `json:"description"`
-	PackingID       int       `json:"packingId"`
-	OriginAddress   Address   `json:"origin_address"`
-	DeliveryAddress Address   `json:"delivery_address"`
+	ID            int       `json:"id"`
+	PaymentType   int       `json:"paymentType"`
+	CustomerID    int       `json:"customerId"`
+	Cost          int       `json:"cost"`
+	CreatedAt     time.Time `json:"createdAt"`
+	State         int       `json:"state"`
+	Description   string    `json:"description"`
+	PickUpAddress Address   `json:"pickup_address"`
+	Parcels       []Parcel  `json:"parcels"`
+}
+
+// Parcel struct is representation of parcel in system
+type Parcel struct {
+	ID              int     `json:"id"`
+	OrderID         int     `json:"orderId"`
+	Weight          float64 `json:"weight"`
+	Description     string  `json:"description"`
+	StateID         int     `json:"stateId"`
+	DeliveryAddress Address `json:"delivery_address"`
 }
 
 // MapPoint represent geolocation map address
@@ -34,12 +42,6 @@ type Address struct {
 	Map          MapPoint `json:"map"`
 	Description  string   `json:"description"`
 }
-
-// OrderTrace represent current updated tracking information about an order
-// type OrderTrace struct {
-// 	Order  Order   `json:"order"`
-// 	Events []Event `json:"events"`
-// }
 
 // Track represent an event in order journey
 type Track struct {

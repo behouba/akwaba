@@ -10,7 +10,7 @@ import (
 )
 
 func TestUpdateOrderTracking(t *testing.T) {
-	url := version + trackBaseURL + "/update"
+	url := version + parcelBaseURL + "/update"
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(`{"orderId": 34, "officeId": 1, "eventId": 1}`)))
 	if err != nil {

@@ -7,7 +7,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) updateOrderLocation(c *gin.Context) {
+func (h *Handler) recordPickUp(c *gin.Context) {
+
+}
+
+func (h *Handler) recoredCheckIn(c *gin.Context) {
+
+}
+
+func (h *Handler) recordCheckOut(c *gin.Context) {
+
+}
+
+func (h *Handler) recordDelivery(c *gin.Context) {
+
+}
+
+func (h *Handler) trackParcel(c *gin.Context) {
 
 }
 

@@ -24,6 +24,7 @@ func (h *Handler) createOrder(c *gin.Context) {
 		})
 		return
 	}
+
 }
 
 // pendingOrders retreive and return in json format new orders that belong
@@ -83,7 +84,6 @@ func (h *Handler) confirmOrder(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": fmt.Sprintf("La commande %d a bien été confirmée", id),
 	})
-	// after being confirmed order should be asigned to the next collect session
 }
 
 func (h *Handler) cancelOrder(c *gin.Context) {

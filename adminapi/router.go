@@ -11,12 +11,11 @@ import (
 )
 
 const (
-	version        = "/v0"
-	authBaseURL    = "/auth"
-	orderBaseURL   = "/order"
-	trackBaseURL   = "/tracking"
-	custBaseURL    = "/customer"
-	supportBaseURL = "/support"
+	version       = "/v0"
+	authBaseURL   = "/auth"
+	orderBaseURL  = "/order"
+	parcelBaseURL = "/parcel"
+	custBaseURL   = "/customer"
 )
 
 // Handler represents the API handler methods set
@@ -42,33 +41,32 @@ func SetupRouter(h *Handler) *gin.Engine {
 
 		order := v.Group(orderBaseURL)
 		{
-			order.POST("/create", h.createOrder)
 			order.GET("/pending", h.pendingOrders)
 			order.GET("/info/:orderId", h.orderInfo)
-			// order.PATCH("/confirm/:orderId", h.confirmOrder)
 			order.GET("/receipt/:orderId", h.orderReceipt)
+			order.POST("/create", h.createOrder)
 			order.PATCH("/cancel/:orderId", h.cancelOrder)
+			order.PATCH("/confirm/:orderId", h.confirmOrder)
 		}
 
-		tracking := v.Group(trackBaseURL)
+		parcel := v.Group(parcelBaseURL)
 		{
-			tracking.POST("/record", h.recordTrack)
-			tracking.GET("/steps", h.trackingSteps)
+			parcel.POST("/pickup", h.recordPickUp)
+			parcel.POST("/check/in", h.recoredCheckIn)
+			parcel.POST("/check/out", h.recordCheckOut)
+			parcel.POST("/delivery", h.recordDelivery)
+			parcel.GET("/track/:id", h.trackParcel)
 		}
 
 		cust := v.Group(custBaseURL)
 		{
-			cust.GET("/info/:id")
-			cust.PATCH("/freeze/:id")
-			cust.PATCH("/unfreeze/:id")
+			cust.POST("/create", h.createNewCustomer)
+			cust.GET("/info", h.customerData) // query customerId= , phone=
+			cust.PATCH("/freeze/:id", h.freezeCustomer)
+			cust.PATCH("/unfreeze/:id", h.unfreezeCustomer)
+			// cust.GET("/address/:customerId", h.customerAddress)
 		}
 
-		support := v.Group(supportBaseURL)
-		{
-			// support support routes
-			support.POST("/", h.fetchSupportConv)
-			support.GET("/send_msg", h.sendMsgToCustomer)
-		}
 	}
 	return r
 }
