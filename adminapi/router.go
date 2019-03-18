@@ -6,7 +6,7 @@ import (
 	"github.com/behouba/dsapi/adminapi/internal/jwt"
 	"github.com/behouba/dsapi/adminapi/internal/notifier"
 	"github.com/behouba/dsapi/adminapi/internal/postgres"
-	"github.com/behouba/dsapi/adminapi/internal/redis"
+	"github.com/behouba/dsapi/store"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,10 +20,9 @@ const (
 
 // Handler represents the API handler methods set
 type Handler struct {
-	Db    *postgres.AdminDB
-	Cache *redis.Cache
-	Auth  *jwt.Authenticator
-	Sms   *notifier.SMS
+	Db   *postgres.AdminDB
+	Auth *jwt.Authenticator
+	Sms  *notifier.SMS
 }
 
 // SetupRouter create routes and return *gin.Engine
@@ -72,25 +71,16 @@ func SetupRouter(h *Handler) *gin.Engine {
 }
 
 // AdminHandler build new handler and return it
-func AdminHandler(dbConfig string, redisConig string, jwtSecretKey string) *Handler {
-	db, err := postgres.Open()
-	if err != nil {
-		panic(err)
-	}
-
-	cache, err := redis.New()
-	if err != nil {
-		panic(err)
-	}
+func AdminHandler(dbConfig store.DBConfig, jwtSecretKey string) *Handler {
+	db := postgres.Open(dbConfig.Port, dbConfig.Host, dbConfig.UserName, dbConfig.Password, dbConfig.DBName)
 
 	auth := jwt.NewAdminAuth(jwtSecretKey)
 
 	sms := notifier.NewSMS()
 
 	return &Handler{
-		Db:    db,
-		Cache: cache,
-		Auth:  auth,
-		Sms:   sms,
+		Db:   db,
+		Auth: auth,
+		Sms:  sms,
 	}
 }

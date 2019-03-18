@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/behouba/dsapi"
 )
@@ -14,11 +15,20 @@ type AdminDB struct {
 
 // Open function open DB database
 // each server should have it own database user with corresponding rights on database
-func Open() (database *AdminDB, err error) {
-	// each server should have it own database user with corresponding rights on database
+func Open(port int, host, username, password, dbname string) *AdminDB {
 
-	// will open database connection here
-	return
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, username, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Successfully connected to %s database \n", dbname)
+	return &AdminDB{db: db}
 }
 
 // CheckCredential check if given employee credentials are allowed to login

@@ -41,27 +41,26 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: address; Type: TABLE; Schema: public; Owner: optimus92
+-- Name: delivery_address; Type: TABLE; Schema: public; Owner: optimus92
 --
 
-CREATE TABLE public.address (
+CREATE TABLE public.delivery_address (
     id bigint NOT NULL,
-    first_name character varying,
-    last_name character varying,
+    full_name character varying,
     phone_number character varying NOT NULL,
     location_description text,
     map_position point,
-    town_id integer NOT NULL
+    area_id integer NOT NULL
 );
 
 
-ALTER TABLE public.address OWNER TO optimus92;
+ALTER TABLE public.delivery_address OWNER TO optimus92;
 
 --
--- Name: TABLE address; Type: COMMENT; Schema: public; Owner: optimus92
+-- Name: TABLE delivery_address; Type: COMMENT; Schema: public; Owner: optimus92
 --
 
-COMMENT ON TABLE public.address IS 'delivery address table';
+COMMENT ON TABLE public.delivery_address IS 'delivery address table';
 
 
 --
@@ -82,26 +81,28 @@ ALTER TABLE public.address_id_seq OWNER TO optimus92;
 -- Name: address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: optimus92
 --
 
-ALTER SEQUENCE public.address_id_seq OWNED BY public.address.id;
+ALTER SEQUENCE public.address_id_seq OWNED BY public.delivery_address.id;
 
 
 --
--- Name: category; Type: TABLE; Schema: public; Owner: optimus92
+-- Name: area; Type: TABLE; Schema: public; Owner: optimus92
 --
 
-CREATE TABLE public.category (
+CREATE TABLE public.area (
     id integer NOT NULL,
-    name character varying NOT NULL
+    name character varying NOT NULL,
+    short_name character varying NOT NULL,
+    district_id integer
 );
 
 
-ALTER TABLE public.category OWNER TO optimus92;
+ALTER TABLE public.area OWNER TO optimus92;
 
 --
--- Name: TABLE category; Type: COMMENT; Schema: public; Owner: optimus92
+-- Name: TABLE area; Type: COMMENT; Schema: public; Owner: optimus92
 --
 
-COMMENT ON TABLE public.category IS 'order product''s category';
+COMMENT ON TABLE public.area IS 'all available town for delivery';
 
 
 --
@@ -153,78 +154,16 @@ ALTER SEQUENCE public.client_id_seq OWNED BY public.customer.id;
 
 
 --
--- Name: collect; Type: TABLE; Schema: public; Owner: optimus92
+-- Name: customer_follow_parcel; Type: TABLE; Schema: public; Owner: optimus92
 --
 
-CREATE TABLE public.collect (
-    id bigint NOT NULL,
-    date date NOT NULL,
-    employee_id integer NOT NULL,
-    collect_hour_id integer NOT NULL,
-    collect_state_id integer NOT NULL,
-    note text
-);
-
-
-ALTER TABLE public.collect OWNER TO optimus92;
-
---
--- Name: collect_hour; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.collect_hour (
-    id integer NOT NULL,
-    description character varying NOT NULL,
-    hour time without time zone NOT NULL
-);
-
-
-ALTER TABLE public.collect_hour OWNER TO optimus92;
-
---
--- Name: collect_state; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.collect_state (
-    id integer NOT NULL,
-    name character varying NOT NULL
-);
-
-
-ALTER TABLE public.collect_state OWNER TO optimus92;
-
---
--- Name: collecting_id_seq; Type: SEQUENCE; Schema: public; Owner: optimus92
---
-
-CREATE SEQUENCE public.collecting_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.collecting_id_seq OWNER TO optimus92;
-
---
--- Name: collecting_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: optimus92
---
-
-ALTER SEQUENCE public.collecting_id_seq OWNED BY public.collect.id;
-
-
---
--- Name: customer_follow_order; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.customer_follow_order (
+CREATE TABLE public.customer_follow_parcel (
     customer_id integer NOT NULL,
-    order_id integer NOT NULL
+    parcel_id integer NOT NULL
 );
 
 
-ALTER TABLE public.customer_follow_order OWNER TO optimus92;
+ALTER TABLE public.customer_follow_parcel OWNER TO optimus92;
 
 --
 -- Name: customer_session; Type: TABLE; Schema: public; Owner: optimus92
@@ -238,68 +177,6 @@ CREATE TABLE public.customer_session (
 
 
 ALTER TABLE public.customer_session OWNER TO optimus92;
-
---
--- Name: delivery; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.delivery (
-    id bigint NOT NULL,
-    date date NOT NULL,
-    delivery_hour_id integer NOT NULL,
-    delivery_state_id integer NOT NULL,
-    employee_id integer NOT NULL,
-    note text
-);
-
-
-ALTER TABLE public.delivery OWNER TO optimus92;
-
---
--- Name: delivery_hour; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.delivery_hour (
-    id integer NOT NULL,
-    hour time without time zone NOT NULL,
-    description character varying
-);
-
-
-ALTER TABLE public.delivery_hour OWNER TO optimus92;
-
---
--- Name: delivery_id_seq; Type: SEQUENCE; Schema: public; Owner: optimus92
---
-
-CREATE SEQUENCE public.delivery_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.delivery_id_seq OWNER TO optimus92;
-
---
--- Name: delivery_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: optimus92
---
-
-ALTER SEQUENCE public.delivery_id_seq OWNED BY public.delivery.id;
-
-
---
--- Name: delivery_state; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.delivery_state (
-    id integer NOT NULL,
-    name character varying NOT NULL
-);
-
-
-ALTER TABLE public.delivery_state OWNER TO optimus92;
 
 --
 -- Name: distance; Type: TABLE; Schema: public; Owner: optimus92
@@ -414,6 +291,20 @@ CREATE TABLE public.employee_session (
 ALTER TABLE public.employee_session OWNER TO optimus92;
 
 --
+-- Name: event; Type: TABLE; Schema: public; Owner: optimus92
+--
+
+CREATE TABLE public.event (
+    id smallint NOT NULL,
+    name character varying NOT NULL,
+    preview_step_id smallint,
+    next_step_id smallint
+);
+
+
+ALTER TABLE public.event OWNER TO optimus92;
+
+--
 -- Name: message; Type: TABLE; Schema: public; Owner: optimus92
 --
 
@@ -468,13 +359,11 @@ CREATE TABLE public."order" (
     id bigint NOT NULL,
     customer_id integer NOT NULL,
     payment_type_id integer NOT NULL,
-    category_id integer NOT NULL,
-    weight integer,
     cost money,
     created_at timestamp without time zone,
-    description text,
-    size_id integer NOT NULL,
-    address_id integer NOT NULL
+    address_id integer NOT NULL,
+    office_id integer NOT NULL,
+    state_id integer NOT NULL
 );
 
 
@@ -485,26 +374,6 @@ ALTER TABLE public."order" OWNER TO optimus92;
 --
 
 COMMENT ON TABLE public."order" IS 'This table hold all order made by users.';
-
-
---
--- Name: order_history; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.order_history (
-    order_id integer NOT NULL,
-    created_at timestamp without time zone DEFAULT now() NOT NULL,
-    order_state_id integer NOT NULL
-);
-
-
-ALTER TABLE public.order_history OWNER TO optimus92;
-
---
--- Name: TABLE order_history; Type: COMMENT; Schema: public; Owner: optimus92
---
-
-COMMENT ON TABLE public.order_history IS 'record of the history of orders';
 
 
 --
@@ -529,44 +398,6 @@ ALTER SEQUENCE public.order_id_seq OWNED BY public."order".id;
 
 
 --
--- Name: order_in_collecting; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.order_in_collecting (
-    collecting_id integer NOT NULL,
-    order_id integer NOT NULL
-);
-
-
-ALTER TABLE public.order_in_collecting OWNER TO optimus92;
-
---
--- Name: TABLE order_in_collecting; Type: COMMENT; Schema: public; Owner: optimus92
---
-
-COMMENT ON TABLE public.order_in_collecting IS 'many to many relation table between order and collecting';
-
-
---
--- Name: order_in_delivery; Type: TABLE; Schema: public; Owner: optimus92
---
-
-CREATE TABLE public.order_in_delivery (
-    delivery_id integer NOT NULL,
-    order_id integer NOT NULL
-);
-
-
-ALTER TABLE public.order_in_delivery OWNER TO optimus92;
-
---
--- Name: TABLE order_in_delivery; Type: COMMENT; Schema: public; Owner: optimus92
---
-
-COMMENT ON TABLE public.order_in_delivery IS 'many to many relationship table between order and delivery';
-
-
---
 -- Name: order_state; Type: TABLE; Schema: public; Owner: optimus92
 --
 
@@ -586,6 +417,56 @@ COMMENT ON TABLE public.order_state IS 'all possible order states.';
 
 
 --
+-- Name: parcel; Type: TABLE; Schema: public; Owner: optimus92
+--
+
+CREATE TABLE public.parcel (
+    id bigint NOT NULL,
+    order_id integer NOT NULL,
+    weight numeric NOT NULL,
+    description text,
+    office_id integer,
+    address_id integer NOT NULL,
+    state_id integer NOT NULL
+);
+
+
+ALTER TABLE public.parcel OWNER TO optimus92;
+
+--
+-- Name: parcel_id_seq; Type: SEQUENCE; Schema: public; Owner: optimus92
+--
+
+CREATE SEQUENCE public.parcel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.parcel_id_seq OWNER TO optimus92;
+
+--
+-- Name: parcel_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: optimus92
+--
+
+ALTER SEQUENCE public.parcel_id_seq OWNED BY public.parcel.id;
+
+
+--
+-- Name: parcel_state; Type: TABLE; Schema: public; Owner: optimus92
+--
+
+CREATE TABLE public.parcel_state (
+    id smallint NOT NULL,
+    name character varying NOT NULL
+);
+
+
+ALTER TABLE public.parcel_state OWNER TO optimus92;
+
+--
 -- Name: payment_type; Type: TABLE; Schema: public; Owner: optimus92
 --
 
@@ -596,6 +477,40 @@ CREATE TABLE public.payment_type (
 
 
 ALTER TABLE public.payment_type OWNER TO optimus92;
+
+--
+-- Name: pickup_address; Type: TABLE; Schema: public; Owner: optimus92
+--
+
+CREATE TABLE public.pickup_address (
+    id bigint NOT NULL,
+    description text,
+    area_id integer NOT NULL
+);
+
+
+ALTER TABLE public.pickup_address OWNER TO optimus92;
+
+--
+-- Name: pickup_address_id_seq; Type: SEQUENCE; Schema: public; Owner: optimus92
+--
+
+CREATE SEQUENCE public.pickup_address_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pickup_address_id_seq OWNER TO optimus92;
+
+--
+-- Name: pickup_address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: optimus92
+--
+
+ALTER SEQUENCE public.pickup_address_id_seq OWNED BY public.pickup_address.id;
+
 
 --
 -- Name: position; Type: TABLE; Schema: public; Owner: optimus92
@@ -617,24 +532,22 @@ COMMENT ON TABLE public."position" IS 'all possible position for an employee';
 
 
 --
--- Name: town; Type: TABLE; Schema: public; Owner: optimus92
+-- Name: tracking; Type: TABLE; Schema: public; Owner: optimus92
 --
 
-CREATE TABLE public.town (
-    id integer NOT NULL,
-    name character varying NOT NULL,
-    short_name character varying NOT NULL,
-    district_id integer
+CREATE TABLE public.tracking (
+    order_id integer NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
-ALTER TABLE public.town OWNER TO optimus92;
+ALTER TABLE public.tracking OWNER TO optimus92;
 
 --
--- Name: TABLE town; Type: COMMENT; Schema: public; Owner: optimus92
+-- Name: TABLE tracking; Type: COMMENT; Schema: public; Owner: optimus92
 --
 
-COMMENT ON TABLE public.town IS 'all available town for delivery';
+COMMENT ON TABLE public.tracking IS 'record of the history of orders';
 
 
 --
@@ -659,20 +572,6 @@ COMMENT ON TABLE public.weight IS 'order sizes category';
 
 
 --
--- Name: address id; Type: DEFAULT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.address ALTER COLUMN id SET DEFAULT nextval('public.address_id_seq'::regclass);
-
-
---
--- Name: collect id; Type: DEFAULT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.collect ALTER COLUMN id SET DEFAULT nextval('public.collecting_id_seq'::regclass);
-
-
---
 -- Name: customer id; Type: DEFAULT; Schema: public; Owner: optimus92
 --
 
@@ -680,10 +579,10 @@ ALTER TABLE ONLY public.customer ALTER COLUMN id SET DEFAULT nextval('public.cli
 
 
 --
--- Name: delivery id; Type: DEFAULT; Schema: public; Owner: optimus92
+-- Name: delivery_address id; Type: DEFAULT; Schema: public; Owner: optimus92
 --
 
-ALTER TABLE ONLY public.delivery ALTER COLUMN id SET DEFAULT nextval('public.delivery_id_seq'::regclass);
+ALTER TABLE ONLY public.delivery_address ALTER COLUMN id SET DEFAULT nextval('public.address_id_seq'::regclass);
 
 
 --
@@ -708,42 +607,24 @@ ALTER TABLE ONLY public."order" ALTER COLUMN id SET DEFAULT nextval('public.orde
 
 
 --
--- Data for Name: address; Type: TABLE DATA; Schema: public; Owner: optimus92
+-- Name: parcel id; Type: DEFAULT; Schema: public; Owner: optimus92
 --
 
-COPY public.address (id, first_name, last_name, phone_number, location_description, map_position, town_id) FROM stdin;
-\.
-
-
---
--- Data for Name: category; Type: TABLE DATA; Schema: public; Owner: optimus92
---
-
-COPY public.category (id, name) FROM stdin;
-\.
+ALTER TABLE ONLY public.parcel ALTER COLUMN id SET DEFAULT nextval('public.parcel_id_seq'::regclass);
 
 
 --
--- Data for Name: collect; Type: TABLE DATA; Schema: public; Owner: optimus92
+-- Name: pickup_address id; Type: DEFAULT; Schema: public; Owner: optimus92
 --
 
-COPY public.collect (id, date, employee_id, collect_hour_id, collect_state_id, note) FROM stdin;
-\.
-
-
---
--- Data for Name: collect_hour; Type: TABLE DATA; Schema: public; Owner: optimus92
---
-
-COPY public.collect_hour (id, description, hour) FROM stdin;
-\.
+ALTER TABLE ONLY public.pickup_address ALTER COLUMN id SET DEFAULT nextval('public.pickup_address_id_seq'::regclass);
 
 
 --
--- Data for Name: collect_state; Type: TABLE DATA; Schema: public; Owner: optimus92
+-- Data for Name: area; Type: TABLE DATA; Schema: public; Owner: optimus92
 --
 
-COPY public.collect_state (id, name) FROM stdin;
+COPY public.area (id, name, short_name, district_id) FROM stdin;
 \.
 
 
@@ -756,10 +637,10 @@ COPY public.customer (id, first_name, last_name, registration_date, phone, email
 
 
 --
--- Data for Name: customer_follow_order; Type: TABLE DATA; Schema: public; Owner: optimus92
+-- Data for Name: customer_follow_parcel; Type: TABLE DATA; Schema: public; Owner: optimus92
 --
 
-COPY public.customer_follow_order (customer_id, order_id) FROM stdin;
+COPY public.customer_follow_parcel (customer_id, parcel_id) FROM stdin;
 \.
 
 
@@ -772,26 +653,10 @@ COPY public.customer_session (customer_id, datetime, access_token) FROM stdin;
 
 
 --
--- Data for Name: delivery; Type: TABLE DATA; Schema: public; Owner: optimus92
+-- Data for Name: delivery_address; Type: TABLE DATA; Schema: public; Owner: optimus92
 --
 
-COPY public.delivery (id, date, delivery_hour_id, delivery_state_id, employee_id, note) FROM stdin;
-\.
-
-
---
--- Data for Name: delivery_hour; Type: TABLE DATA; Schema: public; Owner: optimus92
---
-
-COPY public.delivery_hour (id, hour, description) FROM stdin;
-\.
-
-
---
--- Data for Name: delivery_state; Type: TABLE DATA; Schema: public; Owner: optimus92
---
-
-COPY public.delivery_state (id, name) FROM stdin;
+COPY public.delivery_address (id, full_name, phone_number, location_description, map_position, area_id) FROM stdin;
 \.
 
 
@@ -836,6 +701,14 @@ COPY public.employee_session (employee_id, created_at, access_token) FROM stdin;
 
 
 --
+-- Data for Name: event; Type: TABLE DATA; Schema: public; Owner: optimus92
+--
+
+COPY public.event (id, name, preview_step_id, next_step_id) FROM stdin;
+\.
+
+
+--
 -- Data for Name: message; Type: TABLE DATA; Schema: public; Owner: optimus92
 --
 
@@ -863,31 +736,7 @@ COPY public.office (id, name, town_id) FROM stdin;
 -- Data for Name: order; Type: TABLE DATA; Schema: public; Owner: optimus92
 --
 
-COPY public."order" (id, customer_id, payment_type_id, category_id, weight, cost, created_at, description, size_id, address_id) FROM stdin;
-\.
-
-
---
--- Data for Name: order_history; Type: TABLE DATA; Schema: public; Owner: optimus92
---
-
-COPY public.order_history (order_id, created_at, order_state_id) FROM stdin;
-\.
-
-
---
--- Data for Name: order_in_collecting; Type: TABLE DATA; Schema: public; Owner: optimus92
---
-
-COPY public.order_in_collecting (collecting_id, order_id) FROM stdin;
-\.
-
-
---
--- Data for Name: order_in_delivery; Type: TABLE DATA; Schema: public; Owner: optimus92
---
-
-COPY public.order_in_delivery (delivery_id, order_id) FROM stdin;
+COPY public."order" (id, customer_id, payment_type_id, cost, created_at, address_id, office_id, state_id) FROM stdin;
 \.
 
 
@@ -900,10 +749,34 @@ COPY public.order_state (id, name) FROM stdin;
 
 
 --
+-- Data for Name: parcel; Type: TABLE DATA; Schema: public; Owner: optimus92
+--
+
+COPY public.parcel (id, order_id, weight, description, office_id, address_id, state_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: parcel_state; Type: TABLE DATA; Schema: public; Owner: optimus92
+--
+
+COPY public.parcel_state (id, name) FROM stdin;
+\.
+
+
+--
 -- Data for Name: payment_type; Type: TABLE DATA; Schema: public; Owner: optimus92
 --
 
 COPY public.payment_type (id, name) FROM stdin;
+\.
+
+
+--
+-- Data for Name: pickup_address; Type: TABLE DATA; Schema: public; Owner: optimus92
+--
+
+COPY public.pickup_address (id, description, area_id) FROM stdin;
 \.
 
 
@@ -916,10 +789,10 @@ COPY public."position" (id, name) FROM stdin;
 
 
 --
--- Data for Name: town; Type: TABLE DATA; Schema: public; Owner: optimus92
+-- Data for Name: tracking; Type: TABLE DATA; Schema: public; Owner: optimus92
 --
 
-COPY public.town (id, name, short_name, district_id) FROM stdin;
+COPY public.tracking (order_id, created_at) FROM stdin;
 \.
 
 
@@ -946,20 +819,6 @@ SELECT pg_catalog.setval('public.client_id_seq', 1, false);
 
 
 --
--- Name: collecting_id_seq; Type: SEQUENCE SET; Schema: public; Owner: optimus92
---
-
-SELECT pg_catalog.setval('public.collecting_id_seq', 1, false);
-
-
---
--- Name: delivery_id_seq; Type: SEQUENCE SET; Schema: public; Owner: optimus92
---
-
-SELECT pg_catalog.setval('public.delivery_id_seq', 1, false);
-
-
---
 -- Name: district_id_seq; Type: SEQUENCE SET; Schema: public; Owner: optimus92
 --
 
@@ -981,19 +840,25 @@ SELECT pg_catalog.setval('public.order_id_seq', 1, false);
 
 
 --
--- Name: address address_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
+-- Name: parcel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: optimus92
 --
 
-ALTER TABLE ONLY public.address
+SELECT pg_catalog.setval('public.parcel_id_seq', 1, false);
+
+
+--
+-- Name: pickup_address_id_seq; Type: SEQUENCE SET; Schema: public; Owner: optimus92
+--
+
+SELECT pg_catalog.setval('public.pickup_address_id_seq', 1, false);
+
+
+--
+-- Name: delivery_address address_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
+--
+
+ALTER TABLE ONLY public.delivery_address
     ADD CONSTRAINT address_pkey PRIMARY KEY (id);
-
-
---
--- Name: category category_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.category
-    ADD CONSTRAINT category_pkey PRIMARY KEY (id);
 
 
 --
@@ -1002,62 +867,6 @@ ALTER TABLE ONLY public.category
 
 ALTER TABLE ONLY public.customer
     ADD CONSTRAINT client_pkey PRIMARY KEY (id);
-
-
---
--- Name: collect_hour collecting_hour_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.collect_hour
-    ADD CONSTRAINT collecting_hour_pkey PRIMARY KEY (id);
-
-
---
--- Name: collect collecting_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.collect
-    ADD CONSTRAINT collecting_pkey PRIMARY KEY (id);
-
-
---
--- Name: collect_state collecting_state_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.collect_state
-    ADD CONSTRAINT collecting_state_pkey PRIMARY KEY (id);
-
-
---
--- Name: customer_follow_order customer_follow_order_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.customer_follow_order
-    ADD CONSTRAINT customer_follow_order_pkey PRIMARY KEY (customer_id, order_id);
-
-
---
--- Name: delivery_hour delivery_hour_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.delivery_hour
-    ADD CONSTRAINT delivery_hour_pkey PRIMARY KEY (id);
-
-
---
--- Name: delivery delivery_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.delivery
-    ADD CONSTRAINT delivery_pkey PRIMARY KEY (id);
-
-
---
--- Name: delivery_state delivery_state_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.delivery_state
-    ADD CONSTRAINT delivery_state_pkey PRIMARY KEY (id);
 
 
 --
@@ -1133,11 +942,27 @@ ALTER TABLE ONLY public.order_state
 
 
 --
+-- Name: parcel_state parcel_state_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
+--
+
+ALTER TABLE ONLY public.parcel_state
+    ADD CONSTRAINT parcel_state_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: payment_type payment_type_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
 --
 
 ALTER TABLE ONLY public.payment_type
     ADD CONSTRAINT payment_type_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pickup_address pickup_address_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
+--
+
+ALTER TABLE ONLY public.pickup_address
+    ADD CONSTRAINT pickup_address_pkey PRIMARY KEY (id);
 
 
 --
@@ -1157,19 +982,19 @@ ALTER TABLE ONLY public.weight
 
 
 --
--- Name: town town_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
+-- Name: area town_pkey; Type: CONSTRAINT; Schema: public; Owner: optimus92
 --
 
-ALTER TABLE ONLY public.town
+ALTER TABLE ONLY public.area
     ADD CONSTRAINT town_pkey PRIMARY KEY (id);
 
 
 --
--- Name: address address_town_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+-- Name: delivery_address address_town_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
 --
 
-ALTER TABLE ONLY public.address
-    ADD CONSTRAINT address_town_id_fkey FOREIGN KEY (town_id) REFERENCES public.town(id);
+ALTER TABLE ONLY public.delivery_address
+    ADD CONSTRAINT address_town_id_fkey FOREIGN KEY (area_id) REFERENCES public.area(id);
 
 
 --
@@ -1181,43 +1006,11 @@ ALTER TABLE ONLY public.customer_session
 
 
 --
--- Name: collect collecting_collecting_hour_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+-- Name: customer_follow_parcel customer_follow_parcel_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
 --
 
-ALTER TABLE ONLY public.collect
-    ADD CONSTRAINT collecting_collecting_hour_id_fkey FOREIGN KEY (collect_hour_id) REFERENCES public.collect_hour(id);
-
-
---
--- Name: collect collecting_collecting_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.collect
-    ADD CONSTRAINT collecting_collecting_state_id_fkey FOREIGN KEY (collect_state_id) REFERENCES public.collect_state(id);
-
-
---
--- Name: collect collecting_employee_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.collect
-    ADD CONSTRAINT collecting_employee_id_fkey FOREIGN KEY (employee_id) REFERENCES public.employee(id);
-
-
---
--- Name: customer_follow_order customer_follow_order_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.customer_follow_order
-    ADD CONSTRAINT customer_follow_order_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customer(id);
-
-
---
--- Name: customer_follow_order customer_follow_order_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.customer_follow_order
-    ADD CONSTRAINT customer_follow_order_order_id_fkey FOREIGN KEY (order_id) REFERENCES public."order"(id);
+ALTER TABLE ONLY public.customer_follow_parcel
+    ADD CONSTRAINT customer_follow_parcel_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customer(id);
 
 
 --
@@ -1225,31 +1018,7 @@ ALTER TABLE ONLY public.customer_follow_order
 --
 
 ALTER TABLE ONLY public.customer
-    ADD CONSTRAINT customer_town_id_fkey FOREIGN KEY (town_id) REFERENCES public.town(id);
-
-
---
--- Name: delivery delivery_delivery_hour_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.delivery
-    ADD CONSTRAINT delivery_delivery_hour_id_fkey FOREIGN KEY (delivery_hour_id) REFERENCES public.delivery_hour(id);
-
-
---
--- Name: delivery delivery_delivery_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.delivery
-    ADD CONSTRAINT delivery_delivery_state_id_fkey FOREIGN KEY (delivery_state_id) REFERENCES public.delivery_state(id);
-
-
---
--- Name: delivery delivery_employee_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.delivery
-    ADD CONSTRAINT delivery_employee_id_fkey FOREIGN KEY (employee_id) REFERENCES public.employee(id);
+    ADD CONSTRAINT customer_town_id_fkey FOREIGN KEY (town_id) REFERENCES public.area(id);
 
 
 --
@@ -1257,7 +1026,7 @@ ALTER TABLE ONLY public.delivery
 --
 
 ALTER TABLE ONLY public.distance
-    ADD CONSTRAINT distance_town_a_fkey FOREIGN KEY (town_a) REFERENCES public.town(id);
+    ADD CONSTRAINT distance_town_a_fkey FOREIGN KEY (town_a) REFERENCES public.area(id);
 
 
 --
@@ -1265,7 +1034,7 @@ ALTER TABLE ONLY public.distance
 --
 
 ALTER TABLE ONLY public.distance
-    ADD CONSTRAINT distance_town_b_fkey FOREIGN KEY (town_b) REFERENCES public.town(id);
+    ADD CONSTRAINT distance_town_b_fkey FOREIGN KEY (town_b) REFERENCES public.area(id);
 
 
 --
@@ -1329,7 +1098,7 @@ ALTER TABLE ONLY public.message
 --
 
 ALTER TABLE ONLY public.office
-    ADD CONSTRAINT office_town_id_fkey FOREIGN KEY (town_id) REFERENCES public.town(id);
+    ADD CONSTRAINT office_town_id_fkey FOREIGN KEY (town_id) REFERENCES public.area(id);
 
 
 --
@@ -1337,15 +1106,7 @@ ALTER TABLE ONLY public.office
 --
 
 ALTER TABLE ONLY public."order"
-    ADD CONSTRAINT order_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.address(id);
-
-
---
--- Name: order order_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public."order"
-    ADD CONSTRAINT order_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.category(id);
+    ADD CONSTRAINT order_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.pickup_address(id);
 
 
 --
@@ -1357,51 +1118,19 @@ ALTER TABLE ONLY public."order"
 
 
 --
--- Name: order_history order_history_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+-- Name: tracking order_history_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
 --
 
-ALTER TABLE ONLY public.order_history
+ALTER TABLE ONLY public.tracking
     ADD CONSTRAINT order_history_order_id_fkey FOREIGN KEY (order_id) REFERENCES public."order"(id);
 
 
 --
--- Name: order_history order_history_order_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+-- Name: order order_office_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
 --
 
-ALTER TABLE ONLY public.order_history
-    ADD CONSTRAINT order_history_order_state_id_fkey FOREIGN KEY (order_state_id) REFERENCES public.order_state(id);
-
-
---
--- Name: order_in_collecting order_in_collecting_collecting_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.order_in_collecting
-    ADD CONSTRAINT order_in_collecting_collecting_id_fkey FOREIGN KEY (collecting_id) REFERENCES public.collect(id);
-
-
---
--- Name: order_in_collecting order_in_collecting_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.order_in_collecting
-    ADD CONSTRAINT order_in_collecting_order_id_fkey FOREIGN KEY (order_id) REFERENCES public."order"(id);
-
-
---
--- Name: order_in_delivery order_in_delivery_delivery_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.order_in_delivery
-    ADD CONSTRAINT order_in_delivery_delivery_id_fkey FOREIGN KEY (delivery_id) REFERENCES public.delivery(id);
-
-
---
--- Name: order_in_delivery order_in_delivery_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
---
-
-ALTER TABLE ONLY public.order_in_delivery
-    ADD CONSTRAINT order_in_delivery_order_id_fkey FOREIGN KEY (order_id) REFERENCES public."order"(id);
+ALTER TABLE ONLY public."order"
+    ADD CONSTRAINT order_office_id_fkey FOREIGN KEY (office_id) REFERENCES public.office(id);
 
 
 --
@@ -1413,11 +1142,51 @@ ALTER TABLE ONLY public."order"
 
 
 --
--- Name: order order_size_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+-- Name: order order_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
 --
 
 ALTER TABLE ONLY public."order"
-    ADD CONSTRAINT order_size_id_fkey FOREIGN KEY (size_id) REFERENCES public.weight(id);
+    ADD CONSTRAINT order_state_id_fkey FOREIGN KEY (state_id) REFERENCES public.order_state(id);
+
+
+--
+-- Name: parcel parcel_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+--
+
+ALTER TABLE ONLY public.parcel
+    ADD CONSTRAINT parcel_address_id_fkey FOREIGN KEY (address_id) REFERENCES public.delivery_address(id);
+
+
+--
+-- Name: parcel parcel_office_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+--
+
+ALTER TABLE ONLY public.parcel
+    ADD CONSTRAINT parcel_office_id_fkey FOREIGN KEY (office_id) REFERENCES public.office(id);
+
+
+--
+-- Name: parcel parcel_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+--
+
+ALTER TABLE ONLY public.parcel
+    ADD CONSTRAINT parcel_order_id_fkey FOREIGN KEY (order_id) REFERENCES public."order"(id);
+
+
+--
+-- Name: parcel parcel_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+--
+
+ALTER TABLE ONLY public.parcel
+    ADD CONSTRAINT parcel_state_id_fkey FOREIGN KEY (state_id) REFERENCES public.parcel_state(id);
+
+
+--
+-- Name: pickup_address pickup_address_area_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: optimus92
+--
+
+ALTER TABLE ONLY public.pickup_address
+    ADD CONSTRAINT pickup_address_area_id_fkey FOREIGN KEY (area_id) REFERENCES public.area(id);
 
 
 --

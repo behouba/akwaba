@@ -9,7 +9,6 @@ import (
 	"github.com/behouba/dsapi/userapi/internal/jwt"
 	"github.com/behouba/dsapi/userapi/internal/notifier"
 	"github.com/behouba/dsapi/userapi/internal/postgres"
-	"github.com/behouba/dsapi/userapi/internal/redis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,10 +18,9 @@ const (
 
 // Handler represents the API handler methods set
 type Handler struct {
-	Db    *postgres.UserDB
-	Cache *redis.Cache
-	Auth  *jwt.Authenticator
-	Sms   *notifier.SMS
+	Db   *postgres.UserDB
+	Auth *jwt.Authenticator
+	Sms  *notifier.SMS
 }
 
 // CheckPhone handler phone number verification to see if user is registered or not
@@ -54,7 +52,7 @@ func (h *Handler) checkPhone(c *gin.Context) {
 		return
 	}
 
-	err = h.Cache.SaveAuthCode(phone, code)
+	err = h.Db.SaveAuthCode(phone, code)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
@@ -87,7 +85,7 @@ func (h *Handler) registration(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	err = h.Cache.SaveAuthCode(user.Phone, code)
+	err = h.Db.SaveAuthCode(user.Phone, code)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
@@ -114,7 +112,7 @@ func (h *Handler) confirmPhone(c *gin.Context) {
 		return
 	}
 
-	if !h.Cache.ConfirmSMSCode(phone, code) {
+	if !h.Db.ConfirmSMSCode(phone, code) {
 		// should check error for internal server errors also
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Provided code is not correct.",

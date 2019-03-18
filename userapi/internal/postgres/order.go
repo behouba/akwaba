@@ -21,7 +21,7 @@ func (d *UserDB) CancelOrder(userID, orderID int) (err error) {
 }
 
 // Track method take an order id and return current trace data of order with error
-func (d *UserDB) Track(userID, orderID int) (oTrace dsapi.OrderTrace, err error) {
+func (d *UserDB) Track(userID, orderID int) (oTrace dsapi.Order, err error) {
 	if userID != 0 {
 		log.Printf("Retriving order tracking by user %d for order %d info from database...\n", userID, orderID)
 		return

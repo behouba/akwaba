@@ -20,6 +20,26 @@ func Open() (database *UserDB, err error) {
 	return
 }
 
+// SaveAuthCode store code send to user by sms to redis
+func (d *UserDB) SaveAuthCode(phone, code string) (err error) {
+	// return r.client.Set(phone, code, 15*time.Minute).Err()
+	return
+}
+
+// ConfirmSMSCode take guest user phone number with verification code
+// and check in redis is this phone number correspond to this code
+func (d *UserDB) ConfirmSMSCode(phone string, code string) (valid bool) {
+	// c, err := r.client.Get(phone).Result()
+	// if err != nil {
+	// 	return false
+	// }
+	// if c == code {
+	// 	r.client.Del(phone)
+	// 	return true
+	// }
+	return
+}
+
 // SaveNewCustomer save new customer info into database
 // and return user id from database with error
 func (d *UserDB) SaveNewCustomer(u *dsapi.User) (userID int, err error) {
