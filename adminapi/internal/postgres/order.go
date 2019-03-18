@@ -1,33 +1,40 @@
 package postgres
 
 import (
+	"database/sql"
+
 	"github.com/behouba/dsapi"
 )
 
-// PendingOrders retreive all pending order related to the employee office id
-func (a *AdminDB) PendingOrders(officeID int) (orders []dsapi.Order, err error) {
+// OrderStore implement the AdminOrderer interface
+type OrderStore struct {
+	Db *sql.DB
+}
+
+// Pending retreive all pending order related to the employee office id
+func (o *OrderStore) Pending(officeID int) (orders []dsapi.Order, err error) {
 	orders = append(orders, dsapi.Order{})
 	return
 }
 
-// Order method retreive order by id from database
-func (a *AdminDB) Order(id int) (order dsapi.Order, err error) {
+// Get method retreive order by id from database
+func (o *OrderStore) Get(id int) (order dsapi.Order, err error) {
 	order.ID = id
 	return
 }
 
-// ConfirmOrder update order in database and mark it as confirmed
-func (a *AdminDB) ConfirmOrder(id int) (err error) {
+// Confirm update order in database and mark it as confirmed
+func (o *OrderStore) Confirm(id int) (err error) {
 	return
 }
 
-// CancelOrder update order in database and mark it as cancel
-func (a *AdminDB) CancelOrder(id int) (err error) {
+// Cancel update order in database and mark it as cancel
+func (o *OrderStore) Cancel(id int) (err error) {
 	return
 }
 
-// SaveOrder save order created by admin agent into database
-func (a *AdminDB) SaveOrder(order *dsapi.Order) (err error) {
+// Save save order created by admin agent into database
+func (o *OrderStore) Save(order *dsapi.Order) (err error) {
 	return
 }
 

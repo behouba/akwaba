@@ -1,6 +1,22 @@
 package dsapi
 
-import "time"
+import (
+	"time"
+)
+
+// AdminOrderer interface for admin orders operation on database
+type AdminOrderer interface {
+	Save(order *Order) error
+	Confirm(orderID int) error
+	Cancel(orderID int) error
+	Get(orderID int) (Order, error)
+	Pending(officeID int) ([]Order, error)
+}
+
+// AdminAuthenticator interface for admin login operations
+type AdminAuthenticator interface {
+	Check(a *AdminCredential) (Employee, error)
+}
 
 // Employee represent an employee with it identifiers
 type Employee struct {
@@ -9,8 +25,8 @@ type Employee struct {
 	PositionID int `json:"positionId"`
 }
 
-// EmployeeAuthData represent employee authentication data
-type EmployeeAuthData struct {
+// AdminCredential represent employee authentication data
+type AdminCredential struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }

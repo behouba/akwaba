@@ -6,22 +6,12 @@ import (
 	"strconv"
 
 	"github.com/behouba/dsapi"
-	"github.com/behouba/dsapi/userapi/internal/jwt"
-	"github.com/behouba/dsapi/userapi/internal/notifier"
-	"github.com/behouba/dsapi/userapi/internal/postgres"
 	"github.com/gin-gonic/gin"
 )
 
 const (
 	cookieMaxAge = 31557600
 )
-
-// Handler represents the API handler methods set
-type Handler struct {
-	Db   *postgres.UserDB
-	Auth *jwt.Authenticator
-	Sms  *notifier.SMS
-}
 
 // CheckPhone handler phone number verification to see if user is registered or not
 func (h *Handler) checkPhone(c *gin.Context) {

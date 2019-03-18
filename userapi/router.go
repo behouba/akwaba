@@ -16,6 +16,13 @@ const (
 	supportBaseURL = "/support"
 )
 
+// Handler represents the API handler methods set
+type Handler struct {
+	Db   *postgres.UserDB
+	Auth *jwt.Authenticator
+	Sms  *notifier.SMS
+}
+
 // SetupRouter create routes and return *gin.Engine
 func SetupRouter(h *Handler) *gin.Engine {
 	r := gin.Default()

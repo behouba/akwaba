@@ -7,14 +7,10 @@ import (
 )
 
 func main() {
-	db := store.DBConfig{
-		Port:     5432,
-		Host:     "localhost",
-		DBName:   "akwabaTestDB",
-		UserName: "optimus92",
-		Password: "labierequisait",
-	}
-	h := adminapi.AdminHandler(db, "admin_secret")
-	r := adminapi.SetupRouter(h)
+	db := adminapi.NewDBConn(store.DevDBConfig)
+	jwtSecret := store.JWTDevSecret
+	orderHandler := adminapi.NewOrderHandler(db, jwtSecret)
+	authHandler := adminapi.NewAuthHandler(db, jwtSecret)
+	r := adminapi.SetupRouter(authHandler, orderHandler)
 	r.Run(":8084")
 }

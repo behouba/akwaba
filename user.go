@@ -6,9 +6,16 @@ import (
 )
 
 var (
-	errInvalidPhone       = errors.New("Le numéro de téléphone fourni est invalid")
-	errFullNameIsRequired = errors.New("Merci de fournir votre nom complet")
+	errInvalidPhone       = errors.New("le numéro de téléphone fourni est invalid")
+	errFullNameIsRequired = errors.New("merci de fournir votre nom complet")
 )
+
+// UserOrderer interface for order operation avalaible for users
+type UserOrderer interface {
+	Save(order *Order) error
+	Cancel(userID, orderID int) error
+	Track(userID, orderID int) (Order, error)
+}
 
 // User is representation of new customer
 // registration's data

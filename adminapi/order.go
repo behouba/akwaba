@@ -1,15 +1,41 @@
 package adminapi
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/behouba/dsapi/adminapi/internal/jwt"
+	"github.com/behouba/dsapi/adminapi/internal/notifier"
+	"github.com/behouba/dsapi/adminapi/internal/postgres"
 
 	"github.com/behouba/dsapi"
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) createOrder(c *gin.Context) {
+// OrderHandler implement methods set that handle request for order from admin side
+type OrderHandler struct {
+	Store dsapi.AdminOrderer
+	Auth  *jwt.Authenticator
+	Sms   *notifier.SMS
+}
+
+// NewOrderHandler initiate a new pointer to OrderHandler
+func NewOrderHandler(db *sql.DB, jwtSecretKey string) *OrderHandler {
+
+	auth := jwt.NewAdminAuth(jwtSecretKey)
+
+	sms := notifier.NewSMS()
+
+	return &OrderHandler{
+		Store: &postgres.OrderStore{Db: db},
+		Auth:  auth,
+		Sms:   sms,
+	}
+}
+
+func (o *OrderHandler) createOrder(c *gin.Context) {
 	var order dsapi.Order
 	if err := c.ShouldBindJSON(&order); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -18,7 +44,7 @@ func (h *Handler) createOrder(c *gin.Context) {
 		return
 	}
 
-	if err := h.Db.SaveOrder(&order); err != nil {
+	if err := o.Store.Save(&order); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 		})
@@ -29,10 +55,10 @@ func (h *Handler) createOrder(c *gin.Context) {
 
 // pendingOrders retreive and return in json format new orders that belong
 // employee area
-func (h *Handler) pendingOrders(c *gin.Context) {
+func (o *OrderHandler) pendingOrders(c *gin.Context) {
 	// get employee identification data before retreiving
 	// orders pending in his area
-	orders, err := h.Db.PendingOrders(5)
+	orders, err := o.Store.Pending(5)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -46,7 +72,7 @@ func (h *Handler) pendingOrders(c *gin.Context) {
 
 // orderInfo retreive order corresponding to given id
 // and return it in json format
-func (h *Handler) orderInfo(c *gin.Context) {
+func (o *OrderHandler) orderInfo(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("orderId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -54,7 +80,7 @@ func (h *Handler) orderInfo(c *gin.Context) {
 		})
 		return
 	}
-	order, err := h.Db.Order(id)
+	order, err := o.Store.Get(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -66,7 +92,7 @@ func (h *Handler) orderInfo(c *gin.Context) {
 	})
 }
 
-func (h *Handler) confirmOrder(c *gin.Context) {
+func (o *OrderHandler) confirmOrder(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("orderId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -74,7 +100,7 @@ func (h *Handler) confirmOrder(c *gin.Context) {
 		})
 		return
 	}
-	if err := h.Db.ConfirmOrder(id); err != nil {
+	if err := o.Store.Confirm(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -86,7 +112,7 @@ func (h *Handler) confirmOrder(c *gin.Context) {
 	})
 }
 
-func (h *Handler) cancelOrder(c *gin.Context) {
+func (o *OrderHandler) cancelOrder(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("orderId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -94,7 +120,7 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 		})
 		return
 	}
-	if err := h.Db.CancelOrder(id); err != nil {
+	if err := o.Store.Cancel(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -106,6 +132,6 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 	})
 }
 
-func (h *Handler) orderReceipt(c *gin.Context) {
+func (o *OrderHandler) orderReceipt(c *gin.Context) {
 
 }
