@@ -20,14 +20,16 @@ type AdminAuthenticator interface {
 
 // Employee represent an employee with it identifiers
 type Employee struct {
-	ID         int `json:"id"`
-	OfficeID   int `json:"officeId"`
-	PositionID int `json:"positionId"`
+	ID         int    `json:"id"`
+	OfficeID   int    `json:"officeId"`
+	PositionID int    `json:"positionId"`
+	FullName   string `json:"fullName"`
 }
 
 // AdminCredential represent employee authentication data
 type AdminCredential struct {
-	Email    string `json:"email" binding:"required"`
+	ID       int    `json:"id, omitempty"`
+	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 

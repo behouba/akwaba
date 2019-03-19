@@ -51,6 +51,9 @@ func (o *OrderHandler) createOrder(c *gin.Context) {
 		return
 	}
 
+	c.JSON(http.StatusOK, gin.H{
+		"message": order,
+	})
 }
 
 // pendingOrders retreive and return in json format new orders that belong

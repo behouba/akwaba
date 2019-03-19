@@ -42,10 +42,10 @@ func SetupRouter(a *AuthHandler, o *OrderHandler) *gin.Engine {
 
 		order := v.Group(orderBaseURL)
 		{
+			order.POST("/create", o.createOrder)
 			order.GET("/pending", o.pendingOrders)
 			order.GET("/info/:orderId", o.orderInfo)
 			order.GET("/receipt/:orderId", o.orderReceipt)
-			order.POST("/create", o.createOrder)
 			order.PATCH("/cancel/:orderId", o.cancelOrder)
 			order.PATCH("/confirm/:orderId", o.confirmOrder)
 		}

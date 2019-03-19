@@ -2,22 +2,36 @@ package adminapi
 
 import (
 	"bytes"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/behouba/dsapi/adminapi/internal/jwt"
+
+	"github.com/behouba/dsapi"
 	"github.com/gin-gonic/gin"
 )
 
-var testHandler = AdminHandler("", "", "test_jwt")
+type tAuthStore struct{}
+
+func (t *tAuthStore) Check(a *dsapi.AdminCredential) (emp dsapi.Employee, err error) {
+	if a.Name != "behouba" || a.Password != "12345" {
+		err = errors.New("Invalid creadential for login")
+		return
+	}
+	return
+}
+
+var tAHandler = AuthHandler{Store: &tAuthStore{}, Auth: jwt.NewAdminAuth("testJWT")}
 
 func TestLogin(t *testing.T) {
 	url := version + authBaseURL + "/login"
 
 	cc := map[string]int{
-		`{"email": "behouba@gmail.com", "password": "12345"}`: http.StatusOK,
-		`{"email": "inconnu@gmail.com", "password": "54321"}`: http.StatusUnauthorized,
-		`{"hello": "world", "kouame": "behouba"}`:             http.StatusBadRequest,
+		`{"name": "behouba", "password": "12345"}`:           http.StatusOK,
+		`{"name": "inconnu@gmail.com", "password": "54321"}`: http.StatusUnauthorized,
+		`{"hello": "world", "kouame": "behouba"}`:            http.StatusBadRequest,
 	}
 
 	for s, c := range cc {
@@ -28,7 +42,7 @@ func TestLogin(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 
 		r := gin.Default()
-		r.POST(url, testHandler.login)
+		r.POST(url, tAHandler.login)
 
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)

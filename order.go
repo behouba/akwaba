@@ -6,10 +6,10 @@ import (
 
 // Order struct represent order that will be created by users
 type Order struct {
-	ID            int       `json:"id"`
+	ID            int       `json:"id,omitempty"`
 	PaymentType   int       `json:"paymentType"`
 	CustomerID    int       `json:"customerId"`
-	Cost          int       `json:"cost"`
+	Cost          float64   `json:"cost"`
 	CreatedAt     time.Time `json:"createdAt"`
 	State         int       `json:"state"`
 	Description   string    `json:"description"`

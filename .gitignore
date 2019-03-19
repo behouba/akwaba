@@ -1,6 +1,1 @@
-/bin
-/.go
-/.push-*
-/.container-*
-/.dockerfile-*
 /store

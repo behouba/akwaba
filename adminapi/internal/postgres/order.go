@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/behouba/dsapi"
 )
@@ -35,6 +36,7 @@ func (o *OrderStore) Cancel(id int) (err error) {
 
 // Save save order created by admin agent into database
 func (o *OrderStore) Save(order *dsapi.Order) (err error) {
+	log.Println(*order)
 	return
 }
 
