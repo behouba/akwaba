@@ -17,7 +17,7 @@ const (
 	authBaseURL   = "/auth"
 	orderBaseURL  = "/order"
 	parcelBaseURL = "/parcel"
-	custBaseURL   = "/customer"
+	userBaseURL   = "/user"
 )
 
 // Handler represents the API handler methods set
@@ -28,7 +28,7 @@ type Handler struct {
 }
 
 // SetupRouter create routes and return *gin.Engine
-func SetupRouter(a *AuthHandler, o *OrderHandler) *gin.Engine {
+func SetupRouter(a *AuthHandler, o *OrderHandler, u *UserHandler) *gin.Engine {
 	r := gin.Default()
 
 	v := r.Group(version)
@@ -40,15 +40,15 @@ func SetupRouter(a *AuthHandler, o *OrderHandler) *gin.Engine {
 			// auth.GET("/logout", h.logout)
 		}
 
-		order := v.Group(orderBaseURL)
-		{
-			order.POST("/create", o.createOrder)
-			order.GET("/pending", o.pendingOrders)
-			order.GET("/info/:orderId", o.orderInfo)
-			order.GET("/receipt/:orderId", o.orderReceipt)
-			order.PATCH("/cancel/:orderId", o.cancelOrder)
-			order.PATCH("/confirm/:orderId", o.confirmOrder)
-		}
+		// order := v.Group(orderBaseURL)
+		// {
+		// 	order.POST("/create", o.createOrder)
+		// 	order.GET("/pending", o.pendingOrders)
+		// 	order.GET("/info/:orderId", o.orderInfo)
+		// 	order.GET("/receipt/:orderId", o.orderReceipt)
+		// 	order.PATCH("/cancel/:orderId", o.cancelOrder)
+		// 	order.PATCH("/confirm/:orderId", o.confirmOrder)
+		// }
 
 		// parcel := v.Group(parcelBaseURL)
 		{
@@ -59,13 +59,20 @@ func SetupRouter(a *AuthHandler, o *OrderHandler) *gin.Engine {
 			// parcel.GET("/track/:id", h.trackParcel)
 		}
 
-		// cust := v.Group(custBaseURL)
+		cust := v.Group(userBaseURL)
 		{
-			// cust.POST("/create", h.createNewCustomer)
-			// cust.GET("/info", h.customerData) // query customerId= , phone=
-			// cust.PATCH("/freeze/:id", h.freezeCustomer)
-			// cust.PATCH("/unfreeze/:id", h.unfreezeCustomer)
-			// cust.GET("/address/:customerId", h.customerAddress)
+			cust.POST("/customer", u.createNewCustomer)
+			cust.GET("/customer", u.createNewCustomer) // query customerId= , phone=
+			cust.PATCH("/freeze/:id", u.freezeCustomer)
+			cust.PATCH("/unfreeze/:id", u.unfreezeCustomer)
+
+			address := cust.Group("/address")
+			{
+				address.GET("/delivery")
+				address.POST("/delivery")
+				address.GET("/pickup")
+				address.POST("/pickup")
+			}
 		}
 
 	}
