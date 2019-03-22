@@ -26,13 +26,3 @@ const (
 	EventUserCancelation    = 9
 	EventAdminCancelation   = 10
 )
-
-// Order's possible states identifier constant list
-const (
-	StateWaitingConfirmation = 1
-	StateWaitingPickup       = 2
-	StateInTransportation    = 3
-	StateDelivered           = 4
-	StateCanceledByUser      = 5
-	StateCanceledByAdmin     = 6
-)

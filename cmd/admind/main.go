@@ -11,6 +11,7 @@ func main() {
 	jwtSecret := store.JWTDevSecret
 	orderHandler := adminapi.NewOrderHandler(db, jwtSecret)
 	authHandler := adminapi.NewAuthHandler(db, jwtSecret)
-	r := adminapi.SetupRouter(authHandler, orderHandler)
+	userHandler := adminapi.NewUserHandler(db, jwtSecret)
+	r := adminapi.SetupRouter(authHandler, orderHandler, userHandler)
 	r.Run(":8084")
 }

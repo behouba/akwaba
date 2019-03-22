@@ -16,35 +16,33 @@ import (
 
 // OrderHandler implement methods set that handle request for order from admin side
 type OrderHandler struct {
-	Store dsapi.AdminOrderer
+	Store dsapi.AdminOrderManager
 	Auth  *jwt.Authenticator
 	Sms   *notifier.SMS
 }
 
 // NewOrderHandler initiate a new pointer to OrderHandler
 func NewOrderHandler(db *sql.DB, jwtSecretKey string) *OrderHandler {
-
 	auth := jwt.NewAdminAuth(jwtSecretKey)
-
-	sms := notifier.NewSMS()
-
 	return &OrderHandler{
-		Store: &postgres.OrderStore{Db: db},
+		Store: &postgres.OrderStore{DB: db},
 		Auth:  auth,
-		Sms:   sms,
 	}
 }
 
 func (o *OrderHandler) createOrder(c *gin.Context) {
 	var order dsapi.Order
-	if err := c.ShouldBindJSON(&order); err != nil {
+	var err error
+	err = c.ShouldBindJSON(&order)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
 		})
 		return
 	}
 
-	if err := o.Store.Save(&order); err != nil {
+	order.ID, err = o.Store.Save(&order)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 		})
@@ -52,8 +50,9 @@ func (o *OrderHandler) createOrder(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": order,
+		"resultats": order,
 	})
+	// after order has been created
 }
 
 // pendingOrders retreive and return in json format new orders that belong
@@ -61,7 +60,7 @@ func (o *OrderHandler) createOrder(c *gin.Context) {
 func (o *OrderHandler) pendingOrders(c *gin.Context) {
 	// get employee identification data before retreiving
 	// orders pending in his area
-	orders, err := o.Store.Pending(5)
+	orders, err := o.Store.Pending(2)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -73,9 +72,9 @@ func (o *OrderHandler) pendingOrders(c *gin.Context) {
 	})
 }
 
-// orderInfo retreive order corresponding to given id
+// getOrder retreive order corresponding to given id
 // and return it in json format
-func (o *OrderHandler) orderInfo(c *gin.Context) {
+func (o *OrderHandler) getOrder(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("orderId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

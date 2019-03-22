@@ -5,8 +5,15 @@ import (
 	"strconv"
 )
 
+// State of customer account in the database
+const (
+	ActiveUserStateID = 1
+	FreezedUserSateID = 2
+	BannedUserStateID = 3
+)
+
 var (
-	errInvalidPhone       = errors.New("le numéro de téléphone fourni est invalid")
+	errInvalidPhone       = errors.New("le numéro de téléphone fourni est invalide")
 	errFullNameIsRequired = errors.New("merci de fournir votre nom complet")
 )
 
@@ -20,18 +27,15 @@ type UserOrderer interface {
 // User is representation of new customer
 // registration's data
 type User struct {
-	FirstName string  `json:"firstName"`
-	LastName  string  `json:"lastName"`
-	TownID    int     `json:"townId"`
-	Phone     string  `json:"phone"`
-	Email     string  `json:"email"`
-	PostionX  float32 `json:"positionX"`
-	PostionY  float32 `json:"positionY"`
+	ID       int    `json:"id, omitempty"`
+	FullName string `json:"fullName" binding:"required"`
+	Phone    string `json:"phone" binding:"required"`
+	Email    string `json:"email"`
 }
 
-// CheckNewUserData validate new user information
+// CheckData validate new user information
 // before registration
-func (u *User) CheckNewUserData() (err error) {
+func (u *User) CheckData() (err error) {
 	if len(u.Phone) != 8 {
 		err = errInvalidPhone
 		return
@@ -40,7 +44,7 @@ func (u *User) CheckNewUserData() (err error) {
 		err = errInvalidPhone
 		return
 	}
-	if u.FirstName == "" || u.LastName == "" {
+	if u.FullName == "" {
 		err = errFullNameIsRequired
 		return
 	}

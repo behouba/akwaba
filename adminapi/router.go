@@ -37,18 +37,27 @@ func SetupRouter(a *AuthHandler, o *OrderHandler, u *UserHandler) *gin.Engine {
 		{
 			// authentication routes
 			auth.POST("/login", a.login)
-			// auth.GET("/logout", h.logout)
 		}
 
-		// order := v.Group(orderBaseURL)
-		// {
-		// 	order.POST("/create", o.createOrder)
-		// 	order.GET("/pending", o.pendingOrders)
-		// 	order.GET("/info/:orderId", o.orderInfo)
-		// 	order.GET("/receipt/:orderId", o.orderReceipt)
-		// 	order.PATCH("/cancel/:orderId", o.cancelOrder)
-		// 	order.PATCH("/confirm/:orderId", o.confirmOrder)
-		// }
+		user := v.Group(userBaseURL)
+		{
+			user.POST("/profile", u.createCustomer)
+			user.GET("/profile", u.customerData) // queries q and by
+			user.PATCH("/freeze/:userId", u.freezeCustomer)
+			user.PATCH("/unfreeze/:userId", u.unfreezeCustomer)
+			user.GET("/address/:type", u.getAddresses) // query type ("delivery", pickup)
+			user.POST("/address", u.createAddress)
+		}
+
+		order := v.Group(orderBaseURL)
+		{
+			order.POST("/create", o.createOrder)
+			order.GET("/pending", o.pendingOrders)
+			order.GET("/info/:orderId", o.getOrder)
+			order.GET("/receipt/:orderId", o.orderReceipt)
+			order.PATCH("/cancel/:orderId", o.cancelOrder)
+			order.PATCH("/confirm/:orderId", o.confirmOrder)
+		}
 
 		// parcel := v.Group(parcelBaseURL)
 		{
@@ -57,22 +66,6 @@ func SetupRouter(a *AuthHandler, o *OrderHandler, u *UserHandler) *gin.Engine {
 			// parcel.POST("/check/out", h.recordCheckOut)
 			// parcel.POST("/delivery", h.recordDelivery)
 			// parcel.GET("/track/:id", h.trackParcel)
-		}
-
-		cust := v.Group(userBaseURL)
-		{
-			cust.POST("/customer", u.createNewCustomer)
-			cust.GET("/customer", u.createNewCustomer) // query customerId= , phone=
-			cust.PATCH("/freeze/:id", u.freezeCustomer)
-			cust.PATCH("/unfreeze/:id", u.unfreezeCustomer)
-
-			address := cust.Group("/address")
-			{
-				address.GET("/delivery")
-				address.POST("/delivery")
-				address.GET("/pickup")
-				address.POST("/pickup")
-			}
 		}
 
 	}

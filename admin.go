@@ -1,8 +1,8 @@
 package dsapi
 
-// AdminOrderer interface for admin orders operation on database
-type AdminOrderer interface {
-	Save(order *Order) error
+// AdminOrderManager interface for admin orders operation on database
+type AdminOrderManager interface {
+	Save(order *Order) (int, error)
 	Confirm(orderID int) error
 	Cancel(orderID int) error
 	Get(orderID int) (Order, error)
@@ -13,11 +13,11 @@ type AdminOrderer interface {
 type AdminUserManager interface {
 	GetUserByPhone(phone string) ([]User, error)
 	GetUserByName(name string) ([]User, error)
-	GetDeliveryAddress(userID int) ([]Address, error)
-	GetPickUpAddress(userID int) ([]Address, error)
-	SaveUser(user *User) error
-	SaveDeliveryAddress(userID int, address *Address) error
-	SavePickUpAddress(userID int, address *Address) error
+	GetAddresses(userID int, addrType string) ([]Address, error)
+	SaveAddress(addr *Address) (int, error)
+	SaveUser(user *User) (int, error)
+	// SaveDeliveryAddress(userID int, address *Address) (int, error)
+	// SavePickUpAddress(userID int, address *Address) (int, error)
 	FreezeUser(userID int) error
 	UnFreezeUser(userID int) error
 }
