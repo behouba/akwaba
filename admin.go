@@ -1,5 +1,14 @@
 package dsapi
 
+import (
+	"time"
+)
+
+// AdminParcelManager interface for admin parcel
+type AdminParcelManager interface {
+	Track(orderID, officeID int) ([]Event, error)
+}
+
 // AdminOrderManager interface for admin orders operation on database
 type AdminOrderManager interface {
 	Save(order *Order) (int, error)
@@ -16,10 +25,16 @@ type AdminUserManager interface {
 	GetAddresses(userID int, addrType string) ([]Address, error)
 	SaveAddress(addr *Address) (int, error)
 	SaveUser(user *User) (int, error)
-	// SaveDeliveryAddress(userID int, address *Address) (int, error)
-	// SavePickUpAddress(userID int, address *Address) (int, error)
 	FreezeUser(userID int) error
 	UnFreezeUser(userID int) error
+}
+
+// Event represent an event in parcel tracking journey
+type Event struct {
+	Title      string    `json:"title"`
+	Time       time.Time `json:"time"`
+	OfficeName string    `json:"officeName"`
+	City       string    `json:"city"`
 }
 
 // AdminAuthenticator interface for admin login operations

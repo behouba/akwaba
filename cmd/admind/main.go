@@ -12,6 +12,7 @@ func main() {
 	orderHandler := adminapi.NewOrderHandler(db, jwtSecret)
 	authHandler := adminapi.NewAuthHandler(db, jwtSecret)
 	userHandler := adminapi.NewUserHandler(db, jwtSecret)
-	r := adminapi.SetupRouter(authHandler, orderHandler, userHandler)
+	parcelHandler := adminapi.NewParcelHandler(db, jwtSecret)
+	r := adminapi.SetupRouter(authHandler, orderHandler, userHandler, parcelHandler)
 	r.Run(":8084")
 }

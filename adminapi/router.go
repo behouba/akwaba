@@ -28,7 +28,7 @@ type Handler struct {
 }
 
 // SetupRouter create routes and return *gin.Engine
-func SetupRouter(a *AuthHandler, o *OrderHandler, u *UserHandler) *gin.Engine {
+func SetupRouter(a *AuthHandler, o *OrderHandler, u *UserHandler, p *ParcelHandler) *gin.Engine {
 	r := gin.Default()
 
 	v := r.Group(version)
@@ -59,13 +59,13 @@ func SetupRouter(a *AuthHandler, o *OrderHandler, u *UserHandler) *gin.Engine {
 			order.PATCH("/confirm/:orderId", o.confirmOrder)
 		}
 
-		// parcel := v.Group(parcelBaseURL)
+		parcel := v.Group(parcelBaseURL)
 		{
-			// parcel.POST("/pickup", h.recordPickUp)
-			// parcel.POST("/check/in", h.recoredCheckIn)
-			// parcel.POST("/check/out", h.recordCheckOut)
-			// parcel.POST("/delivery", h.recordDelivery)
-			// parcel.GET("/track/:id", h.trackParcel)
+			parcel.POST("/check/in", p.recoredCheckIn)
+			parcel.POST("/check/out", p.recordCheckOut)
+			parcel.POST("/check/delivered", p.recordDelivery)
+			parcel.GET("/scan/:orderId", p.nextEvent)
+			parcel.GET("/track/:orderId", p.trackParcel)
 		}
 
 	}
