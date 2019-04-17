@@ -2,16 +2,15 @@ package jwt
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-var userTokenDuration = time.Now().Add(1 * time.Minute)
-
 // Authenticator provide methods to use json web token for users
 type Authenticator struct {
-	claims    *claims
+	claims    *Claims
 	secretKEY []byte
 }
 
@@ -22,16 +21,27 @@ func NewAuthenticator(secret []byte) *Authenticator {
 	}
 }
 
-type claims struct {
+// Claims is jwt token custom claims
+type Claims struct {
 	CustID int `json:"custId,omiempty"`
 	Phone  int `json:"phone"`
 	jwt.StandardClaims
 }
 
 // MakeCustomerJWT take customer id create new jwt and return jwt string
-func (a *Authenticator) MakeCustomerJWT(customerID int) (token string, err error) {
+func (a *Authenticator) MakeCustomerJWT(customerID int, isMobileApp string) (token string, err error) {
 
-	a.claims = &claims{
+	var userTokenDuration time.Time
+	if isMobileApp == "Yes" {
+		log.Println("token for mobile application")
+		userTokenDuration = time.Now().Add(18000 * time.Hour)
+	} else {
+		log.Println("token for browser")
+
+		userTokenDuration = time.Now().Add(12 * time.Hour)
+	}
+
+	a.claims = &Claims{
 		CustID: customerID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: userTokenDuration.Unix(),
@@ -48,17 +58,19 @@ func (a *Authenticator) MakeCustomerJWT(customerID int) (token string, err error
 }
 
 // ValidateJWT validate passed  jwt token
-func (a *Authenticator) ValidateJWT(token string) (int, error) {
-	tkn, err := jwt.ParseWithClaims(token, a.claims, func(t *jwt.Token) (interface{}, error) {
+func (a *Authenticator) ValidateJWT(tokenString string) (int, error) {
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		return a.secretKEY, nil
 	})
-	if err != nil {
-		return 0, err
-	}
-
-	if !tkn.Valid {
+	// log.Println("token validity: ", token.Valid)
+	if !token.Valid {
 		return 0, errors.New("Invalid token")
 	}
-
-	return a.claims.CustID, nil
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	return claims.CustID, nil
 }

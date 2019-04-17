@@ -5,18 +5,24 @@ import (
 	"fmt"
 
 	"github.com/behouba/dsapi"
+	_ "github.com/lib/pq" // postgresql driver
 )
 
 // UserDB hold database connection for users
 type UserDB struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 // Open function open DB database
 // each server should have it own database user with corresponding rights on database
-func Open() (database *UserDB, err error) {
+func Open(uri string) (database UserDB, err error) {
 	// will open database connection here
 	// each server should have it own database user with corresponding rights on database
+	db, err := sql.Open("postgres", uri)
+	if err != nil {
+		return
+	}
+	database.DB = db
 	return
 }
 
@@ -37,7 +43,7 @@ func (d *UserDB) ConfirmSMSCode(phone string, code string) (valid bool) {
 	// 	r.client.Del(phone)
 	// 	return true
 	// }
-	return
+	return true
 }
 
 // SaveNewCustomer save new customer info into database
@@ -49,11 +55,14 @@ func (d *UserDB) SaveNewCustomer(u *dsapi.User) (userID int, err error) {
 
 // CheckPhone check if phone number exist in database then return nil
 // is phone exit and error if not
-func (d *UserDB) CheckPhone(phone string) (userID int, err error) {
+func (d *UserDB) CheckPhone(phone string) (user dsapi.User, err error) {
+	err = d.DB.QueryRow("SELECT id, full_name, phone, email FROM customer WHERE phone=$1",
+		phone,
+	).Scan(&user.ID, &user.FullName, &user.Phone, &user.Email)
 	return
 }
 
-// CustomerIDFromPhone take customer phone number and return customer id
-func (d *UserDB) CustomerIDFromPhone(phone string) (id int, err error) {
-	return 5, nil
+// UserByPhone take user phone number and return user struct
+func (d *UserDB) UserByPhone(phone string) (user dsapi.User, err error) {
+	return dsapi.User{ID: 5, FullName: "Kouame behouba", Email: "behouba@gmail.com", Phone: phone}, nil
 }

@@ -1,6 +1,7 @@
 package userapi
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -26,7 +27,7 @@ func (h *Handler) checkPhone(c *gin.Context) {
 		return
 	}
 
-	userID, err := h.Db.CheckPhone(phone)
+	user, err := h.Db.CheckPhone(phone)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": phone + " is not yet registered, pleasse register it.",
@@ -34,7 +35,7 @@ func (h *Handler) checkPhone(c *gin.Context) {
 		return
 	}
 
-	code, err := h.Sms.SendAuthCode(userID, phone)
+	code, err := h.Sms.SendAuthCode(user.ID, phone)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Sorry we failed to send you authentication sms to :" + phone,
@@ -56,15 +57,13 @@ func (h *Handler) checkPhone(c *gin.Context) {
 func (h *Handler) registration(c *gin.Context) {
 	// donnee json a traiter contenant les info sur l'utilisateur
 	var user dsapi.User
-
-	if err := c.ShouldBind(&user); err != nil {
+	if err := c.ShouldBindJSON(&user); err != nil {
+		log.Println(err.Error())
+		log.Println(user)
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	if err := user.CheckNewUserData(); err != nil {
-		c.Status(http.StatusBadRequest)
-		return
-	}
+	log.Println(user)
 	userID, err := h.Db.SaveNewCustomer(&user)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
@@ -110,7 +109,7 @@ func (h *Handler) confirmPhone(c *gin.Context) {
 		return
 	}
 
-	customerID, err := h.Db.CustomerIDFromPhone(phone)
+	user, err := h.Db.UserByPhone(phone)
 	if err != nil {
 		// should check error for internal server errors also
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -119,7 +118,9 @@ func (h *Handler) confirmPhone(c *gin.Context) {
 		return
 	}
 
-	token, err := h.Auth.MakeCustomerJWT(customerID)
+	isMobile := c.Request.Header.Get("Mobile-application")
+
+	user.AccessToken, err = h.Auth.MakeCustomerJWT(user.ID, isMobile)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Something went wrong with this request.",
@@ -128,17 +129,17 @@ func (h *Handler) confirmPhone(c *gin.Context) {
 	}
 	// Then send access token to customer and store it to postgresql database
 
-	c.SetCookie("token", token, cookieMaxAge, "/", "", false, false)
+	// c.SetCookie("token", token, cookieMaxAge, "/", "", false, false)
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Verification done",
-		"token":   token,
+		"message": "Verification successed",
+		"user":    user,
 	})
 
 }
 
 func (h *Handler) authRequired(c *gin.Context) {
-	token, err := c.Cookie("token")
-	if token == "" || err != nil {
+	token := c.Request.Header.Get("Authorization")
+	if token == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "Sorry you are not authenticated.",
 		})
@@ -157,6 +158,19 @@ func (h *Handler) authRequired(c *gin.Context) {
 	c.Set("userID", userID)
 }
 
+func (h *Handler) lookForValidToken(c *gin.Context) {
+	token := c.Request.Header.Get("Authorization")
+	userID, err := h.Auth.ValidateJWT(token)
+	if err == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You already have a valid access token",
+		})
+		c.Abort()
+		return
+	}
+	log.Println("user id: ", userID, err.Error())
+}
+
 func (h *Handler) setAuthState(c *gin.Context) {
 	token, err := c.Cookie("token")
 	if token == "" || err != nil {
@@ -167,4 +181,25 @@ func (h *Handler) setAuthState(c *gin.Context) {
 		return
 	}
 	c.Set("userID", userID)
+}
+
+func (h *Handler) checkAuthState(c *gin.Context) {
+	token := c.Request.Header.Get("Authorization")
+	log.Println(token)
+	if token == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You are not authenticated",
+		})
+		return
+	}
+	userID, err := h.Auth.ValidateJWT(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You are not authenticated",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": fmt.Sprintf("user %d you have a valid access token", userID),
+	})
 }

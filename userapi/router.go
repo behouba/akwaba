@@ -1,10 +1,11 @@
 package userapi
 
 import (
+	"log"
+
 	"github.com/behouba/dsapi/userapi/internal/jwt"
 	"github.com/behouba/dsapi/userapi/internal/notifier"
 	"github.com/behouba/dsapi/userapi/internal/postgres"
-	"github.com/behouba/dsapi/userapi/internal/redis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,9 +41,10 @@ func SetupRouter(h *Handler) *gin.Engine {
 		auth := v.Group(authBaseURL)
 		{
 			// authentication routes
-			auth.GET("/phone/check/:phone", h.checkPhone)
-			auth.GET("/phone/confirm/:phone", h.confirmPhone)
-			auth.POST("/registration", h.registration)
+			auth.GET("/phone/check/:phone", h.lookForValidToken, h.checkPhone)
+			auth.GET("/phone/confirm/:phone", h.lookForValidToken, h.confirmPhone)
+			auth.POST("/registration", h.lookForValidToken, h.registration)
+			auth.GET("/check", h.checkAuthState)
 		}
 
 		order := v.Group(orderBaseURL)
@@ -70,14 +72,10 @@ func SetupRouter(h *Handler) *gin.Engine {
 }
 
 // UserHandler create take configurations info and return new user handler
-func UserHandler(dbConfig string, redisConig string, jwtSecretKey string) *Handler {
-	db, err := postgres.Open()
+func UserHandler(dbConfig string, jwtSecretKey string) *Handler {
+	db, err := postgres.Open(dbConfig)
 	if err != nil {
-		panic(err)
-	}
-
-	cache, err := redis.New()
-	if err != nil {
+		log.Println(err)
 		panic(err)
 	}
 
@@ -86,9 +84,8 @@ func UserHandler(dbConfig string, redisConig string, jwtSecretKey string) *Handl
 	sms := notifier.NewSMS()
 
 	return &Handler{
-		Db:    db,
-		Cache: cache,
-		Auth:  auth,
-		Sms:   sms,
+		Db:   &db,
+		Auth: auth,
+		Sms:  sms,
 	}
 }

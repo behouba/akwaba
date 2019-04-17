@@ -27,10 +27,11 @@ type UserOrderer interface {
 // User is representation of new customer
 // registration's data
 type User struct {
-	ID       int    `json:"id, omitempty"`
-	FullName string `json:"fullName" binding:"required"`
-	Phone    string `json:"phone" binding:"required"`
-	Email    string `json:"email"`
+	ID          int    `json:"id, omitempty"`
+	FullName    string `json:"fullName" binding:"required"`
+	Phone       string `json:"phone" binding:"required"`
+	Email       string `json:"email"`
+	AccessToken string `json:"accessToken, omitempty"`
 }
 
 // CheckData validate new user information

@@ -16,34 +16,34 @@ const (
 
 // Order struct represent order that will be created by users
 type Order struct {
-	ID              int       `json:"id,omitempty"`
-	PaymentTypeID   int       `json:"paymentTypeId" binding:"required"`
-	CustomerID      int       `json:"customerId" binding:"required"`
-	CreatedAt       time.Time `json:"createdAt"`
-	State           int       `json:"state"`
-	TotalCost       float64   `json:"totalCost"`
-	Description     string    `json:"description"  binding:"required"`
-	PickUpAddressID int       `json:"pickupAddressId"  binding:"required"`
-	Parcels         []Parcel  `json:"parcels" binding:"required"`
+	ID            int       `json:"id,omitempty"`
+	PaymentTypeID int       `json:"paymentTypeId" binding:"required"`
+	CustomerID    int       `json:"customerId" binding:"required"`
+	CreatedAt     time.Time `json:"createdAt"`
+	State         int       `json:"state"`
+	TotalCost     float64   `json:"totalCost"`
+	Description   string    `json:"description"  binding:"required"`
+	PickUpAddress Address   `json:"pickupAddress"  binding:"required"`
+	Parcels       []Parcel  `json:"parcels" binding:"required"`
 }
 
 // ComputeCost return totalCost of the order
 func (o *Order) ComputeCost() (cost float64) {
 	for _, p := range o.Parcels {
-		cost += p.ComputeCost(o.PickUpAddressID)
+		cost += p.ComputeCost(o.PickUpAddress.ID)
 	}
 	return
 }
 
 // Parcel struct is representation of parcel in system
 type Parcel struct {
-	ID                int     `json:"id,omitempty"`
-	OrderID           int     `json:"orderId,omitempty"`
-	Cost              float64 `json:"cost"`
-	Weight            float64 `json:"weight" binding:"required"`
-	Description       string  `json:"description" binding:"required"`
-	StateID           int     `json:"stateId"`
-	DeliveryAddressID int     `json:"deliveryAddressId" binding:"required"`
+	ID              int     `json:"id,omitempty"`
+	OrderID         int     `json:"orderId,omitempty"`
+	Cost            float64 `json:"cost"`
+	Weight          float64 `json:"weight" binding:"required"`
+	Description     string  `json:"description" binding:"required"`
+	StateID         int     `json:"stateId"`
+	DeliveryAddress Address `json:"deliveryAddress" binding:"required"`
 }
 
 // ComputeCost compute the cost for a parcel and return the value
@@ -64,14 +64,13 @@ type MapPoint struct {
 
 // Address represent delivery address provided by customers
 type Address struct {
-	ID          int      `json:"id,omitempty"`
-	CustomerID  int      `json:"customer_id"`
+	ID int `json:"id,omitempty"`
+	// CustomerID  int      `json:"customerId"`
 	AreaID      int      `json:"areaId" binding:"required"`
 	FullName    string   `json:"fullName" binding:"required"`
 	Phone       string   `json:"phone" binding:"required"`
-	Map         MapPoint `json:"map"`
+	MapPoint    MapPoint `json:"mapPoint"`
 	Description string   `json:"description" binding:"required"`
-	Type        string   `json:"type" binding:"required"`
 }
 
 // Track represent an event in order journey

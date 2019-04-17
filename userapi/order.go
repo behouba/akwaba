@@ -60,21 +60,22 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 func (h *Handler) computeOrderCost(c *gin.Context) {
 	// will need order's weight packing type distance in km and paymentType
 	// need more info and service to be properly implemented
-	from := c.Query("from")
-	to := c.Query("to")
+	origin := c.Query("origin")
+	destination := c.Query("destination")
 	weight, err := strconv.ParseFloat(c.Query("weight"), 64)
-	if err != nil {
+	if err != nil || weight == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"message": "Pas suffisamement d'information pour calculer le cout de la livraison",
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"from":   from,
-		"to":     to,
-		"weight": weight,
-		"price":  1500,
+		"message":     "Voici une estimation du cout de votre commande",
+		"origin":      origin,
+		"destination": destination,
+		"weight":      weight,
+		"price":       1500 * weight,
 	})
 }
 
