@@ -2,6 +2,7 @@ package dsapi
 
 import (
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"strconv"
 )
 
@@ -27,11 +28,18 @@ type UserOrderer interface {
 // User is representation of new customer
 // registration's data
 type User struct {
-	ID          int    `json:"id, omitempty"`
-	FullName    string `json:"fullName" binding:"required"`
-	Phone       string `json:"phone" binding:"required"`
+	ID          int    `json:"id,omitempty"`
+	FullName    string `json:"fullName"`
+	Phone       string `json:"phone"`
 	Email       string `json:"email"`
-	AccessToken string `json:"accessToken, omitempty"`
+	Password    string `json:"password,omitempty"`
+	AccessToken string `json:"accessToken,omitempty"`
+}
+
+func (u *User) hashPassword() (hp string, err error) {
+	p, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
+	hp = string(p)
+	return
 }
 
 // CheckData validate new user information

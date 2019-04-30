@@ -3,9 +3,9 @@ package userapi
 import (
 	"log"
 
-	"github.com/behouba/dsapi/userapi/internal/jwt"
-	"github.com/behouba/dsapi/userapi/internal/notifier"
-	"github.com/behouba/dsapi/userapi/internal/postgres"
+	"github.com/behouba/akwaba/user/internal/jwt"
+	"github.com/behouba/akwaba/user/internal/notifier"
+	"github.com/behouba/akwaba/user/internal/postgres"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,9 +19,10 @@ const (
 
 // Handler represents the API handler methods set
 type Handler struct {
-	Db   *postgres.UserDB
-	Auth *jwt.Authenticator
-	Sms  *notifier.SMS
+	Db     *postgres.UserDB
+	Auth   *jwt.Authenticator
+	Sms    *notifier.SMS
+	Mailer *notifier.Mailer
 }
 
 // SetupRouter create routes and return *gin.Engine
@@ -41,10 +42,12 @@ func SetupRouter(h *Handler) *gin.Engine {
 		auth := v.Group(authBaseURL)
 		{
 			// authentication routes
-			auth.GET("/phone/check/:phone", h.lookForValidToken, h.checkPhone)
-			auth.GET("/phone/confirm/:phone", h.lookForValidToken, h.confirmPhone)
-			auth.POST("/registration", h.lookForValidToken, h.registration)
+			auth.GET("/phone/check/:phone", h.checkPhone)
+			auth.GET("/phone/confirm/:phone", h.confirmPhone)
+			auth.POST("/registration", h.registration)
+			auth.POST("/login", h.login)
 			auth.GET("/check", h.checkAuthState)
+			auth.GET("/logout", h.logout)
 		}
 
 		order := v.Group(orderBaseURL)
@@ -82,10 +85,12 @@ func UserHandler(dbConfig string, jwtSecretKey string) *Handler {
 	auth := jwt.NewAuthenticator([]byte(jwtSecretKey))
 
 	sms := notifier.NewSMS()
+	mailer := notifier.NewMailer()
 
 	return &Handler{
-		Db:   &db,
-		Auth: auth,
-		Sms:  sms,
+		Db:     &db,
+		Auth:   auth,
+		Sms:    sms,
+		Mailer: mailer,
 	}
 }

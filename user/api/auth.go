@@ -2,12 +2,11 @@ package userapi
 
 import (
 	"fmt"
+	"github.com/behouba/akwaba"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
-
-	"github.com/behouba/dsapi"
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -21,25 +20,25 @@ func (h *Handler) checkPhone(c *gin.Context) {
 	// phone number format validation
 	_, err := strconv.Atoi(phone)
 	if (len(phone) != 8) || (err != nil) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid phone number",
-		})
+		authResponse(c, "Invalid phone number", http.StatusBadRequest)
 		return
 	}
 
 	user, err := h.Db.CheckPhone(phone)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": phone + " is not yet registered, pleasse register it.",
-		})
+		authResponse(c, phone+" is not yet registered, pleasse register it.",
+			http.StatusNotFound,
+		)
 		return
 	}
 
 	code, err := h.Sms.SendAuthCode(user.ID, phone)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Sorry we failed to send you authentication sms to :" + phone,
-		})
+
+		authResponse(c,
+			"Sorry we failed to send you authentication sms to :"+phone,
+			http.StatusInternalServerError,
+		)
 		return
 	}
 
@@ -48,9 +47,7 @@ func (h *Handler) checkPhone(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Authentication sms sent to: " + phone,
-	})
+	authResponse(c, "Authentication sms sent to: "+phone, http.StatusOK)
 }
 
 // Registration handler new customer registration
@@ -58,18 +55,17 @@ func (h *Handler) registration(c *gin.Context) {
 	// donnee json a traiter contenant les info sur l'utilisateur
 	var user dsapi.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		log.Println(err.Error())
-		log.Println(user)
+		log.Println(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	log.Println(user)
-	userID, err := h.Db.SaveNewCustomer(&user)
+	newUser, statusCode, err := h.Db.SaveNewCustomer(&user)
 	if err != nil {
-		c.Status(http.StatusInternalServerError)
+		log.Println(err)
+		authResponse(c, err.Error(), statusCode)
 		return
 	}
-	code, err := h.Sms.SendAuthCode(userID, user.Phone)
+	code, err := h.Mailer.SendAuthCode(newUser)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
@@ -129,7 +125,7 @@ func (h *Handler) confirmPhone(c *gin.Context) {
 	}
 	// Then send access token to customer and store it to postgresql database
 
-	// c.SetCookie("token", token, cookieMaxAge, "/", "", false, false)
+	c.SetCookie("token", user.AccessToken, cookieMaxAge, "/", "", false, false)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Verification successed",
 		"user":    user,
@@ -158,18 +154,41 @@ func (h *Handler) authRequired(c *gin.Context) {
 	c.Set("userID", userID)
 }
 
-func (h *Handler) lookForValidToken(c *gin.Context) {
-	token := c.Request.Header.Get("Authorization")
-	userID, err := h.Auth.ValidateJWT(token)
-	if err == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "You already have a valid access token",
-		})
-		c.Abort()
+func (h *Handler) login(c *gin.Context) {
+	var user dsapi.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		log.Println(err)
+		c.Status(http.StatusBadRequest)
 		return
 	}
-	log.Println("user id: ", userID, err.Error())
+	u, err := h.Db.Authenticate(user.Email, user.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Information de connexion non valide",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "authentication succeded.",
+		"user":    u,
+	})
 }
+
+func (h *Handler) logout(c *gin.Context) {
+
+}
+
+// func (h *Handler) lookForValidToken(c *gin.Context) {
+// 	token := c.Request.Header.Get("Authorization")
+// 	userID, err := h.Auth.ValidateJWT(token)
+// 	if err == nil {
+// 		c.JSON(http.StatusUnauthorized, gin.H{
+// 			"message": "You already have a valid access token",
+// 		})
+// 		c.Abort()
+// 		return
+// 	}
+// 	log.Println("user id: ", userID, err.Error())
+// }
 
 func (h *Handler) setAuthState(c *gin.Context) {
 	token, err := c.Cookie("token")
@@ -184,8 +203,8 @@ func (h *Handler) setAuthState(c *gin.Context) {
 }
 
 func (h *Handler) checkAuthState(c *gin.Context) {
-	token := c.Request.Header.Get("Authorization")
-	log.Println(token)
+	token, err := c.Cookie("token")
+	log.Println("token value from cookie: ", token)
 	if token == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "You are not authenticated",
@@ -201,5 +220,11 @@ func (h *Handler) checkAuthState(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": fmt.Sprintf("user %d you have a valid access token", userID),
+	})
+}
+
+func authResponse(c *gin.Context, message string, statusCode int) {
+	c.JSON(statusCode, gin.H{
+		"message": message,
 	})
 }
