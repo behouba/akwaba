@@ -1,0 +1,257 @@
+{{ define "order"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+
+    <title>Document</title>
+</head>
+<style>
+    .logo {
+        width: 150px;
+        height: 60px;
+    }
+
+    #mobile-header,
+    #desktop-header {
+        margin: 0px 0px !important;
+    }
+
+    @media only screen and (min-width: 768px) {
+        #mobile-header {
+            display: none !important;
+        }
+
+        #desktop-header {
+            display: block !important;
+        }
+
+        .section-title {
+            font-size: 2rem !important;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        #mobile-header {
+            display: block !important;
+        }
+
+        #desktop-header {
+            display: none !important;
+        }
+
+        .section-title {
+            font-size: 1.5rem !important;
+        }
+    }
+
+    .section-title {
+        padding: 20px 0px;
+        color: #B02025 !important;
+        text-align: center;
+    }
+
+    .column {
+        max-width: 500px;
+        margin: 40px auto;
+    }
+
+    .form-section {
+        margin: 25px 0px;
+    }
+
+    .red-logo {
+        background-color: #b02025 !important;
+    }
+</style>
+
+<body>
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .name}}
+        <a class="red item" style="margin-top: 10px"> {{.name}} </a>
+        <a class="red item">Mes commandes</a>
+        <a class="red item">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item active" href="/order">Commande</a>
+        <a class="red item" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/pricing">Coût de livraison</a>
+        <a class="red item" href="/about">À propos</a>
+        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+        <a class="red item" href="#">Contidions generales</a>
+        <a class="red item" href="#">Politique de confidencialité</a>
+    </div>
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item active" href="/order">Commande</a>
+                    <a class="red item" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/pricing">Coût de livraison</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .name}}
+                        <div class="ui dropdown item">
+                            {{.name}} <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item">Mes commandes</a>
+                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="ui container">
+            <div style="margin: 30px 0px">
+                <h2 class="section-title">VOTRE COMMANDE</h2>
+            </div>
+            <div class="ui divider"></div>
+            <div class="column stackable">
+                <form class="ui form">
+                    <h4 class="ui dividing header">EXPEDITEUR</h4>
+                    <div class="field">
+                        <label>Nom et prénom</label>
+                        <input type="text" name="shipping[first-name]" placeholder="Nom et prénom de l'expediteur">
+                    </div>
+                    <div class="field">
+                        <label>Téléphone</label>
+                        <input type="tel" name="shipping[first-name]" placeholder="Numéro de téléphone de l'expediteur">
+                    </div>
+                    <div class="field">
+                        <label>Ville / Commune</label>
+                        <select class="ui search fluid dropdown">
+                            <option value="">Selectionner la ville de collecte</option>
+                            <option value="AL">Alabama</option>
+                            <option value="AK">Alaska</option>
+                            <option value="AZ">Arizona</option>
+                            <option value="AR">Arkansas</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Adresse</label>
+                        <input type="text" name="shipping[first-name]" placeholder="Adresse de l'expediteur">
+                    </div>
+                    <h4 class="ui dividing header">DESTINATAIRE</h4>
+                    <div class="field">
+                        <label>Nom et prénom</label>
+                        <input type="text" name="shipping[first-name]" placeholder="Nom et prénom du destinataire">
+                    </div>
+                    <div class="field">
+                        <label>Téléphone</label>
+                        <input type="tel" name="shipping[first-name]" placeholder="Numéro de téléphone du destinataire">
+                    </div>
+                    <div class="field">
+                        <label>Ville / Commune</label>
+                        <select class="ui search fluid dropdown">
+                            <option value="">Selectionner la ville de destination</option>
+                            <option value="AL">Alabama</option>
+                            <option value="AK">Alaska</option>
+                            <option value="AZ">Arizona</option>
+                            <option value="AR">Arkansas</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Adresse</label>
+                        <input type="text" name="shipping[first-name]" placeholder="Adresse du destinataire">
+                    </div>
+                    <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
+                    <div class="field">
+                        <label>Poids du colis</label>
+                        <div class="ui fluid search selection dropdown">
+                            <input type="hidden" name="country">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Selectionner un interval de poids</div>
+                            <div class="menu">
+                                <div class="item" data-value="1">jusqu'à 1 kg</div>
+                                <div class="item" data-value="2">> 1 - 5 kg</div>
+                                <div class="item" data-value="3">> 5 - 10 kg</div>
+                                <div class="item" data-value="4">> 10 - 15 kg</div>
+                                <div class="item" data-value="5">> 15 - 20 kg</div>
+                                <div class="item" data-value="5">> 20 - 25 kg</div>
+                                <div class="item" data-value="5">> 25 - 30 kg</div>
+                                <div class="item" data-value="5">> 30 - 35 kg</div>
+                                <div class="item" data-value="5">> 35 - 40 kg</div>
+                                <div class="item" data-value="5">> 40 - 45 kg</div>
+                                <div class="item" data-value="5">> 45 - 50 kg</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Description</label>
+                        <textarea name="" id="" cols="30" rows="5"
+                            placeholder="Entrez une description du colis à transporter"></textarea>
+                    </div>
+                    <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
+                    <div class="grouped fields">
+                        <label for="fruit">Selectionner votre mode paiement:</label>
+                        <div class="field">
+                            <div class="ui radio checkbox">
+                                <input type="radio" name="fruit" checked="" tabindex="0" class="hidden">
+                                <label>Paiement cash à la collecte</label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui radio checkbox">
+                                <input type="radio" name="fruit" tabindex="0" class="hidden">
+                                <label>Paiement cash à la livraison</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui fluid button primary" tabindex="0">Commader</div>
+                </form>
+            </div>
+        </div>
+        <!--Footer-->
+        {{ template "footer" . }}
+    </div>
+</body>
+<script>
+    function showSideBar() {
+        $('.ui.sidebar').sidebar('toggle');
+    }
+    $('.ui.radio.checkbox')
+        .checkbox()
+        ;
+    $('.ui.dropdown')
+        .dropdown()
+        ;
+</script>
+
+</html>
+
+{{end}}

@@ -1,9 +1,9 @@
-package dsapi
+package akwaba
 
 import (
 	"errors"
+
 	"golang.org/x/crypto/bcrypt"
-	"strconv"
 )
 
 // State of customer account in the database
@@ -16,6 +16,7 @@ const (
 var (
 	errInvalidPhone       = errors.New("le numéro de téléphone fourni est invalide")
 	errFullNameIsRequired = errors.New("merci de fournir votre nom complet")
+	errShortPassword      = errors.New("Votre mot de passe doit contenir au moins 4 caractères")
 )
 
 // UserOrderer interface for order operation avalaible for users
@@ -36,25 +37,33 @@ type User struct {
 	AccessToken string `json:"accessToken,omitempty"`
 }
 
-func (u *User) hashPassword() (hp string, err error) {
+// HashPassword hash password provided by user in registration form
+func (u *User) HashPassword() (err error) {
+	if len(u.Password) < 4 {
+		err = errors.New("Mot de passe invalide")
+		return
+	}
 	p, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
-	hp = string(p)
+	u.Password = string(p)
 	return
 }
 
-// CheckData validate new user information
+// ComparePassword the hashed password and compare it with plain text value.
+// return nil if match and error if not
+func (u *User) ComparePassword(password string) (err error) {
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+}
+
+// validateBeforeRegistration validate new user information
 // before registration
-func (u *User) CheckData() (err error) {
-	if len(u.Phone) != 8 {
-		err = errInvalidPhone
-		return
-	}
-	if _, e := strconv.Atoi(u.Phone); e != nil {
-		err = errInvalidPhone
-		return
-	}
+func (u *User) validateBeforeRegistration() (err error) {
 	if u.FullName == "" {
 		err = errFullNameIsRequired
+		return
+	}
+
+	if len(u.Password) < 4 {
+		err = errShortPassword
 		return
 	}
 	return

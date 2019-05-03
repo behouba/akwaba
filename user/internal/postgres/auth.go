@@ -3,10 +3,15 @@ package postgres
 import (
 	"database/sql"
 	"errors"
-	"fmt"
+	"log"
+	"net/http"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/behouba/akwaba"
 	_ "github.com/lib/pq" // postgresql driver
-	"net/http"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -57,17 +62,21 @@ func (d *UserDB) ConfirmSMSCode(phone string, code string) (valid bool) {
 
 // SaveNewCustomer save new customer info into database
 // and return user id from database with error
-func (d *UserDB) SaveNewCustomer(u *dsapi.User) (user *dsapi.User, statusCode int, err error) {
-	fmt.Println("user password", u.Password)
+func (d *UserDB) SaveNewCustomer(u *akwaba.User) (user *akwaba.User, statusCode int, err error) {
+	err = u.HashPassword()
+	if err != nil {
+		statusCode = http.StatusBadRequest
+		return
+	}
 	err = d.DB.QueryRow("INSERT INTO users (full_name, phone, email, password) VALUES ($1, $2, $3, $4) RETURNING id",
 		u.FullName, u.Phone, u.Email, u.Password,
 	).Scan(&u.ID)
 	if err != nil {
-		if err.Error() == keyDuplicationError("customer_email_key") {
+		if err.Error() == keyDuplicationError("users_email_key") {
 			err = errors.New(duplicateEmailErrr)
 			statusCode = http.StatusConflict
 			return
-		} else if err.Error() == keyDuplicationError("customer_phone_key") {
+		} else if err.Error() == keyDuplicationError("users_phone_key") {
 			err = errors.New(duplicatePhoneErr)
 			statusCode = http.StatusConflict
 			return
@@ -79,17 +88,26 @@ func (d *UserDB) SaveNewCustomer(u *dsapi.User) (user *dsapi.User, statusCode in
 }
 
 // Authenticate check if user provided email and password match and then return the user struct
-func (d *UserDB) Authenticate(login, password string) (user dsapi.User, err error) {
-	user.FullName = "Kouame Behouba Manasse"
-	user.ID = 23423
-	user.Phone = "45001685"
-	user.Email = "behoubx@gmail.com"
+func (d *UserDB) Authenticate(email, password string) (user akwaba.User, err error) {
+	err = d.DB.QueryRow(
+		"SELECT id, full_name, email, phone, password FROM users WHERE email=$1",
+		email,
+	).Scan(&user.ID, &user.FullName, &user.Email, &user.Phone, &user.Password)
+	if err != nil {
+		user.Password = password
+		return
+	}
+	err = user.ComparePassword(password)
+	if err != nil {
+		user.Password = password
+		return
+	}
 	return
 }
 
 // CheckPhone check if phone number exist in database then return nil
 // is phone exit and error if not
-func (d *UserDB) CheckPhone(phone string) (user dsapi.User, err error) {
+func (d *UserDB) CheckPhone(phone string) (user akwaba.User, err error) {
 	err = d.DB.QueryRow("SELECT id, full_name, phone, email FROM users WHERE phone=$1",
 		phone,
 	).Scan(&user.ID, &user.FullName, &user.Phone, &user.Email)
@@ -97,10 +115,60 @@ func (d *UserDB) CheckPhone(phone string) (user dsapi.User, err error) {
 }
 
 // UserByPhone take user phone number and return user struct
-func (d *UserDB) UserByPhone(phone string) (user dsapi.User, err error) {
-	return dsapi.User{ID: 5, FullName: "Kouame behouba", Email: "behouba@gmail.com", Phone: phone}, nil
+func (d *UserDB) UserByPhone(phone string) (user akwaba.User, err error) {
+	return akwaba.User{ID: 5, FullName: "Kouame behouba", Email: "behouba@gmail.com", Phone: phone}, nil
 }
 
 func keyDuplicationError(key string) string {
 	return `pq: duplicate key value violates unique constraint "` + key + `"`
+}
+
+func (d *UserDB) GetUserByEmail(email string) (user akwaba.User, err error) {
+
+	err = d.DB.QueryRow(
+		"SELECT id, full_name, email, phone FROM users WHERE email=$1",
+		email,
+	).Scan(&user.ID, &user.FullName, &user.Email, &user.Phone)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (d *UserDB) SavePasswordRecoveryRequest(user *akwaba.User) (newUUID string, err error) {
+	newUUID = uuid.NewV4().String()
+	_, err = d.DB.Exec(
+		"INSERT INTO email_validation (user_id, uuid) VALUES ($1, $2)",
+		user.ID, newUUID,
+	)
+	return
+}
+
+func (d *UserDB) CheckPasswordChangeRequestUUID(uuid string) (userID int, err error) {
+	var t time.Time
+	err = d.DB.QueryRow("SELECT user_id, created_at FROM email_validation WHERE uuid=$1", uuid).Scan(&userID, &t)
+	if err != nil {
+		return
+	}
+	currentTime := time.Now().UTC()
+	diff := currentTime.Sub(t)
+	log.Println("time diff = ", diff)
+	if diff.Hours() > 3 {
+		err = errors.New("Le lien de recupération de mot de passe demandé n'existe pas ou a expiré")
+		return
+	}
+	return
+}
+
+func (d *UserDB) ChangePassword(userID int, uuid, newPassword string) (err error) {
+	hp, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.MinCost)
+	if err != nil {
+		return
+	}
+	_, err = d.DB.Exec("UPDATE users SET password=$1 WHERE id=$2", hp, userID)
+	if err != nil {
+		return
+	}
+	d.DB.QueryRow("DELETE FROM email_validation WHERE user_id=$1", userID)
+	return
 }

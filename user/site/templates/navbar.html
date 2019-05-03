@@ -1,0 +1,341 @@
+{{ define "navbar"}}
+
+{{if eq . "home"}}
+<!-- Sidebar for mobile de vices -->
+<div class="ui vertical inverted right sidebar menu">
+    <a class="red item" style="margin-top: 10px">Connexion</a>
+    <hr>
+    <a class="red item" href="/services">Nos services</a>
+    <a class="red item" href="/order">Commande</a>
+    <a class="item red" href="/tracking">Suivi de colis</a>
+    <a class="item" href="/pricing">Coût de livraison</a>
+    <a class="item red" href="/about">À propos</a>
+    <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+    <a class="item" href="#">Contidions generales</a>
+    <a class="item" href="#">Politique de confidencialité</a>
+</div>
+
+<header>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="ui red inverted secondary menu">
+        <div class="ui container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <div class="right red menu">
+                <a class="item" onclick="showSideBar()">
+                    <i class="bars icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--Desktop header-->
+    <div id="desktop-header" class="ui large menu inverted">
+        <div class="ui primary container">
+            <a class="red item active" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <a class="red item" href="/services">Nos services</a>
+            <a class="red item" href="/order">Commande</a>
+            <a class="item red" href="/tracking">Suivi de colis</a>
+            <a class="item" href="/pricing">Coût de livraison</a>
+            <a class="item red" href="/about">À propos</a>
+            <div class="right menu">
+                <div class="item">
+                    <a class="ui primary button" href="/auth/login">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+{{ else if eq . "services"}}
+<!-- Sidebar for mobile de vices -->
+<div class="ui vertical inverted right sidebar menu">
+    <a class="red item" style="margin-top: 10px">Connexion</a>
+    <hr>
+    <a class="red item active" href="/services">Nos services</a>
+    <a class="red item" href="/order">Commande</a>
+    <a class="item red" href="/tracking">Suivi de colis</a>
+    <a class="item red" href="/pricing">Coût de livraison</a>
+    <a class="item red" href="/about">À propos</a>
+    <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+    <a class="item" href="#">Contidions generales</a>
+    <a class="item" href="#">Politique de confidentialité</a>
+</div>
+
+<header>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="ui red inverted secondary menu">
+        <div class="ui container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <div class="right red menu">
+                <a class="item" onclick="showSideBar()">
+                    <i class="bars icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--Desktop header-->
+    <div id="desktop-header" class="ui large menu inverted">
+        <div class="ui primary container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <a class="red item active" href="/services">Nos services</a>
+            <a class="red item" href="/order">Commande</a>
+            <a class="item red" href="/tracking">Suivi de colis</a>
+            <a class="item red" href="/pricing">Coût de livraison</a>
+            <a class="item red" href="/about">À propos</a>
+            <div class="right menu">
+                <div class="item">
+                    <a class="ui primary button" href="/auth/login">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+{{ else if eq . "order"}}
+
+<!-- Sidebar for mobile de vices -->
+<div class="ui vertical inverted right sidebar menu">
+    <a class="red item" style="margin-top: 10px">Connexion</a>
+    <hr>
+    <a class="red item" href="/services">Nos services</a>
+    <a class="red item active" href="/order">Commande</a>
+    <a class="item red" href="/tracking">Suivi de colis</a>
+    <a class="item red" href="/pricing">Coût de livraison</a>
+    <a class="item red" href="/about">À propos</a>
+    <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+    <a class="item" href="#">Contidions generales</a>
+    <a class="item" href="#">Politique de confidencialité</a>
+</div>
+
+<header>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="ui red inverted secondary menu">
+        <div class="ui container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <div class="right red menu">
+                <a class="item" onclick="showSideBar()">
+                    <i class="bars icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--Desktop header-->
+    <div id="desktop-header" class="ui large menu inverted">
+        <div class="ui primary container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <a class="red item" href="/services">Nos services</a>
+            <a class="red item active" href="/order">Commande</a>
+            <a class="item red" href="/tracking">Suivi de colis</a>
+            <a class="item red" href="/pricing">Coût de livraison</a>
+            <a class="item red" href="/about">À propos</a>
+            <div class="right menu">
+                <div class="item">
+                    <a class="ui primary button" href="/auth/login">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+{{else if eq . "tracking"}}
+<!-- Sidebar for mobile de vices -->
+<div class="ui vertical inverted right sidebar menu">
+    <a class="red item" style="margin-top: 10px">Connexion</a>
+    <hr>
+    <a class="red item" href="/services">Nos services</a>
+    <a class="red item" href="/order">Commande</a>
+    <a class="item red active" href="/tracking">Suivi de colis</a>
+    <a class="item red" href="/pricing">Coût de livraison</a>
+    <a class="item red" href="/about">À propos</a>
+    <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+    <a class="item" href="#">Contidions generales</a>
+    <a class="item" href="#">Politique de confidencialité</a>
+</div>
+
+<header>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="ui red inverted secondary menu">
+        <div class="ui container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <div class="right red menu">
+                <a class="item" onclick="showSideBar()">
+                    <i class="bars icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--Desktop header-->
+    <div id="desktop-header" class="ui large menu inverted">
+        <div class="ui primary container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <a class="red item" href="/services">Nos services</a>
+            <a class="red item" href="/order">Commande</a>
+            <a class="item red active" href="/tracking">Suivi de colis</a>
+            <a class="item red" href="/pricing">Coût de livraison</a>
+            <a class="item red" href="/about">À propos</a>
+            <div class="right menu">
+                <div class="item">
+                    <a class="ui primary button" href="/auth/login">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+{{ else if eq . "pricing"}}
+<!-- Sidebar for mobile de vices -->
+<div class="ui vertical inverted right sidebar menu">
+    <a class="red item" style="margin-top: 10px">Connexion</a>
+    <hr>
+    <a class="red item" href="/services">Nos services</a>
+    <a class="red item" href="/order">Commande</a>
+    <a class="item red" href="/tracking">Suivi de colis</a>
+    <a class="item red active" href="/pricing">Coût de livraison</a>
+    <a class="item red" href="/about">À propos</a>
+    <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+    <a class="item" href="#">Contidions generales</a>
+    <a class="item" href="#">Politique de confidencialité</a>
+</div>
+
+<header>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="ui red inverted secondary menu">
+        <div class="ui container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <div class="right red menu">
+                <a class="item" onclick="showSideBar()">
+                    <i class="bars icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--Desktop header-->
+    <div id="desktop-header" class="ui large menu inverted">
+        <div class="ui primary container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <a class="red item" href="/services">Nos services</a>
+            <a class="red item" href="/order">Commande</a>
+            <a class="item red" href="/tracking">Suivi de colis</a>
+            <a class="item red active" href="/pricing">Coût de livraison</a>
+            <a class="item red" href="/about">À propos</a>
+            <div class="right menu">
+                <div class="item">
+                    <a class="ui primary button" href="/auth/login">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+{{else if eq . "about"}}
+<!-- Sidebar for mobile de vices -->
+<div class="ui vertical inverted right sidebar menu">
+    <a class="red item" style="margin-top: 10px">Connexion</a>
+    <hr>
+    <a class="red item" href="/services">Nos services</a>
+    <a class="red item" href="/order">Commande</a>
+    <a class="item red" href="/tracking">Suivi de colis</a>
+    <a class="item red" href="/pricing">Coût de livraison</a>
+    <a class="item active" href="/about">À propos</a>
+    <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+    <a class="item" href="#">Contidions generales</a>
+    <a class="item" href="#">Politique de confidencialité</a>
+</div>
+
+<header>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="ui red inverted secondary menu">
+        <div class="ui container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <div class="right red menu">
+                <a class="item" onclick="showSideBar()">
+                    <i class="bars icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--Desktop header-->
+    <div id="desktop-header" class="ui large menu inverted">
+        <div class="ui primary container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <a class="red item" href="/services">Nos services</a>
+            <a class="red item" href="/order">Commande</a>
+            <a class="item red" href="/tracking">Suivi de colis</a>
+            <a class="item red" href="/pricing">Coût de livraison</a>
+            <a class="item red active" href="/about">À propos</a>
+            <div class="right menu">
+                <div class="item">
+                    <a class="ui primary button" href="/auth/login">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+{{else}}
+<!-- Sidebar for mobile de vices -->
+<div class="ui vertical inverted right sidebar menu">
+    <a class="red item" style="margin-top: 10px">Connexion</a>
+    <hr>
+    <a class="red item" href="/services">Nos services</a>
+    <a class="red item" href="/order">Commande</a>
+    <a class="item red" href="/tracking">Suivi de colis</a>
+    <a class="item red" href="/pricing">Coût de livraison</a>
+    <a class="item" href="/about">À propos</a>
+    <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+    <a class="item" href="#">Contidions generales</a>
+    <a class="item" href="#">Politique de confidencialité</a>
+</div>
+
+<header>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="ui red inverted secondary menu">
+        <div class="ui container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <div class="right red menu">
+                <a class="item" onclick="showSideBar()">
+                    <i class="bars icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--Desktop header-->
+    <div id="desktop-header" class="ui large menu inverted">
+        <div class="ui primary container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans.png">
+            </a>
+            <a class="red item" href="/services">Nos services</a>
+            <a class="red item" href="/order">Commande</a>
+            <a class="item red" href="/tracking">Suivi de colis</a>
+            <a class="item red" href="/pricing">Coût de livraison</a>
+            <a class="item red" href="/about">À propos</a>
+            <div class="right menu">
+                <div class="item">
+                    <a class="ui primary button" href="/auth/login">Connexion</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+{{end}}
+{{end}}

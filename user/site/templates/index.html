@@ -1,0 +1,306 @@
+{{ define "home"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+    <title>AKWABA EXPRESS</title>
+</head>
+<style>
+    /* header styling */
+    .logo {
+        width: 150px;
+        height: 60px;
+    }
+
+    #mobile-header,
+    #desktop-header {
+        margin: 0px 0px !important;
+    }
+
+    @media only screen and (min-width: 768px) {
+        #mobile-header {
+            display: none !important;
+        }
+
+        #desktop-header {
+            display: block !important;
+        }
+
+        .section-title {
+            font-size: 2rem !important;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        #mobile-header {
+            display: block !important;
+        }
+
+        #desktop-header {
+            display: none !important;
+        }
+
+        .section-title {
+            font-size: 1.5rem !important;
+        }
+    }
+
+    header {
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
+
+    /* end of header styling */
+
+
+
+
+    #home-landing {
+        background-image: url("https://upload.wikimedia.org/wikipedia/commons/6/61/Wegmann_Abidjan_IvoryCoast.jpg");
+        min-height: 470px;
+        background-size: cover;
+        padding: 100px 0px;
+    }
+
+
+    #presentation-section {
+        background-image: url("https://pargo.co.za/wp-content/uploads/2019/01/cross-border-click-and-collect-south-africa.jpg");
+        background-size: cover;
+        min-height: 470px;
+        padding-top: 100px;
+        padding-bottom: 100px;
+        color: white;
+    }
+
+    .section-title {
+        padding: 30px 0px;
+        color: #B02025 !important;
+    }
+
+
+    .big-text {
+        font-size: 3rem;
+        line-height: 1.28;
+        font-weight: 400;
+        line-height: 1.28em;
+        color: black;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .card {
+        padding: 35px 0px !important;
+    }
+
+    .truncate {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<body>
+
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .name}}
+        <a class="red item" style="margin-top: 10px"><span class="truncate">{{.name}} </span></a>
+        <a class="red item">Mes commandes</a>
+        <a class="red item">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item" href="/order">Commande</a>
+        <a class="red item" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/pricing">Coût de livraison</a>
+        <a class="red item" href="/about">À propos</a>
+        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+        <a class="red item" href="#">Contidions generales</a>
+        <a class="red item" href="#">Politique de confidencialité</a>
+    </div>
+
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item active" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item" href="/order">Commande</a>
+                    <a class="red item" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/pricing">Coût de livraison</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .name}}
+                        <div class="ui dropdown item">
+                            <span class="truncate">{{.name}}</span> <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item">Mes commandes</a>
+                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <!--Home page content-->
+        <div>
+            <section id="home-landing">
+                <div class="ui container fluid">
+                    <div class="ui text container">
+                        <h1 class="ui inverted header">
+                            LIVRAISON EXPRESS DE DOCUMENTS ET COLIS PARTOUT ABIDJAN.
+                        </h1>
+                        <a class="ui large primary button" href="/order" style="margin-top: 20px">Commander une
+                            livraison <i class="right arrow icon"></i>
+                        </a>
+                        <h3 class="ui inverted header">SUIVRE VOTRE COLIS: </h3>
+                        <div class="ui action input" style="width: 100%">
+                            <input type="text" placeholder="EX: 12343435343">
+                            <button class="ui icon button primary">
+                                <i class="search icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="presentation-section">
+                <div class="ui container">
+                    <p class="big-text center">
+                        Des services de livraison rapides et fiables qui respectent votre calendrier.
+                    </p>
+                </div>
+            </section>
+            <section id="services">
+                <div class="ui container center">
+                    <h1 class="ui horizontal divider section-title">NOS SERVICES</h1>
+                    <div>
+                        <div class="ui three link cards stackable">
+                            <a class="card" href="/pricing">
+                                <div class="content">
+                                    <div class="header">
+                                        <h2 class="ui center aligned icon header red">
+                                            <i class="calculator icon"></i>
+                                            Calculer le prix de votre livraison
+                                        </h2>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="card" href="/order">
+                                <div class="content">
+                                    <div class="header">
+                                        <h2 class="ui center aligned icon header red">
+                                            <i class="clipboard outline icon"></i>
+                                            Commade de livraison en ligne
+                                        </h2>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="card" href="/tracking">
+                                <div class="content">
+                                    <div class="header">
+                                        <h2 class="ui center aligned icon header red">
+                                            <i class="search icon"></i>
+                                            Suivi de colis en ligne
+                                        </h2>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="card" href="/services#fast-shipping">
+                                <div class="content">
+                                    <div class="header">
+                                        <h2 class="ui center aligned icon header red">
+                                            <i class="shipping fast icon"></i>
+                                            Livraisons d'extrême urgence
+                                        </h2>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="card" href="/services#for-business">
+                                <div class="content">
+                                    <div class="header">
+                                        <h2 class="ui center aligned icon header red">
+                                            <i class="briefcase icon"></i>
+                                            Solutions pour entreprises
+                                        </h2>
+                                    </div>
+                                </div>
+                            </a>
+                            <a class="card" href="/services#management">
+                                <div class="content">
+                                    <div class="header">
+                                        <h2 class="ui center aligned icon header red">
+                                            <i class="clock outline icon"></i>
+                                            Gestion des livraisons
+                                        </h2>
+                                    </div>
+                                </div>
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="explanation-video">
+                <div class="ui container">
+                    <h2 class="ui horizontal divider section-title center">COMMENT ÇA MARCHE ?</h2>
+                    <iframe style="border:none" width="100%" height="450px"
+                        src="https://www.youtube.com/embed/tgbNymZ7vqY">
+                    </iframe>
+                </div>
+            </section>
+
+            <section class="ui container" style="margin-top: 20px">
+            </section>
+        </div>
+        <!--Footer-->
+        {{ template "footer" .}}
+    </div>
+
+
+</body>
+<script>
+    function showSideBar() {
+        $('.ui.sidebar').sidebar('toggle');
+    }
+    $(document).ready(function () {
+
+        $('.ui.dropdown').dropdown();
+    });
+</script>
+
+</html>
+{{ end }}

@@ -1,0 +1,167 @@
+{{define "tracking"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head"  .}}
+    <title>Document</title>
+</head>
+<style>
+    .logo {
+        width: 150px;
+        height: 60px;
+    }
+
+
+    #mobile-header,
+    #desktop-header {
+        margin: 0px 0px !important;
+    }
+
+    @media only screen and (min-width: 768px) {
+        #mobile-header {
+            display: none !important;
+        }
+
+        #desktop-header {
+            display: block !important;
+        }
+
+        .section-title {
+            font-size: 2rem !important;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        #mobile-header {
+            display: block !important;
+        }
+
+        #desktop-header {
+            display: none !important;
+        }
+
+        .section-title {
+            font-size: 1.5rem !important;
+        }
+    }
+
+    .section-title {
+        padding: 20px 0px;
+        color: #B02025 !important;
+        text-align: center;
+    }
+
+    #tracking-input {
+        max-width: 450px;
+        height: 100%;
+        margin: 40px auto;
+        text-align: center;
+    }
+
+    #tracking-result {
+        min-height: 150px;
+    }
+</style>
+
+<body>
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .name}}
+        <a class="red item" style="margin-top: 10px"> {{.name}} </a>
+        <a class="red item">Mes commandes</a>
+        <a class="red item">Reglages</a>
+        <a class="red item">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item" href="/order">Commande</a>
+        <a class="red item active" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/pricing">Coût de livraison</a>
+        <a class="red item" href="/about">À propos</a>
+        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+        <a class="red item" href="#">Contidions generales</a>
+        <a class="red item" href="#">Politique de confidencialité</a>
+    </div>
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item" href="/order">Commande</a>
+                    <a class="red item active" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/pricing">Coût de livraison</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .name}}
+                        <div class="ui dropdown item">
+                            {{.name}} <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item">Mes commandes</a>
+                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="ui container">
+            <div id="tracking-input">
+                <h2 class="section-title">SUIVI DE COLIS</h2>
+                <p>Veuillez indiquer votre numéro de suivi du colis (de 11 à 15 chiffres).
+                </p>
+                <div class="ui action input" style="width: 100%">
+                    <input type="text" placeholder="EX: 12343435343">
+                    <button class="ui icon button primary">
+                        <i class="search icon"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="tracking-result"></div>
+        </div>
+        <!--Footer-->
+        {{ template "footer" . }}
+    </div>
+</body>
+<script>
+    function showSideBar() {
+        $('.ui.sidebar').sidebar('toggle');
+    }
+    $('.ui.radio.checkbox')
+        .checkbox()
+        ;
+    $('.ui.dropdown')
+        .dropdown()
+        ;
+</script>
+
+</html>
+{{end}}
