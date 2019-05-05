@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/behouba/dsapi/adminapi/internal/jwt"
-	"github.com/behouba/dsapi/adminapi/internal/notifier"
-	"github.com/behouba/dsapi/adminapi/internal/postgres"
-
+	"github.com/behouba/akwaba/adminapi/internal/jwt"
+	"github.com/behouba/akwaba/adminapi/internal/notifier"
+	"github.com/behouba/akwaba/adminapi/internal/postgres"
 	"github.com/behouba/dsapi"
+
 	"github.com/gin-gonic/gin"
 )
 

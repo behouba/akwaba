@@ -1,6 +1,7 @@
 package akwaba
 
 import (
+	"errors"
 	"time"
 )
 
@@ -16,61 +17,38 @@ const (
 
 // Order struct represent order that will be created by users
 type Order struct {
-	ID            int       `json:"id,omitempty"`
-	PaymentTypeID int       `json:"paymentTypeId" binding:"required"`
-	CustomerID    int       `json:"customerId" binding:"required"`
-	CreatedAt     time.Time `json:"createdAt"`
-	State         int       `json:"state"`
-	TotalCost     float64   `json:"totalCost"`
-	Description   string    `json:"description"  binding:"required"`
-	PickUpAddress Address   `json:"pickupAddress"  binding:"required"`
-	Parcels       []Parcel  `json:"parcels" binding:"required"`
+	ID             int       `json:"id,omitempty"`
+	PaymentType    Item      `json:"paymentTypeId"`
+	CustomerID     int       `json:"customerId"`
+	CreatedAt      time.Time `json:"createdAt"`
+	State          int       `json:"state"`
+	Cost           float64   `json:"cost"`
+	Sender         Address   `json:"sender"`
+	Receiver       Address   `json:"receiver"`
+	WeightInterval Item      `json:"weightInterval"`
+	Nature         string    `json:"nature"`
+	Note           string    `json:"note"`
 }
 
 // ComputeCost return totalCost of the order
 func (o *Order) ComputeCost() (cost float64) {
-	for _, p := range o.Parcels {
-		cost += p.ComputeCost(o.PickUpAddress.ID)
-	}
 	return
 }
 
-// Parcel struct is representation of parcel in system
-type Parcel struct {
-	ID              int     `json:"id,omitempty"`
-	OrderID         int     `json:"orderId,omitempty"`
-	Cost            float64 `json:"cost"`
-	Weight          float64 `json:"weight" binding:"required"`
-	Description     string  `json:"description" binding:"required"`
-	StateID         int     `json:"stateId"`
-	DeliveryAddress Address `json:"deliveryAddress" binding:"required"`
-}
-
-// ComputeCost compute the cost for a parcel and return the value
-func (p *Parcel) ComputeCost(pickUpAddrID int) (cost float64) {
-	// make request to fetch parcel transportation cost
-	// should compute price base on origin area,
-	// delivery area and the weight of the order
-
-	cost = 2500 // mock value
-	return
-}
-
-// MapPoint represent geolocation map address
-type MapPoint struct {
-	Longitude float64 `json:"longitude"`
-	Latitude  float64 `json:"latitude"`
+// City represent
+type Item struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 // Address represent delivery address provided by customers
 type Address struct {
 	ID int `json:"id,omitempty"`
 	// CustomerID  int      `json:"customerId"`
-	AreaID      int      `json:"areaId" binding:"required"`
-	FullName    string   `json:"fullName" binding:"required"`
-	Phone       string   `json:"phone" binding:"required"`
-	MapPoint    MapPoint `json:"mapPoint"`
-	Description string   `json:"description" binding:"required"`
+	City     Item   `json:"city" binding:"required"`
+	FullName string `json:"fullName" binding:"required"`
+	Phone    string `json:"phone" binding:"required"`
+	Address  string `json:"address" binding:"required"`
 }
 
 // Track represent an event in order journey
@@ -84,5 +62,32 @@ type Track struct {
 // ValidateData function help validate data into new order before creation
 func (o *Order) ValidateData() (err error) {
 	// make checks and verification here
+	if len(o.Sender.FullName) < 1 {
+		return errors.New("Veuillez saisir le nom de l'expediteur")
+	}
+	if len(o.Sender.Phone) != 16 {
+		return errors.New("Veuillez saisir un numéro de mobile valide")
+	}
+	if o.Sender.City.ID == 0 {
+		return errors.New("Veuillez selectionner une commune")
+	}
+	if len(o.Sender.Address) < 1 {
+		return errors.New("Veuillez saisir l'adresse pour l'expediteur")
+	}
+	if len(o.Receiver.FullName) < 1 {
+		return errors.New("Veuillez saisir le nom du destinataire")
+	}
+	if len(o.Receiver.Phone) != 16 {
+		return errors.New("Veuillez saisir un numéro de mobile valide")
+	}
+	if o.Receiver.City.ID == 0 {
+		return errors.New("Veuillez selectionner une commune")
+	}
+	if len(o.Receiver.Address) < 1 {
+		return errors.New("Veuillez saisir l'adresse pour le destinataire")
+	}
+	if o.WeightInterval.ID == 0 {
+		return errors.New("Veuillez selectionner un interval de poids")
+	}
 	return
 }

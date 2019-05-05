@@ -26,6 +26,10 @@
             display: none !important;
         }
 
+        .search-input {
+            min-width: 500px;
+        }
+
         #desktop-header {
             display: block !important;
         }
@@ -38,6 +42,10 @@
     @media only screen and (max-width: 768px) {
         #mobile-header {
             display: block !important;
+        }
+
+        .search-input {
+            width: 100%;
         }
 
         #desktop-header {
@@ -109,10 +117,10 @@
 
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
-        {{if .name}}
-        <a class="red item" style="margin-top: 10px"><span class="truncate">{{.name}} </span></a>
-        <a class="red item">Mes commandes</a>
-        <a class="red item">Reglages</a>
+        {{if .user.ID}}
+        <a class="red item" style="margin-top: 10px"><span class="truncate">{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
 
         {{else}}
@@ -120,7 +128,7 @@
         {{end}}
         <hr>
         <a class="red item" href="/services">Nos services</a>
-        <a class="red item" href="/order">Commande</a>
+        <a class="red item" href="/order/create">Commande</a>
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
@@ -151,17 +159,17 @@
                         <img class="ui image logo" src="../assets/img/logo_trans.png">
                     </a>
                     <a class="red item" href="/services">Nos services</a>
-                    <a class="red item" href="/order">Commande</a>
+                    <a class="red item" href="/order/create">Commande</a>
                     <a class="red item" href="/tracking">Suivi de colis</a>
                     <a class="red item" href="/pricing">Coût de livraison</a>
                     <a class="red item" href="/about">À propos</a>
                     <div class="right menu">
-                        {{if .name}}
+                        {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.name}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item">Mes commandes</a>
-                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
                                 <a class="black item" href="/auth/logout">Deconnexion</a>
                             </div>
                         </div>
@@ -184,11 +192,11 @@
                         <h1 class="ui inverted header">
                             LIVRAISON EXPRESS DE DOCUMENTS ET COLIS PARTOUT ABIDJAN.
                         </h1>
-                        <a class="ui large primary button" href="/order" style="margin-top: 20px">Commander une
+                        <a class="ui large primary button" href="/order/create" style="margin-top: 20px">Commander une
                             livraison <i class="right arrow icon"></i>
                         </a>
                         <h3 class="ui inverted header">SUIVRE VOTRE COLIS: </h3>
-                        <div class="ui action input" style="width: 100%">
+                        <div class="ui action input big search-input">
                             <input type="text" placeholder="EX: 12343435343">
                             <button class="ui icon button primary">
                                 <i class="search icon"></i>
@@ -219,7 +227,7 @@
                                     </div>
                                 </div>
                             </a>
-                            <a class="card" href="/order">
+                            <a class="card" href="/order/create">
                                 <div class="content">
                                     <div class="header">
                                         <h2 class="ui center aligned icon header red">

@@ -84,6 +84,12 @@
                             <input type="password" name="password" placeholder="Mot de passe">
                         </div>
                     </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <input type="password" name="password2" placeholder="Répétez le mot de passe">
+                        </div>
+                    </div>
                     <div class="ui fluid large primary submit button">Submit</div>
                     <div style="margin-top: 10px;">
                         En vous inscrivant, vous acceptez les <a href="#" class="red-link">conditions d' utilisation</a>
@@ -146,6 +152,7 @@
     $("#phone").inputmask({ "mask": "+225 99 99 99 99" });
 
     $('#registration-form').form({
+        on: 'blur',
         fields: {
             name: {
                 identifier: 'name',
@@ -169,7 +176,7 @@
                 identifier: 'phone',
                 rules: [
                     {
-                        type: 'minLength[16]',
+                        type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
                         prompt: 'Veuillez saisir un numéro de mobile valide'
                     }
                 ]

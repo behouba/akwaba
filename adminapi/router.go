@@ -5,10 +5,10 @@ package adminapi
 import (
 	"database/sql"
 
-	"github.com/behouba/dsapi/adminapi/internal/jwt"
-	"github.com/behouba/dsapi/adminapi/internal/notifier"
-	"github.com/behouba/dsapi/adminapi/internal/postgres"
-	"github.com/behouba/dsapi/store"
+	"github.com/behouba/akwaba/adminapi/internal/jwt"
+	"github.com/behouba/akwaba/adminapi/internal/notifier"
+	"github.com/behouba/akwaba/adminapi/internal/postgres"
+	"github.com/behouba/akwaba/store"
 	"github.com/gin-gonic/gin"
 )
 

@@ -5,16 +5,16 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/behouba/dsapi"
-	"github.com/behouba/dsapi/adminapi/internal/jwt"
-	"github.com/behouba/dsapi/adminapi/internal/notifier"
-	"github.com/behouba/dsapi/adminapi/internal/postgres"
+	"github.com/behouba/akwaba"
+	"github.com/behouba/akwaba/adminapi/internal/jwt"
+	"github.com/behouba/akwaba/adminapi/internal/notifier"
+	"github.com/behouba/akwaba/adminapi/internal/postgres"
 	"github.com/gin-gonic/gin"
 )
 
 // ParcelHandler implement methods set that handle request for parcel tracking actions
 type ParcelHandler struct {
-	Store dsapi.AdminParcelManager
+	Store akwaba.AdminParcelManager
 	Auth  *jwt.Authenticator
 	Sms   *notifier.SMS
 }
@@ -48,7 +48,7 @@ func (h *ParcelHandler) trackParcel(c *gin.Context) {
 }
 
 func (h *ParcelHandler) recordTrack(c *gin.Context) {
-	// var track dsapi.Track
+	// var track akwaba.Track
 	// if err := c.ShouldBindJSON(&track); err != nil {
 	// 	c.JSON(http.StatusBadRequest, gin.H{
 	// 		"error": err.Error(),

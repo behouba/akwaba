@@ -6,6 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
     {{ template "common-head" .}}
 
     <title>Document</title>
@@ -26,6 +28,7 @@
         #mobile-header {
             display: none !important;
         }
+
 
         #desktop-header {
             display: block !important;
@@ -56,19 +59,30 @@
         text-align: center;
     }
 
-    #pricing-input {
+    #pricing-form {
+        min-height: 500px;
+    }
+
+    .pricing {
         max-width: 450px;
-        height: 100%;
-        margin: 40px auto;
-        text-align: center;
+        margin: 40px auto 0px auto;
+    }
+
+    #price {
+        margin-top: 80px;
+    }
+
+    .price-text {
+        color: #B02025;
+        font-size: 45px;
     }
 </style>
 
 <body>
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
-        {{if .name}}
-        <a class="red item" style="margin-top: 10px"> {{.name}} </a>
+        {{if .user.ID}}
+        <a class="red item" style="margin-top: 10px"> {{.user.FullName}} </a>
         <a class="red item">Mes commandes</a>
         <a class="red item">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
@@ -77,7 +91,7 @@
         {{end}}
         <hr>
         <a class="red item" href="/services">Nos services</a>
-        <a class="red item" href="/order">Commande</a>
+        <a class="red item" href="/order/create">Commande</a>
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item active" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
@@ -107,14 +121,14 @@
                         <img class="ui image logo" src="../assets/img/logo_trans.png">
                     </a>
                     <a class="red item" href="/services">Nos services</a>
-                    <a class="red item" href="/order">Commande</a>
+                    <a class="red item" href="/order/create">Commande</a>
                     <a class="red item" href="/tracking">Suivi de colis</a>
                     <a class="red item active" href="/pricing">Coût de livraison</a>
                     <a class="red item" href="/about">À propos</a>
                     <div class="right menu">
-                        {{if .name}}
+                        {{if .user.ID}}
                         <div class="ui dropdown item">
-                            {{.name}} <i class="dropdown icon"></i>
+                            {{.user.FullName}} <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item">Mes commandes</a>
                                 <a class="black item">Reglages</a>
@@ -131,45 +145,66 @@
             </div>
         </header>
         <div class="ui container">
-            <div id="pricing-input">
-                <h2 class="section-title">COÛT DE VOTRE LIVRAISON</h2>
-                <div class="ui form">
-                    <div class="field">
-                        <label>Origine</label>
-                        <select class="ui search dropdown">
-                            <option value="">Selectionner la commune d'origine</option>
-                            <option value="AF">Abobo</option>
-                            <option value="AX">Adjamé</option>
-                            <option value="AL">Cocody</option>
-                        </select>
+
+            <div>
+                <div id="pricing-form">
+                    <h2 class="section-title">COÛT DE VOTRE LIVRAISON</h2>
+                    <div class="ui divider"></div>
+                    <div class="pricing" id="loading" style="display: none; text-align: center;">
+                        <img src="../assets/img/ball_loader.gif" style="max-height: 300px; max-width: 300px" alt="">
+                        <p>Patientez s'il vous plait...</p>
                     </div>
-                    <div class="field">
-                        <label>Destination</label>
-                        <select class="ui search dropdown">
-                            <option value="">Selectionner la commune de destination</option>
-                            <option value="AF">Abobo</option>
-                            <option value="AX">Adjamé</option>
-                            <option value="AL">Cocody</option>
-                        </select>
+                    <div class="pricing" id="pricing">
+                        <div class="ui form">
+                            <div class="two fields">
+                                <div class="field">
+                                    <label>Origine</label>
+                                    <select class="ui search dropdown" name="origin" id="originId">
+                                        <option value=""></option>
+                                        <option value="1">Abobo</option>
+                                        <option value="2">Adjamé</option>
+                                        <option value="3">Cocody</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Destination</label>
+                                    <select class="ui search dropdown" name="destination" id="destinationId">
+                                        <option v3ue=""></option>
+                                        <option value="1">Abobo</option>
+                                        <option value="2">Adjamé</option>
+                                        <option value="3">Cocody</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Poids du colis</label>
+                                <select class="ui dropdown" name="weightInterval" id="weightIntervalId">
+                                    <option value=""></option>
+                                    <option value="1">jusqu'à 1 kg</option>
+                                    <option value="2">> 1 - 5 kg</option>
+                                    <option value="3">> 5 - 10 kg</option>
+                                    <option value="4">> 10 - 15 kg</option>
+                                    <option value="5">> 15 - 20 kg</option>
+                                    <option value="5">> 20 - 25 kg</option>
+                                    <option value="5">> 25 - 30 kg</option>
+                                    <option value="5">> 30 - 35 kg</option>
+                                    <option value="5">> 35 - 40 kg</option>
+                                    <option value="5">> 40 - 45 kg</option>
+                                    <option value="5">> 45 - 50 kg</option>
+                                </select>
+                            </div>
+                            <div style="margin: 30px 0px;">
+                                <div class="ui fluid button large submit primary" tabindex="0">Calculer le coût
+                                    de
+                                    la
+                                    livraison</div>
+                            </div>
+                        </div>
+                        <div class="pricing" id="price" style="display:none">
+
+                        </div>
                     </div>
-                    <div class="field">
-                        <label>Poids du colis</label>
-                        <select class="ui search dropdown">
-                            <option value="">Selectionner l'interval de poids du colis</option>
-                            <option value="1">jusqu'à 1 kg</option>
-                            <option value="2">> 1 - 5 kg</option>
-                            <option value="3">> 5 - 10 kg</option>
-                            <option value="4">> 10 - 15 kg</option>
-                            <option value="5">> 15 - 20 kg</option>
-                            <option value="5">> 20 - 25 kg</option>
-                            <option value="5">> 25 - 30 kg</option>
-                            <option value="5">> 30 - 35 kg</option>
-                            <option value="5">> 35 - 40 kg</option>
-                            <option value="5">> 40 - 45 kg</option>
-                            <option value="5">> 45 - 50 kg</option>
-                        </select>
-                    </div>
-                    <div class="ui fluid button primary" tabindex="0">Calculer le coût de la livraison</div>
+
                 </div>
             </div>
         </div>
@@ -182,12 +217,105 @@
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');
     }
-    $('.ui.radio.checkbox')
-        .checkbox()
-        ;
-    $('.ui.dropdown')
-        .dropdown()
-        ;
+    $('.ui.radio.checkbox').checkbox();
+    $('.ui.dropdown').dropdown();
+
+    $('#pricing-form').form({
+        inline: true,
+        fields: {
+            origin: {
+                identifier: 'origin',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: "Veuillez la commune d'origin"
+                    }
+                ]
+            },
+            destination: {
+                identifier: 'destination',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: "Veuillez la commune de destination"
+                    }
+                ]
+            },
+            weightInterval: {
+                identifier: 'weightInterval',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: "Veuillez la commune un interval de poids"
+                    }
+                ]
+            },
+        },
+        onSuccess: async function (event, fields) {
+            showLoader();
+
+            event.preventDefault();
+            console.log("form is ok")
+            var originId = $("#originId").val();
+            var destinationId = $("#destinationId").val();
+            var weightIntervalId = $("#weightIntervalId").val();
+
+            await fetchPrice(originId, destinationId, weightIntervalId);
+        }
+    });
+
+    function showLoader() {
+        $("#pricing").hide()
+        $("#loading").show()
+    }
+
+    function hideLoader() {
+        $("#loading").hide()
+        $("#pricing").show()
+    }
+
+
+    function createPriceCard(price, origin, destination, weightInterval) {
+        return `<div class="">
+                    <div class="ui content">
+                        <h4 class="ui header">Cout de la livraison:</h4>
+                        <div class="ui divider"></div>
+                        <h2 class="price-text">${price} FCFA</h2>
+                        <p>Origine: ${origin}</p>
+                        <p>Destination: ${destination}</p>
+                        <p>Poids: ${weightInterval}</p>
+                        <div class="ui divider"></div>
+                        <a class="ui large primary button" href="/order/create" style="margin-top: 20px">Commander une
+                            livraison <i class="right arrow icon"></i>
+                        </a>
+                    </div>
+                </div>`
+    }
+
+    function showPrice() {
+        $("#price")
+            .html(createPriceCard(2500, "Adjamé", "Yopougon", ">5 - 10kg"))
+            .show();
+
+        $('html, body').animate({
+            scrollTop: $("#price").offset().top
+        }, 1000);
+    }
+    function fetchPrice(originId, destinationId, weightIntervalId) {
+        axios.get(
+            `/pricing/compute?originId=${originId}&destinationId=${destinationId}&weightIntervalId=${weightIntervalId}`
+        ).then(res => {
+            console.log(res.data);
+            hideLoader();
+            showPrice();
+
+        }).catch(err => {
+            console.log(err);
+            hideLoader();
+        })
+        return
+    }
+
 </script>
 
 </html>

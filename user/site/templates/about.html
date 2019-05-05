@@ -82,8 +82,8 @@
 <body>
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
-        {{if .name}}
-        <a class="red item" style="margin-top: 10px"> {{.name}} </a>
+        {{if .user.ID}}
+        <a class="red item" style="margin-top: 10px"> {{.user.FullName}} </a>
         <a class="red item">Mes commandes</a>
         <a class="red item">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
@@ -93,7 +93,7 @@
         {{end}}
         <hr>
         <a class="red item" href="/services">Nos services</a>
-        <a class="red item" href="/order">Commande</a>
+        <a class="red item" href="/order/create">Commande</a>
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item active" href="/about">À propos</a>
@@ -123,14 +123,14 @@
                         <img class="ui image logo" src="../assets/img/logo_trans.png">
                     </a>
                     <a class="red item" href="/services">Nos services</a>
-                    <a class="red item" href="/order">Commande</a>
+                    <a class="red item" href="/order/create">Commande</a>
                     <a class="red item" href="/tracking">Suivi de colis</a>
                     <a class="red item" href="/pricing">Coût de livraison</a>
                     <a class="red item active" href="/about">À propos</a>
                     <div class="right menu">
-                        {{if .name}}
+                        {{if .user.ID}}
                         <div class="ui dropdown item">
-                            {{.name}} <i class="dropdown icon"></i>
+                            {{.user.FullName}} <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item">Mes commandes</a>
                                 <a class="black item">Reglages</a>

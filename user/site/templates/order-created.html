@@ -1,0 +1,90 @@
+{{define "order-created"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+
+    <title>Connexion</title>
+</head>
+<style>
+    body>.grid {
+        height: 100%;
+    }
+
+    .image {
+        margin-top: -100px;
+    }
+
+    .column {
+        max-width: 420px;
+    }
+
+    .logo {
+        max-width: 200px;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .red-link {
+        color: #B02025 !important;
+        padding: 10px 0px;
+    }
+</style>
+
+<body>
+    <div class="ui middle aligned center aligned grid stackable">
+        <div class="column">
+            <div class="center">
+                <a href="/">
+                    <img src="../assets/img/logo_red.png" class="image logo">
+                </a>
+            </div>
+            <h2 class="ui red image header">
+                <div class="content">
+                    Nous avons reçu votre votre commande
+                </div>
+            </h2>
+            <p style="font-size: 18px;">Notre service client vous contactera afin de finaliser votre commande.</p>
+            <p style="font-size: 18px;">Nous vous remercions pour votre confiance.</p>
+            <a class="ui tiny button red" href="/order/receipt/34">Télécharger les details de la commande</a>
+        </div>
+    </div>
+    <div id="editor"></div>
+    <div class="column" id="receipt" style="display:none;">
+        <div class="ui fluid card">
+            <div class="content">
+                <h4 class="ui dividing header">EXPEDITEUR</h4>
+                <p>{{ .order.Sender.FullName }}</p>
+                <P>{{ .order.Sender.City.Name}}</P>
+                <p>{{ .order.Sender.Address}}</p>
+                <p>Téléphone: {{ .order.Sender.Phone}}</p>
+                <p></p>
+                <h4 class="ui dividing header">DESTINATAIRE</h4>
+                <p>{{ .order.Receiver.FullName }}</p>
+                <P>{{ .order.Receiver.City.Name}}</P>
+                <p>{{ .order.Receiver.Address}}</p>
+                <p>Téléphone: {{ .order.Receiver.Phone}}</p>
+                <p></p>
+                <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
+                <p>{{ .order.Nature }}</p>
+                <p>Poids: {{ .order.WeightInterval.Name }}</p>
+                <p>{{ .order.Note }}</p>
+                <p></p>
+                <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
+                <p>{{ .order.PaymentType.Name }}</p>
+                <p></p>
+                <h4 class="ui dividing header">COUT DE LA LIVRAISON</h4>
+                <p style="text-align: right; font-weight: bold">{{ .order.Cost }} FCFA</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+{{end}}

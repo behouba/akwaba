@@ -4,13 +4,33 @@ import (
 	"log"
 
 	"github.com/behouba/akwaba"
-	"github.com/behouba/dsapi"
 )
 
 // SaveOrder save order
-func (d *UserDB) SaveOrder(order *dsapi.Order) (err error) {
-	log.Println("ORDER SAVED TO DATABASE...")
+func (d *UserDB) SaveOrder(order *akwaba.Order) (err error) {
+	err = d.DB.QueryRow(
+		`INSERT INTO "order" 
+		(payment_type_id, cost, sender_full_name, sender_phone, 
+			sender_city_id, sender_address, receiver_full_name, receiver_phone, 
+			receiver_city_id, receiver_address, note, nature)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id;`,
+		order.PaymentType.ID, order.ComputeCost(), order.Sender.FullName,
+		order.Sender.Phone, order.Sender.City.ID, order.Sender.Address,
+		order.Receiver.FullName, order.Receiver.Phone, order.Receiver.City.ID,
+		order.Receiver.Address, order.Note, order.Nature,
+	).Scan(&order.ID)
 	return
+}
+
+// CompleteOrder function complete order information
+func (d *UserDB) CompleteOrder(order *akwaba.Order) (err error) {
+	order.Sender.City.Name = "Cocody"
+	order.Receiver.City.Name = "Adjamé"
+	// order.ComputeCost()
+	order.Cost = 3500.0
+	order.WeightInterval.Name = ">1 - 5kg"
+	order.PaymentType.Name = "Paiement cash à la collecte"
+	return nil
 }
 
 // CancelOrder update order state to "canceled"

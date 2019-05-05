@@ -1,0 +1,303 @@
+{{ define "confirm-order"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+
+    <title>Document</title>
+</head>
+<style>
+    .logo {
+        width: 150px;
+        height: 60px;
+    }
+
+    #mobile-header,
+    #desktop-header {
+        margin: 0px 0px !important;
+    }
+
+    @media only screen and (min-width: 768px) {
+        #mobile-header {
+            display: none !important;
+        }
+
+        #desktop-header {
+            display: block !important;
+        }
+
+        .section-title {
+            font-size: 2rem !important;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        #mobile-header {
+            display: block !important;
+        }
+
+        #desktop-header {
+            display: none !important;
+        }
+
+        .section-title {
+            font-size: 1.5rem !important;
+        }
+    }
+
+    .section-title {
+        padding: 20px 0px;
+        color: #B02025 !important;
+        text-align: center;
+    }
+
+    .column {
+        max-width: 500px;
+        margin: 40px auto;
+    }
+
+    .form-section {
+        margin: 25px 0px;
+    }
+
+    .red-logo {
+        background-color: #b02025 !important;
+    }
+</style>
+
+<body>
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .user.ID}}
+        <a class="red item" style="margin-top: 10px"> {{.user.FullName}} </a>
+        <a class="red item">Mes commandes</a>
+        <a class="red item">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item active" href="/order/create">Commande</a>
+        <a class="red item" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/pricing">Coût de livraison</a>
+        <a class="red item" href="/about">À propos</a>
+        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+        <a class="red item" href="#">Contidions generales</a>
+        <a class="red item" href="#">Politique de confidencialité</a>
+    </div>
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item active" href="/order/create">Commande</a>
+                    <a class="red item" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/pricing">Coût de livraison</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .user.ID}}
+                        <div class="ui dropdown item">
+                            {{.user.FullName}} <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item">Mes commandes</a>
+                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="ui container">
+            <div style="margin: 20px 0px">
+                <h2 class="section-title">VALIDER VOTRE COMMANDE</h2>
+            </div>
+            <div class="ui divider"></div>
+
+            <div class="column">
+                <div class="ui fluid raised card">
+                    <div class="content">
+                        <h4 class="ui dividing header">EXPEDITEUR</h4>
+                        <p>{{ .order.Sender.FullName }}</p>
+                        <P>{{ .order.Sender.City.Name}}</P>
+                        <p>{{ .order.Sender.Address}}</p>
+                        <p>Téléphone: {{ .order.Sender.Phone}}</p>
+                        <h4 class="ui dividing header">DESTINATAIRE</h4>
+                        <p>{{ .order.Receiver.FullName }}</p>
+                        <P>{{ .order.Receiver.City.Name}}</P>
+                        <p>{{ .order.Receiver.Address}}</p>
+                        <p>Téléphone: {{ .order.Receiver.Phone}}</p>
+                        <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
+                        <p>{{ .order.Nature }}</p>
+                        <p>Poids: {{ .order.WeightInterval.Name }}</p>
+                        <p>{{ .order.Note }}</p>
+                        <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
+                        <p>{{ .order.PaymentType.Name }}</p>
+                        <h4 class="ui dividing header">COUT DE LA LIVRAISON</h4>
+                        <p style="text-align: right; font-weight: bold">{{ .order.Cost }} FCFA</p>
+
+                        <div class="description">
+                            <p></p>
+                        </div>
+                    </div>
+                    <div style="display: none">
+                        <form class="ui form segment" id="order-form" action="/order/confirm" method="POST">
+                            <h4 class="ui dividing header">EXPEDITEUR</h4>
+                            <div class="two fields">
+                                <div class="field">
+                                    <label>Nom et prénom</label>
+                                    <input type="text" name="senderName" value="{{ .order.Sender.FullName }}">
+                                </div>
+                                <div class="field">
+                                    <label>Téléphone</label>
+                                    <input type="tel" name="senderPhone" maxlength="16"
+                                        value="{{ .order.Sender.Phone }}">
+                                </div>
+                            </div>
+                            <div class="two fields">
+                                <div class="field">
+                                    <label>Ville / Commune</label>
+                                    <select class="ui search fluid dropdown" name="senderCityId">
+                                        <option selected value="{{ .order.Sender.City.ID }}"></option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Adresse</label>
+                                    <input type="text" name="senderAddress" value="{{ .order.Sender.Address }}">
+                                </div>
+                            </div>
+                            <h4 class="ui dividing header">DESTINATAIRE</h4>
+                            <div class="two fields">
+                                <div class="field">
+                                    <label>Nom et prénom</label>
+                                    <input type="text" name="receiverName" value="{{ .order.Receiver.FullName }}">
+                                </div>
+                                <div class="field">
+                                    <label>Téléphone</label>
+                                    <input type="tel" name="receiverPhone" value="{{ .order.Receiver.Phone }}">
+                                </div>
+                            </div>
+                            <div class="two fields">
+                                <div class="field">
+                                    <label>Ville / Commune</label>
+                                    <select class="ui search fluid dropdown" name="receiverCityId">
+                                        <option selected value="{{ .order.Receiver.City.ID }}"></option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Adresse</label>
+                                    <input type="text" name="receiverAddress" value="{{ .order.Receiver.Address }}">
+                                </div>
+                            </div>
+                            <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
+                            <div class="two fields">
+                                <div class="field">
+                                    <label>Poids du colis</label>
+                                    <select class="ui search dropdown" name="weightIntervalId">
+                                        <option selected value="{{ .order.WeightInterval.ID }}"></option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Nature</label>
+                                    <input type="text" name="parcelNature" value="{{ .order.Nature }}">
+                                </div>
+                            </div>
+                            <div class="ui divider"></div>
+                            <div class="field">
+                                <label>Note</label>
+                                <textarea name="note" cols="30" rows="3">{{.order.Note}}</textarea>
+                            </div>
+                            <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
+                            <div class="grouped fields">
+                                <label for="paymentType">Selectionner votre mode paiement:</label>
+                                {{if eq .order.PaymentType.ID 2 }}
+                                <div class="field">
+                                    <div class="ui radio checkbox">
+                                        <input type="radio" name="paymentTypeId" value="1" tabindex="0" class="hidden">
+                                        <label>Paiement cash à la collecte</label>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="ui radio checkbox">
+                                        <input type="radio" name="paymentTypeId" value="2" checked tabindex="0"
+                                            class="hidden">
+                                        <label>Paiement cash à la livraison</label>
+                                    </div>
+                                </div>
+                                {{ else }}
+                                <div class="field">
+                                    <div class="ui radio checkbox">
+                                        <input type="radio" name="paymentTypeId" value="1" checked tabindex="0"
+                                            class="hidden">
+                                        <label>Paiement cash à la collecte</label>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="ui radio checkbox">
+                                        <input type="radio" name="paymentTypeId" value="2" tabindex="0" class="hidden">
+                                        <label>Paiement cash à la livraison</label>
+                                    </div>
+                                </div>
+                                {{ end }}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="extra content">
+                        <button class="ui red button fluid" onclick="submitOrder()">
+                            Valider la commande</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Footer-->
+        {{ template "footer" . }}
+    </div>
+</body>
+<script src="../assets/js/semantic.min.js"></script>
+
+<script>
+    function showSideBar() {
+        $('.ui.sidebar').sidebar('toggle');
+    }
+    $('.ui.radio.checkbox')
+        .checkbox()
+        ;
+    $('.ui.dropdown')
+        .dropdown()
+        ;
+    function submitOrder() {
+        $("#order-form").submit();
+    }
+</script>
+
+</html>
+
+{{end}}

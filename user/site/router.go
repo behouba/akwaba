@@ -17,7 +17,7 @@ const (
 
 // Handler represents the website handler methods set
 type Handler struct {
-	Db *postgres.UserDB
+	DB *postgres.UserDB
 	// Auth   *jwt.Authenticator
 	// Sms    *notifier.SMS
 	Mailer *notifier.Mailer
@@ -36,22 +36,47 @@ func SetupRouter(h *Handler) *gin.Engine {
 	auth.Use(alreadyAuthenticated())
 	{
 		auth.GET("/login", h.login)
-		auth.GET("/registration", h.registration)
-		auth.GET("/recovery", h.recovery)
-		auth.GET("/new-password-request", h.newPasswordRequest)
-		auth.POST("/registration", h.handleRegistration)
 		auth.POST("/login", h.handleLogin)
+
+		auth.GET("/registration", h.registration)
+		auth.POST("/registration", h.handleRegistration)
+
+		auth.GET("/recovery", h.recovery)
 		auth.POST("/recovery", h.handleRecovery)
+
+		auth.GET("/new-password-request", h.newPasswordRequest)
 		auth.POST("/new-password-request", h.handleNewPasswordRequest)
+	}
+
+	order := r.Group("/order")
+	{
+		order.GET("/create", h.order)
+		order.POST("/create", h.handleOrderCreation)
+
+		// order.GET("/confirm", h.confirmOrder)
+		order.POST("/confirm", h.handleConfirmOrder)
+		order.GET("/receipt/:id", h.serveOrderReceipt)
+	}
+
+	profile := r.Group("/profile")
+	{
+		profile.GET("/settings", h.settings)
+		profile.GET("/orders", h.orders)
+
+	}
+
+	pricing := r.Group("/pricing")
+	{
+		pricing.GET("", h.pricing)
+		pricing.GET("/compute", h.computePrice)
 	}
 	r.GET("/auth/logout", h.logout)
 
 	r.GET("/", h.home)
 	r.GET("/services", h.services)
-	r.GET("/order", h.order)
 	r.GET("/tracking", h.tracking)
-	r.GET("/pricing", h.pricing)
 	r.GET("/about", h.about)
+
 	return r
 }
 
@@ -69,7 +94,7 @@ func NewHandler(dbURI string) *Handler {
 	mailer := notifier.NewMailer()
 
 	return &Handler{
-		Db: &db,
+		DB: &db,
 		// Auth:   auth,
 		// Sms:    sms,
 		Mailer: mailer,

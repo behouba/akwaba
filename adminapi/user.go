@@ -6,17 +6,18 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/behouba/dsapi/adminapi/internal/postgres"
-
+	"github.com/behouba/akwaba/adminapi/internal/postgres"
 	"github.com/behouba/dsapi"
-	"github.com/behouba/dsapi/adminapi/internal/jwt"
-	"github.com/behouba/dsapi/adminapi/internal/notifier"
+
+	"github.com/behouba/akwaba"
+	"github.com/behouba/akwaba/adminapi/internal/jwt"
+	"github.com/behouba/akwaba/adminapi/internal/notifier"
 	"github.com/gin-gonic/gin"
 )
 
 // UserHandler implement methods sets to handler customer operations
 type UserHandler struct {
-	Store dsapi.AdminUserManager
+	Store akwaba.AdminUserManager
 	Auth  *jwt.Authenticator
 	Sms   *notifier.SMS
 }
@@ -30,7 +31,7 @@ func NewUserHandler(db *sql.DB, secret string) *UserHandler {
 }
 
 func (u *UserHandler) createCustomer(c *gin.Context) {
-	var user dsapi.User
+	var user akwaba.User
 	var err error
 	err = c.ShouldBindJSON(&user)
 	if err != nil {

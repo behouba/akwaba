@@ -68,7 +68,8 @@ func (d *UserDB) SaveNewCustomer(u *akwaba.User) (user *akwaba.User, statusCode 
 		statusCode = http.StatusBadRequest
 		return
 	}
-	err = d.DB.QueryRow("INSERT INTO users (full_name, phone, email, password) VALUES ($1, $2, $3, $4) RETURNING id",
+	err = d.DB.QueryRow(
+		`INSERT INTO "user" (full_name, phone, email, password) VALUES ($1, $2, $3, $4) RETURNING id`,
 		u.FullName, u.Phone, u.Email, u.Password,
 	).Scan(&u.ID)
 	if err != nil {
@@ -90,7 +91,7 @@ func (d *UserDB) SaveNewCustomer(u *akwaba.User) (user *akwaba.User, statusCode 
 // Authenticate check if user provided email and password match and then return the user struct
 func (d *UserDB) Authenticate(email, password string) (user akwaba.User, err error) {
 	err = d.DB.QueryRow(
-		"SELECT id, full_name, email, phone, password FROM users WHERE email=$1",
+		`SELECT id, full_name, email, phone, password FROM "user" WHERE email=$1`,
 		email,
 	).Scan(&user.ID, &user.FullName, &user.Email, &user.Phone, &user.Password)
 	if err != nil {
@@ -108,7 +109,8 @@ func (d *UserDB) Authenticate(email, password string) (user akwaba.User, err err
 // CheckPhone check if phone number exist in database then return nil
 // is phone exit and error if not
 func (d *UserDB) CheckPhone(phone string) (user akwaba.User, err error) {
-	err = d.DB.QueryRow("SELECT id, full_name, phone, email FROM users WHERE phone=$1",
+	err = d.DB.QueryRow(
+		`SELECT id, full_name, phone, email FROM "user" WHERE phone=$1`,
 		phone,
 	).Scan(&user.ID, &user.FullName, &user.Phone, &user.Email)
 	return
@@ -126,7 +128,7 @@ func keyDuplicationError(key string) string {
 func (d *UserDB) GetUserByEmail(email string) (user akwaba.User, err error) {
 
 	err = d.DB.QueryRow(
-		"SELECT id, full_name, email, phone FROM users WHERE email=$1",
+		`SELECT id, full_name, email, phone FROM "user" WHERE email=$1`,
 		email,
 	).Scan(&user.ID, &user.FullName, &user.Email, &user.Phone)
 	if err != nil {
@@ -138,7 +140,7 @@ func (d *UserDB) GetUserByEmail(email string) (user akwaba.User, err error) {
 func (d *UserDB) SavePasswordRecoveryRequest(user *akwaba.User) (newUUID string, err error) {
 	newUUID = uuid.NewV4().String()
 	_, err = d.DB.Exec(
-		"INSERT INTO email_validation (user_id, uuid) VALUES ($1, $2)",
+		`INSERT INTO recovery_request (user_id, uuid) VALUES ($1, $2)`,
 		user.ID, newUUID,
 	)
 	return
@@ -146,12 +148,16 @@ func (d *UserDB) SavePasswordRecoveryRequest(user *akwaba.User) (newUUID string,
 
 func (d *UserDB) CheckPasswordChangeRequestUUID(uuid string) (userID int, err error) {
 	var t time.Time
-	err = d.DB.QueryRow("SELECT user_id, created_at FROM email_validation WHERE uuid=$1", uuid).Scan(&userID, &t)
+	err = d.DB.QueryRow(
+		"SELECT user_id, create_time FROM recovery_request WHERE uuid=$1", uuid).Scan(&userID, &t)
 	if err != nil {
 		return
 	}
+	log.Println("db time = ", t)
 	currentTime := time.Now().UTC()
 	diff := currentTime.Sub(t)
+	log.Println("current = ", currentTime)
+
 	log.Println("time diff = ", diff)
 	if diff.Hours() > 3 {
 		err = errors.New("Le lien de recupération de mot de passe demandé n'existe pas ou a expiré")
@@ -165,10 +171,10 @@ func (d *UserDB) ChangePassword(userID int, uuid, newPassword string) (err error
 	if err != nil {
 		return
 	}
-	_, err = d.DB.Exec("UPDATE users SET password=$1 WHERE id=$2", hp, userID)
+	_, err = d.DB.Exec(`UPDATE "user" SET password=$1 WHERE id=$2`, hp, userID)
 	if err != nil {
 		return
 	}
-	d.DB.QueryRow("DELETE FROM email_validation WHERE user_id=$1", userID)
+	d.DB.QueryRow("DELETE FROM recovery_request WHERE user_id=$1", userID)
 	return
 }
