@@ -8,6 +8,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head"  .}}
     <title>Document</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 </head>
 <style>
     .logo {
@@ -33,6 +35,34 @@
         .section-title {
             font-size: 2rem !important;
         }
+
+        .track-header {
+            font-size: 22px;
+            font-weight: bold;
+            color: #B02025;
+            padding: 10px 0px;
+        }
+
+        .event-title {
+            font-size: 18px;
+            line-height: 24px;
+            margin-top: 18px;
+            font-weight: normal;
+            position: relative;
+        }
+
+        .event-content {
+            font-size: 14px;
+            line-height: 18px;
+            color: #999999;
+            margin-top: 3px;
+        }
+
+        .track-summary {
+            color: #999999;
+            font-size: 14px;
+            line-height: 18px;
+        }
     }
 
     @media only screen and (max-width: 768px) {
@@ -47,6 +77,34 @@
         .section-title {
             font-size: 1.5rem !important;
         }
+
+        .track-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #B02025;
+            padding: 10px 0px;
+        }
+
+        .event-title {
+            font-size: 16px;
+            line-height: 18px;
+            margin-top: 18px;
+            font-weight: normal;
+            position: relative;
+        }
+
+        .event-content {
+            font-size: 12px;
+            line-height: 18px;
+            color: #999999;
+            margin-top: 3px;
+        }
+
+        .track-summary {
+            color: #999999;
+            font-size: 12px;
+            line-height: 18px;
+        }
     }
 
     .section-title {
@@ -55,15 +113,56 @@
         text-align: center;
     }
 
+    #app {
+        min-height: 450px;
+    }
+
     #tracking-input {
-        max-width: 450px;
+        max-width: 640px;
         height: 100%;
         margin: 40px auto;
         text-align: center;
     }
 
-    #tracking-result {
-        min-height: 150px;
+    #tracking-wrapper {
+        max-width: 640px;
+        min-height: 350px;
+        margin: 40px auto;
+    }
+
+    .card .icon {
+        color: #B02025 !important;
+    }
+
+    .card .event {
+        line-height: 24px;
+        margin-top: 18px;
+        position: relative;
+    }
+
+
+
+    .track-status {
+        font-size: 16px;
+        line-height: 18px;
+        color: #999999;
+        margin-top: 3px;
+    }
+
+
+
+    .track-head:hover {
+        cursor: pointer;
+        background-color: #ededed !important;
+    }
+
+    .details {
+        display: none;
+        margin: 0px !important;
+    }
+
+    .tracking-item {
+        margin: 10px 0px;
     }
 </style>
 
@@ -133,34 +232,191 @@
                 </div>
             </div>
         </header>
-        <div class="ui container">
+        <div class="ui container" id="app">
             <div id="tracking-input">
                 <h2 class="section-title">SUIVI DE COLIS</h2>
-                <p>Veuillez indiquer votre numéro de suivi du colis (de 11 à 15 chiffres).
+                <p class="event-content">Veuillez indiquer votre numéro de suivi du colis (de 11 à 15 chiffres).
                 </p>
-                <div class="ui action input big" style="width: 100%">
-                    <input type="text" placeholder="EX: 12343435343">
-                    <button class="ui icon button primary">
-                        <i class="search icon"></i>
-                    </button>
+                <form autocomplete="off" @submit="checkFormAndSubmit">
+                    <div v-bind:class="{error: error.hasError, loading: loading}" class="ui icon input large"
+                        style="width: 100%">
+                        <input type="text" id="trackingInput" v-model="orderId"
+                            placeholder="Entrez le numéro de suivi du colis">
+                        <i class="red search icon link" v-on:click="checkFormAndSubmit"></i>
+                    </div>
+                    <div id="error-msg" class="ui negative message" v-if="error.hasError" style="display:none">
+                        <div class="header">
+                            {error.message}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="tracking-wrapper">
+                <div id="tracking-result" v-if="trackings.length > 0" style="display:none">
+                    <div class="tracking-item" v-for="tracking in trackings">
+                        <div class="ui card raised fluid">
+                            <div class="content track-head" v-on:click="showFullTracking($event)">
+                                <div style="margin: 10px 0px">
+                                    <span class="track-header">{tracking.parcel.nature}</span>
+                                    <span class="right floated">
+                                        <!-- <i class="check icon large"></i> -->
+                                        <i class="shipping fast  icon large"></i>
+                                    </span>
+                                </div>
+                                <div class="event-content">
+                                    <p>{tracking.orderId}</p>
+                                    <p>{tracking.events[tracking.events.length - 1].status}</p>
+                                </div>
+                            </div>
+                            <div class="ui card fluid details" style="display:none">
+                                <div class="content">
+                                    <div class="ui small feed">
+                                        <div class="event" v-for="t in tracking.events">
+                                            <div class="content">
+                                                <div class="event-title">
+                                                    <span>{t.status}</span>
+                                                </div>
+                                                <div class="event-content">
+                                                    <span>{t.time.formatted}, </span>
+                                                    <span>{t.place}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content">
+                                    <div class="track-summary">
+                                        <div>
+                                            <span>Poids: </span>
+                                            <span>{tracking.parcel.weight} kg</span>
+                                        </div>
+                                        <div>
+                                            <span>Expediteur: </span>
+                                            <span>{tracking.parcel.senderFullName}</span>
+                                        </div>
+                                        <div>
+                                            <span>Destinataire: </span>
+                                            <span>{tracking.parcel.receiverFullName}</span>
+                                        </div>
+                                        <div>
+                                            <span>Destination: </span>
+                                            <span>{tracking.parcel.destination}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="extra content">
+                                    <a style="color:#B02025">Imprimer</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div id="tracking-result"></div>
+            {{if not .user.ID }}
+            <div style="text-align: center;">
+                <p>Inscrivez-vous pour enregistrer les numéros de suivi de vos colis et recevoir des notifications.
+                </p>
+                <a href="/auth/registration" class="ui button red">Inscription</a>
+            </div>
+            {{ end }}
         </div>
-        <!--Footer-->
-        {{ template "footer" . }}
+    </div>
+    <!--Footer-->
+    {{ template "footer" . }}
     </div>
 </body>
 <script>
+    var app = new Vue({
+        el: '#app',
+        delimiters: ['{', '}'],
+        data: {
+            trackings: [],
+            loading: false,
+            orderId: '',
+            error: {
+                hasError: false,
+                message: '',
+            },
+        },
+        methods: {
+            checkFormAndSubmit: function (e) {
+                e.preventDefault();
+                this.fetchTracking();
+            },
+            saveToLocalStorage: function () {
+                sessionStorage.setItem("trackings", JSON.stringify(this.trackings));
+            },
+            getFromLocalStorage: function () {
+                this.trackings = JSON.parse(sessionStorage.getItem("trackings")) || [];
+            },
+            fetchTracking: function () {
+                if (this.loading === true) {
+                    return
+                }
+                if (this.orderId == '') {
+                    this.error.hasError = false;
+                    return
+                }
+                if (isNaN(this.orderId)) {
+                    this.error.hasError = true;
+                    this.error.message = "Numéro de suivi invalide";
+                    return
+                }
+                this.error.hasError = false;
+                this.error.message = ''
+
+                // avoid duplicating tracking item
+                for (var i = 0; i < this.trackings.length; i++) {
+                    if (this.trackings[i].orderId == this.orderId) {
+                        return
+                    }
+                }
+                this.loading = true;
+                axios.get(`/order/track?id=${this.orderId}`)
+                    .then(res => {
+                        this.loading = false;
+                        this.orderId = '';
+                        this.trackings.unshift(res.data.tracking);
+                        this.saveToLocalStorage();
+                    })
+                    .catch(err => {
+                        this.loading = false;
+                        console.log(err)
+                        this.error.hasError = true;
+                        this.error.message = err;
+                    })
+            },
+            showFullTracking: function (e) {
+                $(e.target).closest(".tracking-item").find(".details").toggle(300);
+            },
+        },
+        created: function () {
+            this.getFromLocalStorage();
+            $("#tracking-result").show();
+            $("#error-msg").show();
+            $('.ui.radio.checkbox').checkbox();
+            $('.ui.dropdown').dropdown();
+
+            if (window.location.href.split("#").length < 2) {
+                return
+            }
+            if (window.location.href.split("#")[1].length < 1) {
+                return
+            }
+            this.orderId = window.location.href.split("#")[1];
+            if (this.orderId !== '' && this.trackings.length > 0) {
+                return
+            }
+            this.fetchTracking();
+        },
+    })
+
+
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');
     }
-    $('.ui.radio.checkbox')
-        .checkbox()
-        ;
-    $('.ui.dropdown')
-        .dropdown()
-        ;
+
+
 </script>
 
 </html>

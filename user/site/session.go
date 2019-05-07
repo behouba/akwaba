@@ -1,13 +1,12 @@
-package site 
+package site
 
-
-import(
-	"github.com/gin-contrib/sessions"
+import (
 	"github.com/behouba/akwaba"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-func  getSessionUser(c *gin.Context) (user akwaba.User){ 
+func getSessionUser(c *gin.Context) (user akwaba.User) {
 	s := sessions.Default(c)
 	if s.Get("id") != nil {
 		user.ID = s.Get("id").(int)
@@ -24,15 +23,14 @@ func  getSessionUser(c *gin.Context) (user akwaba.User){
 	return
 }
 
-func saveSessionUser(u *akwaba.User, c *gin.Context) { 
+func saveSessionUser(u *akwaba.User, c *gin.Context) {
 	s := sessions.Default(c)
 	s.Set("id", u.ID)
 	s.Set("name", u.FullName)
-	s.Set("phone", u.FullName)
+	s.Set("phone", u.Phone)
 	s.Set("email", u.Email)
 	s.Save()
 }
-
 
 func destroySessionUser(c *gin.Context) {
 	session := sessions.Default(c)

@@ -26,6 +26,7 @@ func (h *Handler) services(c *gin.Context) {
 }
 
 func (h *Handler) tracking(c *gin.Context) {
+
 	c.HTML(http.StatusOK, "tracking", gin.H{
 		"user": getSessionUser(c),
 	})

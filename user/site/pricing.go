@@ -10,6 +10,7 @@ import (
 )
 
 func (h *Handler) computePrice(c *gin.Context) {
+
 	originID, _ := strconv.Atoi(c.Query("originId"))
 
 	destinationID, _ := strconv.Atoi(c.Query("destinationId"))

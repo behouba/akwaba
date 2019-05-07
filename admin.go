@@ -52,7 +52,7 @@ type Employee struct {
 
 // AdminCredential represent employee authentication data
 type AdminCredential struct {
-	ID       int    `json:"id, omitempty"`
+	ID       int    `json:"id,omitempty"`
 	Name     string `json:"name" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }

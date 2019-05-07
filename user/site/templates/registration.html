@@ -47,7 +47,7 @@
             </div>
             <h2 class="ui red image header">
                 <div class="content">
-                    Créer un compte
+                    INSCRIPTION
                 </div>
             </h2>
             {{ if .user }}
@@ -90,7 +90,7 @@
                             <input type="password" name="password2" placeholder="Répétez le mot de passe">
                         </div>
                     </div>
-                    <div class="ui fluid large primary submit button">Submit</div>
+                    <div class="ui fluid large primary submit button">Inscription</div>
                     <div style="margin-top: 10px;">
                         En vous inscrivant, vous acceptez les <a href="#" class="red-link">conditions d' utilisation</a>
                     </div>
@@ -131,7 +131,7 @@
                             <input type="password" name="password2" placeholder="Répétez le mot de passe">
                         </div>
                     </div>
-                    <div class="ui fluid large primary submit button">Submit</div>
+                    <div class="ui fluid large primary submit button">Inscription</div>
                     <div style="margin-top: 10px;">
                         En vous inscrivant, vous acceptez les <a href="#" class="red-link">conditions d' utilisation</a>
                     </div>
@@ -153,6 +153,7 @@
 
     $('#registration-form').form({
         on: 'blur',
+        inline: true,
         fields: {
             name: {
                 identifier: 'name',

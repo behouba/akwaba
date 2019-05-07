@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/behouba/dsapi"
-	"github.com/behouba/dsapi/adminapi/internal/jwt"
+	"github.com/behouba/akwaba"
+	"github.com/behouba/akwaba/adminapi/internal/jwt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,28 +15,28 @@ import (
 // AdminUserManager interface implementation
 type userMockStore struct{}
 
-func (u *userMockStore) GetUserByPhone(phone string) (user []dsapi.User, err error) {
+func (u *userMockStore) GetUserByPhone(phone string) (user []akwaba.User, err error) {
 	return
 }
 
-func (u *userMockStore) GetUserByName(name string) (user []dsapi.User, err error) {
+func (u *userMockStore) GetUserByName(name string) (user []akwaba.User, err error) {
 	return
 }
 
-func (u *userMockStore) GetDeliveryAddress(userID int) (add []dsapi.Address, err error) {
+func (u *userMockStore) GetDeliveryAddress(userID int) (add []akwaba.Address, err error) {
 	return
 }
 
-func (u *userMockStore) GetPickUpAddress(userID int) (add []dsapi.Address, err error) {
+func (u *userMockStore) GetPickUpAddress(userID int) (add []akwaba.Address, err error) {
 	return
 }
-func (u *userMockStore) SaveUser(user *dsapi.User) (id int, err error) {
+func (u *userMockStore) SaveUser(user *akwaba.User) (id int, err error) {
 	return
 }
-func (u *userMockStore) SaveDeliveryAddress(userID int, address *dsapi.Address) (err error) {
+func (u *userMockStore) SaveDeliveryAddress(userID int, address *akwaba.Address) (err error) {
 	return
 }
-func (u *userMockStore) SavePickUpAddress(userID int, address *dsapi.Address) (err error) {
+func (u *userMockStore) SavePickUpAddress(userID int, address *akwaba.Address) (err error) {
 	return
 }
 func (u *userMockStore) FreezeUser(userID int) (err error) {

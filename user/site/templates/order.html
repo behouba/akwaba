@@ -146,17 +146,17 @@
                 <form class="ui form segment" id="order-form" action="/order/create" method="POST">
                     <h4 class="ui dividing header">EXPEDITEUR</h4>
                     <div class="two fields">
-                        <div class="field">
+                        <div class="field required">
                             <label>Nom et prénom</label>
                             <input type="text" name="senderName">
                         </div>
-                        <div class="field">
+                        <div class="field required">
                             <label>Téléphone</label>
                             <input type="tel" name="senderPhone" maxlength="16" class="phone">
                         </div>
                     </div>
                     <div class="two fields">
-                        <div class="field">
+                        <div class="field required">
                             <label>Ville / Commune</label>
                             <select class="ui search fluid dropdown" name="senderCityId">
                                 <option value=""></option>
@@ -166,24 +166,24 @@
                                 <option value="4">Arkansas</option>
                             </select>
                         </div>
-                        <div class="field">
+                        <div class="field required">
                             <label>Adresse</label>
                             <input type="text" name="senderAddress">
                         </div>
                     </div>
                     <h4 class="ui dividing header">DESTINATAIRE</h4>
                     <div class="two fields">
-                        <div class="field">
+                        <div class="field required">
                             <label>Nom et prénom</label>
                             <input type="text" name="receiverName">
                         </div>
-                        <div class="field">
+                        <div class="field required">
                             <label>Téléphone</label>
                             <input type="tel" name="receiverPhone" class="phone">
                         </div>
                     </div>
                     <div class="two fields">
-                        <div class="field">
+                        <div class="field required">
                             <label>Ville / Commune</label>
                             <select class="ui search fluid dropdown" name="receiverCityId">
                                 <option value=""></option>
@@ -193,14 +193,14 @@
                                 <option value="4">Arkansas</option>
                             </select>
                         </div>
-                        <div class="field">
+                        <div class="field required">
                             <label>Adresse</label>
                             <input type="text" name="receiverAddress">
                         </div>
                     </div>
                     <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
                     <div class="two fields">
-                        <div class="field">
+                        <div class="field required">
                             <label>Poids du colis</label>
                             <select class="ui search dropdown" name="weightIntervalId">
                                 <option value=""></option>

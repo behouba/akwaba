@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/behouba/dsapi/adminapi/internal/jwt"
+	"github.com/behouba/akwaba/adminapi/internal/jwt"
 
 	"github.com/behouba/dsapi"
 	"github.com/gin-gonic/gin"

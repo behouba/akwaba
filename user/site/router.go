@@ -56,6 +56,8 @@ func SetupRouter(h *Handler) *gin.Engine {
 		// order.GET("/confirm", h.confirmOrder)
 		order.POST("/confirm", h.handleConfirmOrder)
 		order.GET("/receipt/:id", h.serveOrderReceipt)
+
+		order.GET("/track", h.trackOrder)
 	}
 
 	profile := r.Group("/profile")
@@ -70,6 +72,7 @@ func SetupRouter(h *Handler) *gin.Engine {
 		pricing.GET("", h.pricing)
 		pricing.GET("/compute", h.computePrice)
 	}
+
 	r.GET("/auth/logout", h.logout)
 
 	r.GET("/", h.home)
