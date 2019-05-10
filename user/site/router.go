@@ -64,6 +64,7 @@ func SetupRouter(h *Handler) *gin.Engine {
 	{
 		profile.GET("/settings", h.settings)
 		profile.GET("/orders", h.orders)
+		profile.POST("/settings", h.updateProfile)
 
 	}
 
@@ -73,12 +74,15 @@ func SetupRouter(h *Handler) *gin.Engine {
 		pricing.GET("/compute", h.computePrice)
 	}
 
+	r.GET("/contact/business", h.businessContact)
 	r.GET("/auth/logout", h.logout)
 
 	r.GET("/", h.home)
 	r.GET("/services", h.services)
 	r.GET("/tracking", h.tracking)
 	r.GET("/about", h.about)
+	r.GET("/general-conditions", h.conditions)
+	r.GET("/privacy-policy", h.privacyPolicy)
 
 	return r
 }

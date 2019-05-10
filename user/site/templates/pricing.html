@@ -161,18 +161,18 @@
                                     <label>Origine</label>
                                     <select class="ui search dropdown" name="origin" id="originId">
                                         <option value=""></option>
-                                        <option value="1">Abobo</option>
-                                        <option value="2">Adjamé</option>
-                                        <option value="3">Cocody</option>
+                                        {{ range .cities }}
+                                        <option value="{{.ID}}">{{.Name}}</option>
+                                        {{ end }}
                                     </select>
                                 </div>
                                 <div class="field">
                                     <label>Destination</label>
                                     <select class="ui search dropdown" name="destination" id="destinationId">
                                         <option v3ue=""></option>
-                                        <option value="1">Abobo</option>
-                                        <option value="2">Adjamé</option>
-                                        <option value="3">Cocody</option>
+                                        {{ range .cities }}
+                                        <option value="{{.ID}}">{{.Name}}</option>
+                                        {{ end }}
                                     </select>
                                 </div>
                             </div>
@@ -180,17 +180,9 @@
                                 <label>Poids du colis</label>
                                 <select class="ui dropdown" name="weightInterval" id="weightIntervalId">
                                     <option value=""></option>
-                                    <option value="1">jusqu'à 1 kg</option>
-                                    <option value="2">> 1 - 5 kg</option>
-                                    <option value="3">> 5 - 10 kg</option>
-                                    <option value="4">> 10 - 15 kg</option>
-                                    <option value="5">> 15 - 20 kg</option>
-                                    <option value="5">> 20 - 25 kg</option>
-                                    <option value="5">> 25 - 30 kg</option>
-                                    <option value="5">> 30 - 35 kg</option>
-                                    <option value="5">> 35 - 40 kg</option>
-                                    <option value="5">> 40 - 45 kg</option>
-                                    <option value="5">> 45 - 50 kg</option>
+                                    {{range .weightIntervals}}
+                                    <option value="{{.ID}}">{{ .Name }}</option>
+                                    {{end}}
                                 </select>
                             </div>
                             <div style="margin: 30px 0px;">

@@ -404,14 +404,13 @@
                 return
             }
             this.orderId = window.location.href.split("#")[1];
-            if (this.orderId !== '' && this.trackings.length > 0) {
+            if (this.orderId == '' && this.trackings.length > 0) {
+                console.log(this.orderId);
                 return
             }
             this.fetchTracking();
         },
-    })
-
-
+    });
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');
     }

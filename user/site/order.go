@@ -29,7 +29,10 @@ func orderFromForm(c *gin.Context) (order akwaba.Order) {
 
 func (h *Handler) order(c *gin.Context) {
 	c.HTML(http.StatusOK, "order", gin.H{
-		"user": getSessionUser(c),
+		"user":            getSessionUser(c),
+		"cities":          h.DB.Cities,
+		"weightIntervals": h.DB.WeightIntervals,
+		"paymentTypes":    h.DB.PaymentTypes,
 	})
 }
 
@@ -76,6 +79,11 @@ func (h *Handler) handleConfirmOrder(c *gin.Context) {
 		return
 	}
 
+	err = h.DB.SaveOrder(&order)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	c.HTML(http.StatusOK, "order-created", gin.H{
 		"order": order,
 	})

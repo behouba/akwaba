@@ -17,35 +17,45 @@ const (
 
 // Order struct represent order that will be created by users
 type Order struct {
-	ID             int       `json:"id,omitempty"`
-	PaymentType    Item      `json:"paymentTypeId"`
-	CustomerID     int       `json:"customerId"`
-	CreatedAt      time.Time `json:"createdAt"`
-	State          int       `json:"state"`
-	Cost           float64   `json:"cost"`
-	Sender         Address   `json:"sender"`
-	Receiver       Address   `json:"receiver"`
-	WeightInterval Item      `json:"weightInterval"`
-	Nature         string    `json:"nature"`
-	Note           string    `json:"note"`
+	ID             int            `json:"id,omitempty"`
+	PaymentType    PaymentType    `json:"paymentTypeId"`
+	CustomerID     int            `json:"customerId"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	State          int            `json:"state"`
+	Cost           float64        `json:"cost"`
+	Sender         Address        `json:"sender"`
+	Receiver       Address        `json:"receiver"`
+	WeightInterval WeightInterval `json:"weightInterval"`
+	Nature         string         `json:"nature"`
+	Note           string         `json:"note"`
+}
+
+type PaymentType struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// City represent
+type City struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type WeightInterval struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 // ComputeCost return totalCost of the order
 func (o *Order) ComputeCost() (cost float64) {
-	return
-}
-
-// City represent
-type Item struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	return 3500
 }
 
 // Address represent delivery address provided by customers
 type Address struct {
 	ID int `json:"id,omitempty"`
 	// CustomerID  int      `json:"customerId"`
-	City     Item   `json:"city" binding:"required"`
+	City     City   `json:"city" binding:"required"`
 	FullName string `json:"fullName" binding:"required"`
 	Phone    string `json:"phone" binding:"required"`
 	Address  string `json:"address" binding:"required"`

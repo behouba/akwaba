@@ -9,15 +9,15 @@ import (
 // SaveOrder save order
 func (d *UserDB) SaveOrder(order *akwaba.Order) (err error) {
 	err = d.DB.QueryRow(
-		`INSERT INTO "order" 
+		`INSERT INTO delivery_order 
 		(payment_type_id, cost, sender_full_name, sender_phone, 
 			sender_city_id, sender_address, receiver_full_name, receiver_phone, 
-			receiver_city_id, receiver_address, note, nature)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id;`,
+			receiver_city_id, receiver_address, note, nature, weight_interval_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id;`,
 		order.PaymentType.ID, order.ComputeCost(), order.Sender.FullName,
 		order.Sender.Phone, order.Sender.City.ID, order.Sender.Address,
 		order.Receiver.FullName, order.Receiver.Phone, order.Receiver.City.ID,
-		order.Receiver.Address, order.Note, order.Nature,
+		order.Receiver.Address, order.Note, order.Nature, order.WeightInterval.ID,
 	).Scan(&order.ID)
 	return
 }

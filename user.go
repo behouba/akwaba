@@ -29,12 +29,15 @@ type UserOrderer interface {
 // User is representation of new customer
 // registration's data
 type User struct {
-	ID          int    `json:"id,omitempty"`
-	FullName    string `json:"fullName"`
-	Phone       string `json:"phone"`
-	Email       string `json:"email"`
-	Password    string `json:"password,omitempty"`
-	AccessToken string `json:"accessToken,omitempty"`
+	ID             int    `json:"id,omitempty"`
+	FullName       string `json:"fullName"`
+	Phone          string `json:"phone"`
+	Email          string `json:"email"`
+	Password       string `json:"password,omitempty"`
+	HashedPassword string
+	City           string `json:"city"`
+	Address        string `json:"address"`
+	AccessToken    string `json:"accessToken,omitempty"`
 }
 
 // HashPassword hash password provided by user in registration form
@@ -44,14 +47,14 @@ func (u *User) HashPassword() (err error) {
 		return
 	}
 	p, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
-	u.Password = string(p)
+	u.HashedPassword = string(p)
 	return
 }
 
 // ComparePassword the hashed password and compare it with plain text value.
 // return nil if match and error if not
 func (u *User) ComparePassword(password string) (err error) {
-	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+	return bcrypt.CompareHashAndPassword([]byte(u.HashedPassword), []byte(password))
 }
 
 // validateBeforeRegistration validate new user information

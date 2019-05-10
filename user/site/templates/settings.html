@@ -8,8 +8,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
     <title>AKWABA EXPRESS</title>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="../assets/js/jquery.inputmask.js"></script>
 </head>
 <style>
     /* header styling */
@@ -186,30 +186,33 @@
 
         <!--Home page content-->
         <div class="ui container">
-            <div id="settings">
+            <div id="settings" style="visibility:hidden">
                 <h1>DONNÉES DU COMPTE</h1>
-                <div class="ui success message">
+                <div class="ui negative message" v-if="error.hasError">
                     <p>
-                        Vos informations de compte ont été mis à jour avec succes!
+                        {error.message}
                     </p>
                 </div>
-                <div class="ui negative message">
+                {{ if .success }}
+                <div class="ui success message" v-if="!error.hasError">
                     <p>
-                        Echec de mis à jour de vos données.
+                        {{.success}}
                     </p>
                 </div>
-                <form autocomplete="off" @submit="checkFormAndSubmit" class="ui form">
+                {{ end }}
+                <form autocomplete="off" @submit="checkFormAndSubmit" class="ui form" action="/profile/settings"
+                    method="POST">
                     <div class="field">
                         <label>Nom et prénom</label>
-                        <input type="text" name="first-name" v-model="user.fullName">
+                        <input type="text" name="name" id="name" v-model="user.fullName">
                     </div>
                     <div class="field">
                         <label>Téléphone</label>
-                        <input type="text" name="last-name" v-model="user.phone">
+                        <input type="text" name="phone" id="phone" v-model="user.phone">
                     </div>
                     <div class="field">
                         <label>E-mail</label>
-                        <input type="text" name="last-name" v-model="user.email">
+                        <input type="text" name="email" id="email" v-model="user.email">
                     </div>
                     <div class="field">
                         <label>Ville / Commune</label>
@@ -227,10 +230,9 @@
                     </div>
                     <div class="field required">
                         <label>Mot de passe requis pour les modificaiton</label>
-                        <input type="password" name="password" placeholder="Votre mot de passe">
+                        <input type="password" name="password" id="password" placeholder="Votre mot de passe">
                     </div>
-                    <button class="ui button fluid primary" v-bind:disabled="checkFormState"
-                        type="submit">Modifier</button>
+                    <button class="ui button fluid primary" type="submit">Modifier</button>
                 </form>
             </div>
         </div>
@@ -245,14 +247,11 @@
         el: '#settings',
         delimiters: ['{', '}'],
         data: {
-            user: {
-                fullName: '{{.user.FullName}}',
-                phone: '{{.user.Phone}}',
-                email: '{{.user.Email}}',
-                city: '',
-                address: '',
+            error: {
+                hasError: false,
+                message: '',
             },
-            originalUser: {
+            user: {
                 fullName: '{{.user.FullName}}',
                 phone: '{{.user.Phone}}',
                 email: '{{.user.Email}}',
@@ -261,18 +260,53 @@
             },
         },
         methods: {
+            validatePhone: function (phone) {
+                if (phone.length != 16) {
+                    return false;
+                }
+                var re = /^\+225 (\d{2}) (\d{2}) (\d{2}) (\d{2})/;
+                return re.test(phone);
+            },
+            newError: function (msg) {
+                this.error.hasError = true;
+                this.error.message = msg;
+                $('html, body').animate({
+                    scrollTop: $("#settings").offset().top
+                }, 500);
+            },
+            validEmail: function () {
+                var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return re.test(this.user.email);
+            },
             checkFormAndSubmit: function (e) {
                 e.preventDefault();
+
+                if (!this.validatePhone($("#phone").val())) {
+                    this.newError('Veuillez saisir un numéro de mobile valide');
+                    return
+                }
+                if (this.user.fullName.length < 4) {
+                    this.newError('Votre nom et prénom ne peuvent pas être trop courts');
+                    return
+                }
+                if (!this.validEmail()) {
+                    this.newError('Veuillez saisir une adresse e-mail valide');
+                    return
+                }
+                if ($("#password").val().length < 4) {
+                    this.newError('Mot de passe requis, votre mot de passe doit contenir au moins 4 caractères');
+                    return
+                }
+                e.target.submit();
             },
-        },
-        computed: {
-            checkFormState: function () {
-                return JSON.stringify(this.user) === JSON.stringify(this.originalUser)
-            }
         },
         created: function () {
             console.log(this.user);
-        }
+        },
+        mounted: function () {
+            $("#settings").css('visibility', 'visible');
+            $("#phone").inputmask({ "mask": "+225 99 99 99 99" });
+        },
     })
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');

@@ -158,12 +158,11 @@
                     <div class="two fields">
                         <div class="field required">
                             <label>Ville / Commune</label>
-                            <select class="ui search fluid dropdown" name="senderCityId">
+                            <select class="ui search fluid dropdown" name="senderCityId" autocomplete="off">
                                 <option value=""></option>
-                                <option value="1">Alabama</option>
-                                <option value="2">Alaska</option>
-                                <option value="3">Arizona</option>
-                                <option value="4">Arkansas</option>
+                                {{ range .cities }}
+                                <option value="{{.ID}}">{{.Name}}</option>
+                                {{ end }}
                             </select>
                         </div>
                         <div class="field required">
@@ -185,12 +184,11 @@
                     <div class="two fields">
                         <div class="field required">
                             <label>Ville / Commune</label>
-                            <select class="ui search fluid dropdown" name="receiverCityId">
+                            <select class="ui search fluid dropdown" name="receiverCityId" autocomplete="off">
                                 <option value=""></option>
-                                <option value="1">Alabama</option>
-                                <option value="2">Alaska</option>
-                                <option value="3">Arizona</option>
-                                <option value="4">Arkansas</option>
+                                {{ range .cities }}
+                                <option value="{{.ID}}">{{.Name}}</option>
+                                {{ end }}
                             </select>
                         </div>
                         <div class="field required">
@@ -204,17 +202,9 @@
                             <label>Poids du colis</label>
                             <select class="ui search dropdown" name="weightIntervalId">
                                 <option value=""></option>
-                                <option value="1">jusqu'à 1 kg</option>
-                                <option value="2">> 1 - 5 kg</option>
-                                <option value="3">> 5 - 10 kg</option>
-                                <option value="4">> 10 - 15 kg</option>
-                                <option value="5">> 15 - 20 kg</option>
-                                <option value="5">> 20 - 25 kg</option>
-                                <option value="5">> 25 - 30 kg</option>
-                                <option value="5">> 30 - 35 kg</option>
-                                <option value="5">> 35 - 40 kg</option>
-                                <option value="5">> 40 - 45 kg</option>
-                                <option value="5">> 45 - 50 kg</option>
+                                {{range .weightIntervals}}
+                                <option value="{{.ID}}">{{ .Name }}</option>
+                                {{end}}
                             </select>
                         </div>
                         <div class="field">
@@ -230,18 +220,25 @@
                     <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
                     <div class="grouped fields">
                         <label for="paymentType">Selectionner votre mode paiement:</label>
+                        {{ range .paymentTypes }}
+                        {{ if eq .ID 1 }}
                         <div class="field">
                             <div class="ui radio checkbox">
-                                <input type="radio" name="paymentTypeId" value="1" checked tabindex="0" class="hidden">
-                                <label>Paiement cash à la collecte</label>
+                                <input type="radio" name="paymentTypeId" value="{{.ID}}" checked tabindex="0"
+                                    class="hidden">
+                                <label>{{.Name}}</label>
                             </div>
                         </div>
+                        {{else}}
                         <div class="field">
                             <div class="ui radio checkbox">
-                                <input type="radio" name="paymentTypeId" value="2" tabindex="0" class="hidden">
-                                <label>Paiement cash à la livraison</label>
+                                <input type="radio" name="paymentTypeId" value="{{.ID}}" tabindex="0" class="hidden">
+                                <label>{{.Name}}</label>
                             </div>
                         </div>
+                        {{ end }}
+
+                        {{ end }}
                     </div>
                     <div class="ui divider"></div>
                     <div class="ui fluid submit button primary" style="margin: 20px 0px" tabindex="0">

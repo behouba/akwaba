@@ -17,3 +17,10 @@ func (h *Handler) settings(c *gin.Context) {
 		"user": getSessionUser(c),
 	})
 }
+
+func (h *Handler) updateProfile(c *gin.Context) {
+	c.HTML(http.StatusOK, "settings", gin.H{
+		"user":    getSessionUser(c),
+		"success": "Votre profil a été mis à jour avec succès",
+	})
+}

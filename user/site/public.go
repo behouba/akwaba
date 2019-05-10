@@ -33,6 +33,20 @@ func (h *Handler) tracking(c *gin.Context) {
 }
 func (h *Handler) pricing(c *gin.Context) {
 	c.HTML(http.StatusOK, "pricing", gin.H{
-		"user": getSessionUser(c),
+		"user":            getSessionUser(c),
+		"cities":          h.DB.Cities,
+		"weightIntervals": h.DB.WeightIntervals,
 	})
+}
+
+func (h *Handler) conditions(c *gin.Context) {
+	c.HTML(http.StatusOK, "conditions", nil)
+}
+
+func (h *Handler) privacyPolicy(c *gin.Context) {
+	c.HTML(http.StatusOK, "privacy", nil)
+}
+
+func (h *Handler) businessContact(c *gin.Context) {
+	c.HTML(http.StatusOK, "business", nil)
 }

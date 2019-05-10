@@ -35,6 +35,12 @@
     .red-link {
         color: #B02025 !important;
     }
+
+    .muted-txt {
+        color: #858585;
+        font-size: 13px;
+        text-align: center;
+    }
 </style>
 
 <body>
@@ -132,8 +138,12 @@
                         </div>
                     </div>
                     <div class="ui fluid large primary submit button">Inscription</div>
-                    <div style="margin-top: 10px;">
-                        En vous inscrivant, vous acceptez les <a href="#" class="red-link">conditions d' utilisation</a>
+                    <div style="margin-top: 10px;" class="muted-txt">
+                        En vous inscrivant, vous acceptez les <a href="/general-conditions" class="red-link">conditions
+                            d' utilisation</a> et <a href="/privacy-policy" class="red-link">la politique de
+                            confidentialité</a> concernants le traitements des données
+                        de
+                        l'utilisateur.
                     </div>
                 </div>
 
@@ -142,7 +152,9 @@
             <div class="ui divider">
 
             </div>
-            Si vous êtes déjà inscrit,<a href="/auth/login" class="red-link">Connectez-vous</a>
+            <div class="muted-txt">
+                Si vous êtes déjà inscrit, <a href="/auth/login" class="red-link">Connectez-vous</a>
+            </div>
         </div>
     </div>
 </body>
