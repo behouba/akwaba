@@ -7,12 +7,10 @@ import (
 
 // Order states id constants values
 const (
-	StateWaitingConfirmation = 1
-	StateWaitingPickUp       = 2
-	StateInProcessing        = 3
-	StateCanceled            = 4
-	StateFrozen              = 5
-	StateTerminated          = 6
+	OrderStateWaitingConfirmation = 1
+	OrderStateInProcessing        = 2
+	OrderStateDelivered           = 3
+	OrderStateCanceled            = 4
 )
 
 // Order struct represent order that will be created by users
@@ -20,8 +18,8 @@ type Order struct {
 	ID             int            `json:"id,omitempty"`
 	PaymentType    PaymentType    `json:"paymentTypeId"`
 	CustomerID     int            `json:"customerId"`
-	CreatedAt      time.Time      `json:"createdAt"`
-	State          int            `json:"state"`
+	CreatedAt      EventTime      `json:"createdAt"`
+	State          State          `json:"state"`
 	Cost           float64        `json:"cost"`
 	Sender         Address        `json:"sender"`
 	Receiver       Address        `json:"receiver"`
@@ -30,6 +28,13 @@ type Order struct {
 	Note           string         `json:"note"`
 }
 
+// State
+type State struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// PaymentType
 type PaymentType struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
@@ -48,7 +53,8 @@ type WeightInterval struct {
 
 // ComputeCost return totalCost of the order
 func (o *Order) ComputeCost() (cost float64) {
-	return 3500
+	o.Cost = 3500
+	return o.Cost
 }
 
 // Address represent delivery address provided by customers

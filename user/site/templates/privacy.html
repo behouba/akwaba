@@ -9,126 +9,13 @@
     {{ template "common-head" .}}
     <title>AKWABA EXPRESS</title>
 </head>
-<style>
-    /* header styling */
-    .logo {
-        width: 150px;
-        height: 60px;
-    }
-
-    #mobile-header,
-    #desktop-header {
-        margin: 0px 0px !important;
-    }
-
-    @media only screen and (min-width: 768px) {
-        #mobile-header {
-            display: none !important;
-        }
-
-        .search-input {
-            min-width: 500px;
-        }
-
-        #desktop-header {
-            display: block !important;
-        }
-
-        .section-title {
-            font-size: 2rem !important;
-        }
-    }
-
-    @media only screen and (max-width: 768px) {
-        #mobile-header {
-            display: block !important;
-        }
-
-        .search-input {
-            width: 100%;
-        }
-
-        #desktop-header {
-            display: none !important;
-        }
-
-        .section-title {
-            font-size: 1.5rem !important;
-        }
-    }
-
-    header {
-        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    }
-
-    /* end of header styling */
-
-
-
-
-    #home-landing {
-        background-image: url("https://upload.wikimedia.org/wikipedia/commons/6/61/Wegmann_Abidjan_IvoryCoast.jpg");
-        min-height: 470px;
-        background-size: cover;
-        padding: 100px 0px;
-    }
-
-
-    #presentation-section {
-        background-image: url("https://pargo.co.za/wp-content/uploads/2019/01/cross-border-click-and-collect-south-africa.jpg");
-        background-size: cover;
-        min-height: 470px;
-        padding-top: 100px;
-        padding-bottom: 100px;
-        color: white;
-    }
-
-    .section-title {
-        padding: 30px 0px;
-        color: #B02025 !important;
-    }
-
-
-    .big-text {
-        font-size: 3rem;
-        line-height: 1.28;
-        font-weight: 400;
-        line-height: 1.28em;
-        color: black;
-    }
-
-    .center {
-        text-align: center;
-    }
-
-    .card {
-        padding: 35px 0px !important;
-    }
-
-    .truncate {
-        max-width: 150px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    #conditions {
-        margin-top: 60px;
-    }
-
-
-    #conditions ol {
-        line-height: 22px;
-        font-weight: 400;
-    }
-</style>
 
 <body>
 
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item" style="margin-top: 10px"><span class="truncate">{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
         <a class="red item" href="/profile/orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
@@ -143,8 +30,8 @@
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
         <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="#">Contidions generales</a>
-        <a class="red item" href="#">Politique de confidencialité</a>
+        <a class="red item" href="/general-conditions">Contidions generales</a>
+        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">

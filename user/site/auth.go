@@ -38,7 +38,7 @@ func (h *Handler) handleRegistration(c *gin.Context) {
 	}
 
 	saveSessionUser(newUser, c)
-	c.Redirect(302, "/")
+	c.Redirect(http.StatusSeeOther, "/")
 }
 
 func (h *Handler) handleLogin(c *gin.Context) {
@@ -52,12 +52,12 @@ func (h *Handler) handleLogin(c *gin.Context) {
 		return
 	}
 	saveSessionUser(&user, c)
-	c.Redirect(302, "/")
+	c.Redirect(http.StatusSeeOther, "/")
 }
 
 func (h *Handler) logout(c *gin.Context) {
 	destroySessionUser(c)
-	c.Redirect(302, "/")
+	c.Redirect(http.StatusSeeOther, "/")
 }
 
 func (h *Handler) handleRecovery(c *gin.Context) {
@@ -126,29 +126,22 @@ func (h *Handler) handleNewPasswordRequest(c *gin.Context) {
 	})
 }
 
-func authRequired() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		user := getSessionUser(c)
-		if user.ID == 0 {
-			// You'd normally redirect to login page
-			c.Redirect(302, "/")
-			// c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid session token"})
-		} else {
-			// Continue down the chain to handler etc
-			c.Next()
-		}
+func authRequired(c *gin.Context) {
+	user := getSessionUser(c)
+	if user.ID == 0 {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	} else {
+		c.Next()
 	}
 }
 
-func alreadyAuthenticated() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		user := getSessionUser(c)
-		if user.ID != 0 {
-			c.Redirect(302, "/")
-			return
-		}
-		c.Next()
+func alreadyAuthenticated(c *gin.Context) {
+	user := getSessionUser(c)
+	if user.ID != 0 {
+		c.Redirect(http.StatusSeeOther, "/")
+		return
 	}
+	c.Next()
 }
 
 func handleRegistrationError(c *gin.Context) {

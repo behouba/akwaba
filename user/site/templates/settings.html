@@ -11,116 +11,15 @@
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="../assets/js/jquery.inputmask.js"></script>
 </head>
-<style>
-    /* header styling */
-    .logo {
-        width: 150px;
-        height: 60px;
-    }
-
-    #mobile-header,
-    #desktop-header {
-        margin: 0px 0px !important;
-    }
-
-    @media only screen and (min-width: 768px) {
-        #mobile-header {
-            display: none !important;
-        }
-
-        #desktop-header {
-            display: block !important;
-        }
-
-        .section-title {
-            font-size: 2rem !important;
-        }
-    }
-
-    @media only screen and (max-width: 768px) {
-        #mobile-header {
-            display: block !important;
-        }
-
-        #desktop-header {
-            display: none !important;
-        }
-
-        .section-title {
-            font-size: 1.5rem !important;
-        }
-    }
-
-    header {
-        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    }
-
-    /* end of header styling */
-
-
-
-
-    #home-landing {
-        background-image: url("https://upload.wikimedia.org/wikipedia/commons/6/61/Wegmann_Abidjan_IvoryCoast.jpg");
-        min-height: 470px;
-        background-size: cover;
-        padding: 100px 0px;
-    }
-
-
-    #presentation-section {
-        background-image: url("https://pargo.co.za/wp-content/uploads/2019/01/cross-border-click-and-collect-south-africa.jpg");
-        background-size: cover;
-        min-height: 470px;
-        padding-top: 100px;
-        padding-bottom: 100px;
-        color: white;
-    }
-
-    .section-title {
-        padding: 30px 0px;
-        color: #B02025 !important;
-    }
-
-
-    .big-text {
-        font-size: 3rem;
-        line-height: 1.28;
-        font-weight: 400;
-        line-height: 1.28em;
-        color: black;
-    }
-
-    .center {
-        text-align: center;
-    }
-
-    .card {
-        padding: 35px 0px !important;
-    }
-
-    .truncate {
-        max-width: 150px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    #settings {
-        max-width: 540px;
-        margin: 40px auto;
-    }
-</style>
 
 <body>
-
 
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item" style="margin-top: 10px"><span class="truncate">{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
         <a class="red item" href="/profile/orders">Mes commandes</a>
-        <a class="red item" href="/profile/settings">Reglages</a>
+        <a class="red item active" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
 
         {{else}}
@@ -133,8 +32,8 @@
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
         <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="#">Contidions generales</a>
-        <a class="red item" href="#">Politique de confidencialité</a>
+        <a class="red item" href="/general-conditions">Contidions generales</a>
+        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">
@@ -199,6 +98,12 @@
                         {{.success}}
                     </p>
                 </div>
+                {{else if .error}}
+                <div class="ui negative message" v-if="!error.hasError">
+                    <p>
+                        {{.error}}
+                    </p>
+                </div>
                 {{ end }}
                 <form autocomplete="off" @submit="checkFormAndSubmit" class="ui form" action="/profile/settings"
                     method="POST">
@@ -216,17 +121,22 @@
                     </div>
                     <div class="field">
                         <label>Ville / Commune</label>
-                        <select class="ui search fluid dropdown" v-model="user.city" name="receiverCityId">
+                        <select class="ui search fluid dropdown" v-model="user.cityId" name="cityId">
+                            {{ if eq .user.City.ID 0 }}
                             <option value=""></option>
-                            <option value="1">Alabama</option>
-                            <option value="2">Alaska</option>
-                            <option value="3">Arizona</option>
-                            <option value="4">Arkansas</option>
+                            {{ end }}
+                            {{ range .cities }}
+                            {{if eq .ID $.user.City.ID }}
+                            <option value="{{.ID}}" selected>{{.Name}}</option>
+                            {{else }}
+                            <option value="{{.ID}}">{{.Name}}</option>
+                            {{end}}
+                            {{ end }}
                         </select>
                     </div>
                     <div class="field">
                         <label>Address</label>
-                        <input type="text" name="last-name" v-model="user.address">
+                        <input type="text" name="address" v-model="user.address">
                     </div>
                     <div class="field required">
                         <label>Mot de passe requis pour les modificaiton</label>
@@ -255,8 +165,8 @@
                 fullName: '{{.user.FullName}}',
                 phone: '{{.user.Phone}}',
                 email: '{{.user.Email}}',
-                city: '',
-                address: '',
+                cityId: '{{ .user.City.ID }}',
+                address: '{{ .user.Address }}',
             },
         },
         methods: {

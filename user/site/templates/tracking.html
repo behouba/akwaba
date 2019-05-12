@@ -11,167 +11,15 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 </head>
-<style>
-    .logo {
-        width: 150px;
-        height: 60px;
-    }
-
-
-    #mobile-header,
-    #desktop-header {
-        margin: 0px 0px !important;
-    }
-
-    @media only screen and (min-width: 768px) {
-        #mobile-header {
-            display: none !important;
-        }
-
-        #desktop-header {
-            display: block !important;
-        }
-
-        .section-title {
-            font-size: 2rem !important;
-        }
-
-        .track-header {
-            font-size: 22px;
-            font-weight: bold;
-            color: #B02025;
-            padding: 10px 0px;
-        }
-
-        .event-title {
-            font-size: 18px;
-            line-height: 24px;
-            margin-top: 18px;
-            font-weight: normal;
-            position: relative;
-        }
-
-        .event-content {
-            font-size: 14px;
-            line-height: 18px;
-            color: #999999;
-            margin-top: 3px;
-        }
-
-        .track-summary {
-            color: #999999;
-            font-size: 14px;
-            line-height: 18px;
-        }
-    }
-
-    @media only screen and (max-width: 768px) {
-        #mobile-header {
-            display: block !important;
-        }
-
-        #desktop-header {
-            display: none !important;
-        }
-
-        .section-title {
-            font-size: 1.5rem !important;
-        }
-
-        .track-header {
-            font-size: 18px;
-            font-weight: bold;
-            color: #B02025;
-            padding: 10px 0px;
-        }
-
-        .event-title {
-            font-size: 16px;
-            line-height: 18px;
-            margin-top: 18px;
-            font-weight: normal;
-            position: relative;
-        }
-
-        .event-content {
-            font-size: 12px;
-            line-height: 18px;
-            color: #999999;
-            margin-top: 3px;
-        }
-
-        .track-summary {
-            color: #999999;
-            font-size: 12px;
-            line-height: 18px;
-        }
-    }
-
-    .section-title {
-        padding: 20px 0px;
-        color: #B02025 !important;
-        text-align: center;
-    }
-
-    #app {
-        min-height: 450px;
-    }
-
-    #tracking-input {
-        max-width: 640px;
-        height: 100%;
-        margin: 40px auto;
-        text-align: center;
-    }
-
-    #tracking-wrapper {
-        max-width: 640px;
-        min-height: 350px;
-        margin: 40px auto;
-    }
-
-    .card .icon {
-        color: #B02025 !important;
-    }
-
-    .card .event {
-        line-height: 24px;
-        margin-top: 18px;
-        position: relative;
-    }
-
-
-
-    .track-status {
-        font-size: 16px;
-        line-height: 18px;
-        color: #999999;
-        margin-top: 3px;
-    }
-
-
-
-    .track-head:hover {
-        cursor: pointer;
-        background-color: #ededed !important;
-    }
-
-    .details {
-        display: none;
-        margin: 0px !important;
-    }
-
-    .tracking-item {
-        margin: 10px 0px;
-    }
-</style>
 
 <body>
+
+    <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item" style="margin-top: 10px"> {{.user.FullName}} </a>
-        <a class="red item">Mes commandes</a>
-        <a class="red item">Reglages</a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
 
         {{else}}
@@ -184,9 +32,10 @@
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
         <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="#">Contidions generales</a>
-        <a class="red item" href="#">Politique de confidencialité</a>
+        <a class="red item" href="/general-conditions">Contidions generales</a>
+        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
+
     <div class="pusher">
         <header>
             <!-- Mobile header -->
@@ -216,10 +65,10 @@
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            {{.user.FullName}} <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item">Mes commandes</a>
-                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
                                 <a class="black item" href="/auth/logout">Deconnexion</a>
                             </div>
                         </div>
@@ -232,7 +81,7 @@
                 </div>
             </div>
         </header>
-        <div class="ui container" id="app">
+        <div class="ui container" id="tracking-app">
             <div id="tracking-input">
                 <h2 class="section-title">SUIVI DE COLIS</h2>
                 <p class="event-content">Veuillez indiquer votre numéro de suivi du colis (de 11 à 15 chiffres).
@@ -327,7 +176,7 @@
 </body>
 <script>
     var app = new Vue({
-        el: '#app',
+        el: '#tracking-app',
         delimiters: ['{', '}'],
         data: {
             trackings: [],

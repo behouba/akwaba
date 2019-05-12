@@ -11,71 +11,20 @@
     <title>Document</title>
 </head>
 <style>
-    .logo {
-        width: 150px;
-        height: 60px;
-    }
-
-    #mobile-header,
-    #desktop-header {
-        margin: 0px 0px !important;
-    }
-
-    @media only screen and (min-width: 768px) {
-        #mobile-header {
-            display: none !important;
-        }
-
-        #desktop-header {
-            display: block !important;
-        }
-
-        .section-title {
-            font-size: 2rem !important;
-        }
-    }
-
-    @media only screen and (max-width: 768px) {
-        #mobile-header {
-            display: block !important;
-        }
-
-        #desktop-header {
-            display: none !important;
-        }
-
-        .section-title {
-            font-size: 1.5rem !important;
-        }
-    }
-
-    .section-title {
-        padding: 20px 0px;
-        color: #B02025 !important;
-        text-align: center;
-    }
-
     .column {
         max-width: 500px;
         margin: 40px auto;
     }
-
-    .form-section {
-        margin: 25px 0px;
-    }
-
-    .red-logo {
-        background-color: #b02025 !important;
-    }
 </style>
 
 <body>
+
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item" style="margin-top: 10px"> {{.user.FullName}} </a>
-        <a class="red item">Mes commandes</a>
-        <a class="red item">Reglages</a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
 
         {{else}}
@@ -88,9 +37,10 @@
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
         <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="#">Contidions generales</a>
-        <a class="red item" href="#">Politique de confidencialité</a>
+        <a class="red item" href="/general-conditions">Contidions generales</a>
+        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
+
     <div class="pusher">
         <header>
             <!-- Mobile header -->
@@ -120,10 +70,10 @@
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            {{.user.FullName}} <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item">Mes commandes</a>
-                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
                                 <a class="black item" href="/auth/logout">Deconnexion</a>
                             </div>
                         </div>

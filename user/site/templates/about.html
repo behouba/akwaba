@@ -10,82 +10,20 @@
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="../assets/js/jquery.inputmask.js"></script>
 
     <title>Document</title>
 </head>
-<style>
-    .logo {
-        width: 150px;
-        height: 60px;
-    }
-
-
-    #mobile-header,
-    #desktop-header {
-        margin: 0px 0px !important;
-    }
-
-    @media only screen and (min-width: 768px) {
-        #mobile-header {
-            display: none !important;
-        }
-
-        #desktop-header {
-            display: block !important;
-        }
-
-        .section-title {
-            font-size: 2rem !important;
-        }
-    }
-
-    @media only screen and (max-width: 768px) {
-        #mobile-header {
-            display: block !important;
-        }
-
-        #desktop-header {
-            display: none !important;
-        }
-
-        .section-title {
-            font-size: 1.5rem !important;
-        }
-    }
-
-    .section-title {
-        padding: 20px 0px;
-        color: #B02025 !important;
-        text-align: center;
-    }
-
-    p {
-        font-size: 16px;
-        line-height: 1.6;
-        margin: 1em 0em;
-    }
-
-
-    #map {
-        top: 0;
-        bottom: 0;
-        width: 100%;
-        min-height: 550px;
-        border: 2px solid #B02025;
-    }
-
-    .ui.list {
-        margin: 2rem 0;
-    }
-</style>
 
 <body>
     <!-- Sidebar for mobile de vices -->
+
+    <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item" style="margin-top: 10px"> {{.user.FullName}} </a>
-        <a class="red item">Mes commandes</a>
-        <a class="red item">Reglages</a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
 
         {{else}}
@@ -98,9 +36,10 @@
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item active" href="/about">À propos</a>
         <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="#">Contidions generales</a>
-        <a class="red item" href="#">Politique de confidencialité</a>
+        <a class="red item" href="/general-conditions">Contidions generales</a>
+        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
+
     <div class="pusher">
         <header>
             <!-- Mobile header -->
@@ -130,10 +69,10 @@
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            {{.user.FullName}} <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item">Mes commandes</a>
-                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
                                 <a class="black item" href="/auth/logout">Deconnexion</a>
                             </div>
                         </div>
@@ -148,266 +87,134 @@
         </header>
         <div class="ui container">
             <h1 class="ui horizontal divider section-title">QUI SOMMES NOUS ?</h1>
-            <p>
-                Akwaba Express en Côte d’Ivoire est une entreprise ivoirienne spécialisée dans la livraison express de
-                colis, de documents et marchandises et offre notamment des services conformes aux normes modernes.
-                Akwaba
-                Express met à la disposition des entreprises et des particuliers des services de qualité, en misant
-                cependant sur la rapidité et la fiabilité, battant ainsi le défi du temps qui s’impose dans les rues
-                abidjanaises.
+            <div class="ui container text">
+                <p>
+                    Akwaba Express en Côte d’Ivoire est une entreprise ivoirienne spécialisée dans la livraison express
+                    de
+                    colis, de documents et marchandises et offre notamment des services conformes aux normes modernes.
+                    Akwaba
+                    Express met à la disposition des entreprises et des particuliers des services de qualité, en misant
+                    cependant sur la rapidité et la fiabilité, battant ainsi le défi du temps qui s’impose dans les rues
+                    abidjanaises.
 
-                Akwaba Express a parfaitement connaissance des défis et réalités dont fait face la ville d’Abidjan et y
-                a
-                alors trouvé des solutions adaptées dans le but d’offrir à sa clientèle un service optimal.
+                    Akwaba Express a parfaitement connaissance des défis et réalités dont fait face la ville d’Abidjan
+                    et y
+                    a
+                    alors trouvé des solutions adaptées dans le but d’offrir à sa clientèle un service optimal.
 
-                Akwaba Express s’engage à offrir une flexibilité dans le déplacement de vos colis dans toute la zone
-                d’Abidjan.
+                    Akwaba Express s’engage à offrir une flexibilité dans le déplacement de vos colis dans toute la zone
+                    d’Abidjan.
 
-            </p>
+                </p>
+            </div>
             <h1 class="ui horizontal divider section-title">NOS AGENCES ?</h1>
 
             <div id='map'></div>
+            <div style="margin-top: 30px">
+                <h4 class="ui dividing header">TROUVEZ L'AGENCE LA PLUS PROCHE DE CHEZ VOUS </h4>
+                <div class="ui grid stackable" style="margin-top: 20px;">
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
             <div>
                 <h1 class="ui horizontal divider section-title">CONTACTS ?</h1>
-                <div class="ui two column divided very relaxed stackable grid container section-m">
-                    <div class="row">
-                        <div class="column" id="contact-form">
-                            <form class="ui form">
-                                <h4 class="ui dividing header">FORMULAIRE POUR NOUS CONTACTER </h4>
-                                <div class="field">
-                                    <label>Nom et prénom</label>
-                                    <input type="text" name="shipping[first-name]">
-                                </div>
-                                <div class="field">
-                                    <label>Numéro de téléphone</label>
-                                    <input type="tel" name="shipping[first-name]">
-                                </div>
-                                <div class="field">
-                                    <label>Adresse e-mail</label>
-                                    <input type="tel" name="shipping[first-name]">
-                                </div>
-                                <div class="field">
-                                    <label>Message</label>
-                                    <textarea name="" id="" cols="30" rows="10"></textarea>
-                                </div>
-                                <div class="field">
-                                    <label>Nous vous répondrons dans les instants suivants !</label>
-                                </div>
-                                <div class="ui fluid button primary" tabindex="0">Envoyer</div>
-                            </form>
-                        </div>
-                        <div class="column">
-                            <h4 class="ui dividing header">CONTACTER L'AGENCE LA PLUS PROCHE DE CHEZ VOUS </h4>
-                            <div class="ui grid stackable">
-                                <div class="eight wide column">
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Agence d'abobo gare
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Adjame dallas
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Adjame dallas
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Adjame dallas
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Adjame dallas
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Adjame dallas
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="eight wide column">
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Agence d'abobo gare
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Adjame dallas
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Adjame dallas
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="ui list">
-                                        <div class="item">
-                                            <i class="marker icon"></i>
-                                            <div class="content">
-                                                Adjame dallas
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="phone icon"></i>
-                                            <div class="content">
-                                                +225 58-75-34-08
-                                            </div>
-                                        </div>
-                                        <div class="item">
-                                            <i class="mail icon"></i>
-                                            <div class="content">
-                                                <div href="content">contact@akwabaexpress.ci</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                <div class="ae-column">
+                    <div id="contact-form">
+                        <form class="ui form" id="contact-form" action="/contact/info" method="POST">
+                            <h4 class="ui dividing header">FORMULAIRE POUR NOUS CONTACTER</h4>
+                            <div class="field">
+                                <label>Nom et prénom</label>
+                                <input type="text" name="name">
                             </div>
-                        </div>
-
+                            <div class="field">
+                                <label>Numéro de téléphone</label>
+                                <input type="tel" name="phone" class="phone">
+                            </div>
+                            <div class="field">
+                                <label>Adresse e-mail</label>
+                                <input type="tel" name="email">
+                            </div>
+                            <div class="field">
+                                <label>Message</label>
+                                <textarea name="message" id="" cols="30" rows="10"></textarea>
+                            </div>
+                            <div class="field">
+                                <label>Nous vous répondrons dans les instants suivants !</label>
+                            </div>
+                            <button class="ui fluid button primary submit" tabindex="0">Envoyer</button>
+                        </form>
                     </div>
                 </div>
                 <div class="ui row grid">
@@ -470,6 +277,49 @@
     $('.ui.dropdown')
         .dropdown()
         ;
+    $(".phone").inputmask({ "mask": "+225 99 99 99 99" });
+    $('#contact-form').form({
+        on: 'blur',
+        inline: true,
+        fields: {
+            name: {
+                identifier: 'name',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Veuillez saisir le nom de l\'expediteur'
+                    }
+                ]
+            },
+            phone: {
+                identifier: 'phone',
+                rules: [
+                    {
+                        type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
+                        prompt: 'Veuillez saisir un numéro de mobile valide'
+                    }
+                ]
+            },
+            email: {
+                identifier: 'email',
+                rules: [
+                    {
+                        type: 'email',
+                        prompt: 'Veuillez selectionner une commune'
+                    }
+                ]
+            },
+            message: {
+                identifier: 'message',
+                rules: [
+                    {
+                        type: 'minLength[10]',
+                        prompt: 'Veuillez saisir votre message (minimum 10 charatères) '
+                    }
+                ]
+            },
+        },
+    });
 </script>
 
 </html>

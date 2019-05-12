@@ -1,4 +1,4 @@
-{{ define "business"}}
+{{ define "emergency"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
+    <script src="../assets/js/jquery.inputmask.js"></script>
 
     <title>Document</title>
 </head>
@@ -81,42 +82,39 @@
             </div>
         </header>
         <div class="ui text container">
-            <h1 class="ui horizontal divider section-title">SOLUTIONS POUR ENTREPRISES</h1>
-            <p>
-                Besoin de forfait ou de partenariat pour votre entreprise ? Vous êtes au bon endroit ! Akwaba Express
-                offre
-                aux entreprises des solutions adaptées à vos besoins, des services de sous-traitances voir des
-                partenariats.
-                Vous êtes une entreprise intéressée par nos services et vous souhaitez coopérer avec nous, veuillez
-                remplir
-                le formulaire ci-dessous. Des professionnels vous contacteront dans un bref délai pour des échanges plus
-                avancées. Akwaba Express s’engage à garder confidentiel toutes les informations renseignées sur le
-                présent
-                site.
-            </p>
+            <h1 class="ui horizontal divider section-title">LIVRAISONS D’EXTRÊME URGENCE</h1>
             <div style="margin-top: 40px;">
-                <form class="ui form">
-                    <div class="field">
-                        <label>Nom et prénom de la personne à contacter</label>
-                        <input type="text" name="shipping[first-name]">
+                <form autocomplete="off" class="ui form" id="emergency-form" action="/contact/emergency" method="POST">
+                    <div class="two fields">
+                        <div class="field required">
+                            <label>Nom et prénom de la personne à contacter</label>
+                            <input autocomplete="off" type="text" name="name">
+                        </div>
+                        <div class="field required">
+                            <label>Numéro de téléphone</label>
+                            <input type="tel" name="phone" class="phone">
+                        </div>
                     </div>
-                    <div class="field">
-                        <label>Nom de l'entreprise</label>
-                        <input type="tel" name="shipping[first-name]">
-                    </div>
-                    <div class="field">
-                        <label>Numéro de téléphone</label>
-                        <input type="tel" name="shipping[first-name]">
-                    </div>
-                    <div class="field">
-                        <label>Adresse e-mail</label>
-                        <input type="tel" name="shipping[first-name]">
+                    <div class="two fields">
+                        <div class="field required">
+                            <label>Ville / Commune</label>
+                            <select class="ui search fluid dropdown" name="cityId" autocomplete="off">
+                                <option value=""></option>
+                                {{ range .cities }}
+                                <option value="{{.ID}}">{{.Name}}</option>
+                                {{ end }}
+                            </select>
+                        </div>
+                        <div class="field required">
+                            <label>Adresse</label>
+                            <input type="text" name="address">
+                        </div>
                     </div>
                     <div class="field">
                         <label>Message</label>
-                        <textarea name="" id="" cols="30" rows="10"></textarea>
+                        <textarea name="message" id="" cols="30" rows="8"></textarea>
                     </div>
-                    <div class="ui fluid button primary" tabindex="0">Envoyer</div>
+                    <div class="ui fluid button primary submit" tabindex="0">Envoyer</div>
                 </form>
             </div>
         </div>
@@ -125,15 +123,55 @@
 
 </body>
 <script>
+    $(".phone").inputmask({ "mask": "+225 99 99 99 99" });
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');
     }
-    $('.ui.radio.checkbox')
-        .checkbox()
-        ;
-    $('.ui.dropdown')
-        .dropdown()
-        ;
+    $('.ui.radio.checkbox').checkbox();
+    $('.ui.dropdown').dropdown();
+
+    $('#emergency-form').form({
+        on: 'blur',
+        inline: true,
+        fields: {
+            name: {
+                identifier: 'name',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Veuillez saisir le nom de l\'expediteur'
+                    }
+                ]
+            },
+            phone: {
+                identifier: 'phone',
+                rules: [
+                    {
+                        type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
+                        prompt: 'Veuillez saisir un numéro de mobile valide'
+                    }
+                ]
+            },
+            cityId: {
+                identifier: 'cityId',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Veuillez selectionner une commune'
+                    }
+                ]
+            },
+            address: {
+                identifier: 'address',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Veuillez saisir l\'adresse'
+                    }
+                ]
+            },
+        },
+    });
 </script>
 
 </html>

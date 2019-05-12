@@ -20,6 +20,12 @@ func getSessionUser(c *gin.Context) (user akwaba.User) {
 	if s.Get("email") != nil {
 		user.Email = s.Get("email").(string)
 	}
+	if s.Get("cityID") != nil {
+		user.City.ID = s.Get("cityID").(int)
+	}
+	if s.Get("address") != nil {
+		user.Address = s.Get("address").(string)
+	}
 	return
 }
 
@@ -29,6 +35,8 @@ func saveSessionUser(u *akwaba.User, c *gin.Context) {
 	s.Set("name", u.FullName)
 	s.Set("phone", u.Phone)
 	s.Set("email", u.Email)
+	s.Set("cityID", u.City.ID)
+	s.Set("address", u.Address)
 	s.Save()
 }
 

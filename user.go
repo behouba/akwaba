@@ -35,7 +35,7 @@ type User struct {
 	Email          string `json:"email"`
 	Password       string `json:"password,omitempty"`
 	HashedPassword string
-	City           string `json:"city"`
+	City           City   `json:"city"`
 	Address        string `json:"address"`
 	AccessToken    string `json:"accessToken,omitempty"`
 }
@@ -55,6 +55,10 @@ func (u *User) HashPassword() (err error) {
 // return nil if match and error if not
 func (u *User) ComparePassword(password string) (err error) {
 	return bcrypt.CompareHashAndPassword([]byte(u.HashedPassword), []byte(password))
+}
+
+func (u *User) CompareHashWithPassword(hashedPassword string) (err error) {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(u.Password))
 }
 
 // validateBeforeRegistration validate new user information

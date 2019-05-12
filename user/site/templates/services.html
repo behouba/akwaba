@@ -10,115 +10,17 @@
 
     <title>Document</title>
 </head>
-<style>
-    .logo {
-        width: 150px;
-        height: 60px;
-    }
-
-
-    #mobile-header,
-    #desktop-header {
-        margin: 0px 0px !important;
-    }
-
-    @media only screen and (min-width: 768px) {
-        #mobile-header {
-            display: none !important;
-        }
-
-        #desktop-header {
-            display: block !important;
-        }
-
-        .section-title {
-            font-size: 2rem !important;
-        }
-
-        .big-text {
-            font-size: 35px;
-        }
-    }
-
-    @media only screen and (max-width: 768px) {
-        #mobile-header {
-            display: block !important;
-        }
-
-        #desktop-header {
-            display: none !important;
-        }
-
-        .section-title {
-            font-size: 1.5rem !important;
-        }
-
-        .big-text {
-            font-size: 25px;
-        }
-    }
-
-    .section-title {
-        padding: 20px 0px;
-        color: #B02025 !important;
-        text-align: center;
-    }
-
-    #services-head {
-        width: 100%;
-        min-height: 300px;
-        background-image: url("https://www.wapecc.com/wp-content/uploads/2018/08/CP54TP_70_cropped-1-1168x695.jpg");
-        background-size: cover;
-    }
-
-    #services-head p {
-        line-height: 1.28;
-        font-weight: 500;
-        line-height: 1.6;
-        text-transform: uppercase;
-        color: white;
-        text-align: center;
-        padding: 50px 0px;
-    }
-
-    .service-row {
-        padding: 40px 0px;
-        min-height: 350px;
-    }
-
-    .service-row i {
-        color: #B02025;
-        margin-bottom: 30px !important;
-    }
-
-    .service-row p {
-        font-size: 16px;
-        line-height: 1.6;
-        margin: 1em 0em;
-    }
-
-    .service-row a {
-        color: #B02025;
-    }
-
-    .service-row a:hover {
-        text-decoration: underline;
-    }
-
-    .service-row h2 {
-        color: #B02025;
-    }
-</style>
 
 <body>
+
 
 
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item" style="margin-top: 10px"> {{.user.FullName}} </a>
-        <a class="red item">Mes commandes</a>
-        <a class="red item">Reglages</a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
 
         {{else}}
@@ -131,8 +33,8 @@
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
         <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="#">Contidions generales</a>
-        <a class="red item" href="#">Politique de confidencialité</a>
+        <a class="red item" href="/general-conditions">Contidions generales</a>
+        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">
@@ -164,10 +66,10 @@
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            {{.user.FullName}} <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item">Mes commandes</a>
-                                <a class="black item">Reglages</a>
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
                                 <a class="black item" href="/auth/logout">Deconnexion</a>
                             </div>
                         </div>
@@ -180,7 +82,6 @@
                 </div>
             </div>
         </header>
-
 
         <div>
 
@@ -271,7 +172,7 @@
                                     quelque soit le lieu de destination.
                                 </p>
                                 <p>
-                                    Contactez nous <a href="/about#contact-form">ici</a> pour beneficier du service
+                                    Contactez nous <a href="/contact/emergency">ici</a> pour beneficier du service
                                     d’extrême urgence.
                                 </p>
                             </div>

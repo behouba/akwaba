@@ -33,7 +33,7 @@ func SetupRouter(h *Handler) *gin.Engine {
 	r.Use(sessions.Sessions("akwaba-auth", store))
 
 	auth := r.Group("/auth")
-	auth.Use(alreadyAuthenticated())
+	auth.Use(alreadyAuthenticated)
 	{
 		auth.GET("/login", h.login)
 		auth.POST("/login", h.handleLogin)
@@ -57,13 +57,16 @@ func SetupRouter(h *Handler) *gin.Engine {
 		order.POST("/confirm", h.handleConfirmOrder)
 		order.GET("/receipt/:id", h.serveOrderReceipt)
 
+		order.PATCH("/cancel/:id", authRequired, h.cancelOrder)
 		order.GET("/track", h.trackOrder)
 	}
 
 	profile := r.Group("/profile")
+	profile.Use(authRequired)
 	{
 		profile.GET("/settings", h.settings)
 		profile.GET("/orders", h.orders)
+		profile.GET("/orders/:type", h.ordersJSON)
 		profile.POST("/settings", h.updateProfile)
 
 	}
@@ -74,7 +77,14 @@ func SetupRouter(h *Handler) *gin.Engine {
 		pricing.GET("/compute", h.computePrice)
 	}
 
-	r.GET("/contact/business", h.businessContact)
+	contact := r.Group("/contact")
+	{
+		contact.GET("/business", h.businessContact)
+		contact.GET("/emergency", h.emergencyContact)
+		contact.POST("/emergency", h.handleEmergency)
+		contact.POST("/info", h.handleContact)
+	}
+
 	r.GET("/auth/logout", h.logout)
 
 	r.GET("/", h.home)
@@ -89,7 +99,8 @@ func SetupRouter(h *Handler) *gin.Engine {
 
 // NewHandler create take configurations info and return new user handler
 func NewHandler(dbURI string) *Handler {
-	db, err := postgres.Open(dbURI)
+	var db postgres.UserDB
+	err := db.Open(dbURI)
 	if err != nil {
 		log.Println(err)
 		panic(err)

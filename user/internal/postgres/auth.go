@@ -21,7 +21,7 @@ const (
 
 // UserDB hold database connection for users
 type UserDB struct {
-	DB              *sql.DB
+	db              *sql.DB
 	Cities          []akwaba.City
 	WeightIntervals []akwaba.WeightInterval
 	PaymentTypes    []akwaba.PaymentType
@@ -29,7 +29,7 @@ type UserDB struct {
 
 // Open function open DB database
 // each server should have it own database user with corresponding rights on database
-func Open(uri string) (d UserDB, err error) {
+func (d *UserDB) Open(uri string) (err error) {
 	// will open database connection here
 	// each server should have it own database user with corresponding rights on database
 	db, err := sql.Open("postgres", uri)
@@ -48,7 +48,7 @@ func Open(uri string) (d UserDB, err error) {
 	if err != nil {
 		return
 	}
-	d.DB = db
+	d.db = db
 	return
 }
 
@@ -131,7 +131,7 @@ func (d *UserDB) SaveNewCustomer(u *akwaba.User) (user *akwaba.User, statusCode 
 		statusCode = http.StatusBadRequest
 		return
 	}
-	err = d.DB.QueryRow(
+	err = d.db.QueryRow(
 		`INSERT INTO "customer" (full_name, phone, email, hashed_password) VALUES ($1, $2, $3, $4) RETURNING id`,
 		u.FullName, u.Phone, u.Email, u.HashedPassword,
 	).Scan(&u.ID)
@@ -153,7 +153,7 @@ func (d *UserDB) SaveNewCustomer(u *akwaba.User) (user *akwaba.User, statusCode 
 
 // Authenticate check if user provided email and password match and then return the user struct
 func (d *UserDB) Authenticate(email, password string) (user akwaba.User, err error) {
-	err = d.DB.QueryRow(
+	err = d.db.QueryRow(
 		`SELECT id, full_name, email, phone, hashed_password FROM customer WHERE email=$1`,
 		email,
 	).Scan(&user.ID, &user.FullName, &user.Email, &user.Phone, &user.HashedPassword)
@@ -172,7 +172,7 @@ func (d *UserDB) Authenticate(email, password string) (user akwaba.User, err err
 // CheckPhone check if phone number exist in database then return nil
 // is phone exit and error if not
 func (d *UserDB) CheckPhone(phone string) (user akwaba.User, err error) {
-	err = d.DB.QueryRow(
+	err = d.db.QueryRow(
 		`SELECT id, full_name, phone, email FROM customer WHERE phone=$1`,
 		phone,
 	).Scan(&user.ID, &user.FullName, &user.Phone, &user.Email)
@@ -190,7 +190,7 @@ func keyDuplicationError(key string) string {
 
 func (d *UserDB) GetUserByEmail(email string) (user akwaba.User, err error) {
 
-	err = d.DB.QueryRow(
+	err = d.db.QueryRow(
 		`SELECT id, full_name, email, phone FROM customer WHERE email=$1`,
 		email,
 	).Scan(&user.ID, &user.FullName, &user.Email, &user.Phone)
@@ -202,7 +202,7 @@ func (d *UserDB) GetUserByEmail(email string) (user akwaba.User, err error) {
 
 func (d *UserDB) SavePasswordRecoveryRequest(user *akwaba.User) (newUUID string, err error) {
 	newUUID = uuid.NewV4().String()
-	_, err = d.DB.Exec(
+	_, err = d.db.Exec(
 		`INSERT INTO recovery_request (customer_id, request_uuid) VALUES ($1, $2)`,
 		user.ID, newUUID,
 	)
@@ -211,7 +211,7 @@ func (d *UserDB) SavePasswordRecoveryRequest(user *akwaba.User) (newUUID string,
 
 func (d *UserDB) CheckPasswordChangeRequestUUID(uuid string) (userID int, err error) {
 	var t time.Time
-	err = d.DB.QueryRow(
+	err = d.db.QueryRow(
 		"SELECT customer_id, created_at FROM recovery_request WHERE request_uuid=$1", uuid).Scan(&userID, &t)
 	if err != nil {
 		return
@@ -234,10 +234,10 @@ func (d *UserDB) ChangePassword(userID int, uuid, newPassword string) (err error
 	if err != nil {
 		return
 	}
-	_, err = d.DB.Exec(`UPDATE customer SET hashed_password=$1 WHERE id=$2`, hp, userID)
+	_, err = d.db.Exec(`UPDATE customer SET hashed_password=$1 WHERE id=$2`, hp, userID)
 	if err != nil {
 		return
 	}
-	d.DB.QueryRow("DELETE FROM recovery_request WHERE customer_id=$1", userID)
+	d.db.QueryRow("DELETE FROM recovery_request WHERE customer_id=$1", userID)
 	return
 }

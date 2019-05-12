@@ -1,6 +1,7 @@
 package site
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -49,7 +50,6 @@ func (h *Handler) handleOrderCreation(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	log.Println(order)
 	c.HTML(http.StatusOK, "confirm-order", gin.H{
 		"user":  getSessionUser(c),
 		"order": order,
@@ -66,7 +66,7 @@ func (h *Handler) handleOrderCreation(c *gin.Context) {
 
 func (h *Handler) handleConfirmOrder(c *gin.Context) {
 	order := orderFromForm(c)
-
+	user := getSessionUser(c)
 	err := order.ValidateData()
 	if err != nil {
 		log.Println(err)
@@ -78,11 +78,18 @@ func (h *Handler) handleConfirmOrder(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-
-	err = h.DB.SaveOrder(&order)
-	if err != nil {
-		log.Println(err)
-		return
+	if user.ID != 0 {
+		err = h.DB.SaveCustomerOrder(&order, user.ID)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	} else {
+		err = h.DB.SaveOrder(&order)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 	c.HTML(http.StatusOK, "order-created", gin.H{
 		"order": order,
@@ -101,4 +108,30 @@ func (h *Handler) serveOrderReceipt(c *gin.Context) {
 	if err != nil {
 		log.Println("error while outputing pdf", err)
 	}
+}
+
+func (h *Handler) cancelOrder(c *gin.Context) {
+	orderID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"message": err.Error(),
+			})
+		return
+	}
+	user := getSessionUser(c)
+
+	canceledID, err := h.DB.CancelOrder(orderID, user.ID)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"message": err.Error(),
+			})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": fmt.Sprintf("Commande %d annulé avec succès", canceledID),
+	})
 }
