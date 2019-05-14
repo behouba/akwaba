@@ -8,7 +8,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-const baseURL = "http://ec2-35-181-50-39.eu-west-3.compute.amazonaws.com"
+const baseURL = "http://ec2-35-180-234-11.eu-west-3.compute.amazonaws.com"
 
 func generateEmailVerificationHTML(link, email string) string {
 	return fmt.Sprintf(registrationTemplateFormat, link, email)
