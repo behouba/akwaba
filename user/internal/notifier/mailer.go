@@ -8,6 +8,8 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+const baseURL = "http://ec2-35-181-50-39.eu-west-3.compute.amazonaws.com"
+
 func generateEmailVerificationHTML(link, email string) string {
 	return fmt.Sprintf(registrationTemplateFormat, link, email)
 }
@@ -58,7 +60,7 @@ func (m *Mailer) SendAuthCode(email, link string) (code string, err error) {
 
 //SendRecoveryMail send password recovery link to user by email
 func (m *Mailer) SendRecoveryMail(user *akwaba.User, uuid string) (err error) {
-	link := "http://localhost:9999/auth/new-password-request?uuid=" + uuid
+	link := fmt.Sprintf("%s/auth/new-password-request?uuid=%s", baseURL, uuid)
 	err = m.D.DialAndSend(
 		m.newMail(
 			"Récupération de mot de passe",
