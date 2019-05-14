@@ -104,22 +104,26 @@
                 <div class="ui card fluid" v-for="(o, index) in orders" :key="o.id">
                     <div class="content">
                         <div class="header">COMMANDE DE LIVRAISON: {o.id}</div>
-                        <div class="meta">
-                            <div class="cinema">Crée le: { o.createdAt.formatted }</div>
-                            <div>status: { o.state.name }</div>
-                        </div>
                         <div class="description">
-                            <p></p>
+                            <p>{ o.state.name }</p>
+                            <p>Crée le: { o.createdAt.formatted }</p>
                         </div>
-                        <div class="extra">
-                            <div class="ui right floated primary tiny button" v-on:click="showCancelModal($event)"
-                                v-bind:data-index="index">
-                                Annuler la commande
-                            </div>
-                            <div class="ui right floated secondary tiny button" v-bind:data-index="index"
-                                v-on:click="showDetailModal">
-                                Voir les details
-                            </div>
+                    </div>
+                    <div class="extra content order-action-btn" style="text-align: right">
+                        <div class="ui basic tiny button secondary" v-bind:data-index="index"
+                            v-on:click="showTrackingModal">
+                            <i class="search icon"></i>
+                            Suivre
+                        </div>
+                        <div class="ui basic secondary tiny button" v-bind:data-index="index"
+                            v-on:click="showDetailModal">
+                            <i class="info icon"></i>
+                            Details
+                        </div>
+                        <div class="ui basic primary tiny button" v-on:click="showCancelModal"
+                            v-bind:data-index="index">
+                            <i class="trash alternate outline icon"></i>
+                            Annuler
                         </div>
                     </div>
                 </div>
@@ -141,7 +145,72 @@
                 </div>
             </div>
 
-
+            <div class="ui modal tiny card" id="trackingModal">
+                <!-- <i class="close icon"></i> -->
+                <div class="content" v-if="trackedOrder != null">
+                    <div style="margin: 10px 0px">
+                        <span class="track-header">{trackedOrder.parcel.nature}</span>
+                        <span class="right floated">
+                            <!-- <i class="check icon large"></i> -->
+                            <i class="shipping fast red icon large"></i>
+                        </span>
+                    </div>
+                    <div class="event-content">
+                        <p>{trackedOrder.orderId}</p>
+                        <p>{trackedOrder.events[trackedOrder.events.length - 1].status}</p>
+                    </div>
+                </div>
+                <div class="scrolling content" v-if="trackedOrder != null">
+                    <div class="ui small feed">
+                        <div class="event" v-for="t in trackedOrder.events">
+                            <div class="content">
+                                <div class="event-title">
+                                    <span>{t.status}</span>
+                                </div>
+                                <div class="event-content">
+                                    <span>{t.time.formatted}, </span>
+                                    <span>{t.place}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="content">
+                        <div class="track-summary">
+                            <div>
+                                <span>Poids: </span>
+                                <span>{trackedOrder.parcel.weight} kg</span>
+                            </div>
+                            <div>
+                                <span>Expediteur: </span>
+                                <span>{trackedOrder.parcel.senderFullName}</span>
+                            </div>
+                            <div>
+                                <span>Destinataire: </span>
+                                <span>{trackedOrder.parcel.receiverFullName}</span>
+                            </div>
+                            <div>
+                                <span>Destination: </span>
+                                <span>{trackedOrder.parcel.destination}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="extra content">
+                        <a style="color:#B02025">Imprimer</a>
+                    </div>
+                </div>
+                <div class="content" v-else>
+                    <div class="ui active inverted dimmer">
+                        <div class="ui text loader">Recherche en cours...</div>
+                    </div>
+                </div>
+                <div class="actions">
+                    <div class="ui deny secondary mini right labeled icon button">
+                        FERMER
+                        <i class="close icon"></i>
+                    </div>
+                </div>
+            </div>
             <div class="ui modal" id="detailModal">
                 <!-- <i class="close icon"></i> -->
                 <div class="header">DETAILS DE LA COMMANDE</div>
@@ -193,19 +262,37 @@
         data: {
             selectedOrder: null,
             orders: [],
+            trackedOrder: null,
         },
         methods: {
-            showCancelModal: function (e) {
+            setSelectedOrderIndex: function (e) {
                 var index = Number($(e.target).data("index"));
                 this.selectedOrder = this.orders[index];
                 console.log(this.selectedOrder);
+            },
+            showCancelModal: function (e) {
+                this.setSelectedOrderIndex(e)
                 $('#cancelModal').modal('show');
             },
             showDetailModal: function (e) {
-                var index = Number($(e.target).data("index"));
-                this.selectedOrder = this.orders[index];
-                console.log(this.selectedOrder);
+                this.setSelectedOrderIndex(e)
                 $('#detailModal').modal('show');
+            },
+            showTrackingModal: function (e) {
+                this.trackedOrder = null;
+                this.setSelectedOrderIndex(e)
+                this.fetchTracking();
+                $('#trackingModal').modal('show');
+            },
+            fetchTracking: function () {
+                axios.get(`/order/track?id=${this.selectedOrder.id}`)
+                    .then(res => {
+                        console.log(res);
+                        this.trackedOrder = res.data.tracking;
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
             },
             cancelOrder: function () {
                 if (this.selectedOrder == null) {

@@ -93,7 +93,7 @@
                             placeholder="Entrez le numéro de suivi du colis">
                         <i class="red search icon link" v-on:click="checkFormAndSubmit"></i>
                     </div>
-                    <div id="error-msg" class="ui negative message" v-if="error.hasError" style="display:none">
+                    <div id="error-msg" class="ui negative message" v-if="error.hasError" v-clock>
                         <div class="header">
                             {error.message}
                         </div>
@@ -101,7 +101,7 @@
                 </form>
             </div>
             <div id="tracking-wrapper">
-                <div id="tracking-result" v-if="trackings.length > 0" style="display:none">
+                <div id="tracking-result" v-if="trackings.length > 0" v-clock>
                     <div class="tracking-item" v-for="tracking in trackings">
                         <div class="ui card raised fluid">
                             <div class="content track-head" v-on:click="showFullTracking($event)">
@@ -117,7 +117,7 @@
                                     <p>{tracking.events[tracking.events.length - 1].status}</p>
                                 </div>
                             </div>
-                            <div class="ui card fluid details" style="display:none">
+                            <div class="ui card fluid details" v-clock>
                                 <div class="content">
                                     <div class="ui small feed">
                                         <div class="event" v-for="t in tracking.events">
@@ -241,8 +241,6 @@
         },
         created: function () {
             this.getFromLocalStorage();
-            $("#tracking-result").show();
-            $("#error-msg").show();
             $('.ui.radio.checkbox').checkbox();
             $('.ui.dropdown').dropdown();
 
@@ -260,6 +258,8 @@
             this.fetchTracking();
         },
     });
+
+
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');
     }

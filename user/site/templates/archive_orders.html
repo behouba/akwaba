@@ -104,18 +104,16 @@
                 <div class="ui card fluid" v-for="(o, index) in orders" :key="o.id">
                     <div class="content">
                         <div class="header">COMMANDE DE LIVRAISON: {o.id}</div>
-                        <div class="meta">
-                            <div class="cinema">Crée le: { o.createdAt.formatted }</div>
-                            <div>status: { o.state.name }</div>
-                        </div>
                         <div class="description">
-                            <p></p>
+                            <p>{ o.state.name }</p>
+                            <p>Crée le: { o.createdAt.formatted }</p>
                         </div>
-                        <div class="extra">
-                            <div class="ui right floated secondary tiny button" v-bind:data-index="index"
-                                v-on:click="showDetailModal">
-                                Voir les details
-                            </div>
+                    </div>
+                    <div class="extra content order-action-btn" style="text-align: right">
+                        <div class="ui basic secondary tiny button" v-bind:data-index="index"
+                            v-on:click="showDetailModal">
+                            <i class="info icon"></i>
+                            Details
                         </div>
                     </div>
                 </div>
