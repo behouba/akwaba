@@ -160,7 +160,7 @@
                         <p>{trackedOrder.events[trackedOrder.events.length - 1].status}</p>
                     </div>
                 </div>
-                <div class="scrolling content" v-if="trackedOrder != null">
+                <div class="content" v-if="trackedOrder != null">
                     <div class="ui small feed">
                         <div class="event" v-for="t in trackedOrder.events">
                             <div class="content">
@@ -215,7 +215,7 @@
                 <!-- <i class="close icon"></i> -->
                 <div class="header">DETAILS DE LA COMMANDE</div>
                 <div></div>
-                <div class="scrolling content" v-if="selectedOrder != null">
+                <div class="content" v-if="selectedOrder != null">
                     <h4 class="ui dividing header">EXPEDITEUR</h4>
                     <p>{ selectedOrder.sender.fullName }</p>
                     <P>{ selectedOrder.sender.city.name}</P>
