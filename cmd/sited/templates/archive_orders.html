@@ -1,0 +1,237 @@
+{{ define "archive-orders"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+    <title>AKWABA EXPRESS</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+
+<body>
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .user.ID}}
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item active" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item" href="/order/create">Commande</a>
+        <a class="red item" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/pricing">Coût de livraison</a>
+        <a class="red item" href="/about">À propos</a>
+        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+        <a class="red item" href="/general-conditions">Contidions generales</a>
+        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
+    </div>
+
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item active" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item" href="/order/create">Commande</a>
+                    <a class="red item" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/pricing">Coût de livraison</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .user.ID}}
+                        <div class="ui dropdown item">
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!--Home page content-->
+        <div class="ui container wrapper" id="archive-orders">
+            <h1 class="center section-title">COMMANDES</h1>
+            <div class="ui secondary pointing menu">
+                <a class="item" href="/profile/orders">
+                    Commandes actives
+                </a>
+                <a class="item active" href="/profile/orders?page=2">
+                    Commandes archivées
+                </a>
+            </div>
+            <div style="margin-top: 50px" v-if="orders.length < 1">
+                <div class="ui active red centered inline text loader"></div>
+            </div>
+            <!-- <div class="no-orders">
+                <span>
+                    Vous n'avez aucune commande active
+                </span>
+            </div> -->
+            <div v-else-if="orders.length > 0" v-clock>
+                <div class="ui card fluid" v-for="(o, index) in orders" :key="o.id">
+                    <div class="content">
+                        <div class="header">COMMANDE DE LIVRAISON: {o.id}</div>
+                        <div class="description">
+                            <p>{ o.state.name }</p>
+                            <p>Crée le: { o.createdAt.formatted }</p>
+                        </div>
+                    </div>
+                    <div class="extra content order-action-btn" style="text-align: right">
+                        <div class="ui basic secondary tiny button" v-bind:data-index="index"
+                            v-on:click="showDetailModal">
+                            <i class="info icon"></i>
+                            Details
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui modal mini" id="cancelModal">
+                <!-- <i class="close icon"></i> -->
+                <div class="header center">
+                    Êtes-vous certain de vouloir annuler votre commande ?
+                </div>
+                <div class="actions">
+                    <div class="ui deny mini button">
+                        NON
+                    </div>
+                    <div class="ui negative mini right labeled icon button" v-on:click="cancelOrder">
+                        OUI
+                        <i class="checkmark icon"></i>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="ui modal" id="detailModal">
+                <div class="header">DETAILS DE LA COMMANDE</div>
+                <div class="scrolling content" v-if="selectedOrder != null">
+                    <h4 class="ui dividing header">EXPEDITEUR</h4>
+                    <p>{ selectedOrder.sender.fullName }</p>
+                    <P>{ selectedOrder.sender.city.name}</P>
+                    <p>{ selectedOrder.sender.address}</p>
+                    <p>Téléphone: { selectedOrder.sender.phone}</p>
+                    <h4 class="ui dividing header">DESTINATAIRE</h4>
+                    <p>{ selectedOrder.receiver.fullName }</p>
+                    <P>{ selectedOrder.receiver.city.name}</P>
+                    <p>{ selectedOrder.receiver.address}</p>
+                    <p>Téléphone: { selectedOrder.receiver.phone}</p>
+                    <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
+                    <p>{ selectedOrder.nature }</p>
+                    <p>Poids: { selectedOrder.weightInterval.name }</p>
+                    <p>{ selectedOrder.note }</p>
+                    <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
+                    <p>{ selectedOrder.paymentTypeId.name }</p>
+                    <h4 class="ui dividing header">COUT DE LA LIVRAISON</h4>
+                    <p style="text-align: right; font-weight: bold">{ selectedOrder.cost } FCFA</p>
+
+                    <div class="description">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="content" v-else>
+                    <div class="ui active centered inline loader"></div>
+                </div>
+                <div class="actions">
+                    <div class="ui deny secondary mini right labeled icon button">
+                        FERMER
+                        <i class="close icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Footer-->
+        {{ template "footer" .}}
+    </div>
+</body>
+<script>
+
+    var ordersApp = new Vue({
+        el: '#archive-orders',
+        delimiters: ['{', '}'],
+        data: {
+            selectedOrder: null,
+            orders: [],
+        },
+        methods: {
+            showCancelModal: function (e) {
+                var index = Number($(e.target).data("index"));
+                this.selectedOrder = this.orders[index];
+                console.log(this.selectedOrder);
+                $('#cancelModal').modal('show');
+            },
+            showDetailModal: function (e) {
+                var index = Number($(e.target).data("index"));
+                this.selectedOrder = this.orders[index];
+                console.log(this.selectedOrder);
+                $('#detailModal').modal('show');
+            },
+            cancelOrder: function () {
+                if (this.selectedOrder == null) {
+                    return
+                }
+                axios.patch(`/order/cancel/${this.selectedOrder.id}`)
+                    .then(res => {
+                        console.log(res.status);
+                        if (res.status === 200) {
+                            window.location.reload();
+                        }
+                    }).catch(err => {
+                        console.log(err)
+                    })
+            },
+        },
+        created: function () {
+            axios.get("/profile/orders/archive")
+                .then(res => {
+                    this.orders = res.data.orders;
+                    console.log(res);
+                }).catch(err => {
+                    console.log(err);
+                })
+        }
+    })
+    function showSideBar() {
+        $('.ui.sidebar').sidebar('toggle');
+    }
+    $(document).ready(function () {
+
+        $('.ui.dropdown').dropdown();
+    });
+</script>
+
+</html>
+{{ end }}

@@ -1,0 +1,326 @@
+{{ define "about"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.css' rel='stylesheet' />
+    <script src="../assets/js/jquery.inputmask.js"></script>
+
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- Sidebar for mobile de vices -->
+
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .user.ID}}
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item" href="/order/create">Commande</a>
+        <a class="red item" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/pricing">Coût de livraison</a>
+        <a class="red item active" href="/about">À propos</a>
+        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
+        <a class="red item" href="/general-conditions">Contidions generales</a>
+        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
+    </div>
+
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item" href="/order/create">Commande</a>
+                    <a class="red item" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/pricing">Coût de livraison</a>
+                    <a class="red item active" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .user.ID}}
+                        <div class="ui dropdown item">
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="ui container">
+            <h1 class="ui horizontal divider section-title">QUI SOMMES NOUS ?</h1>
+            <div class="ui container text">
+                <p>
+                    Akwaba Express en Côte d’Ivoire est une entreprise ivoirienne spécialisée dans la livraison express
+                    de
+                    colis, de documents et marchandises et offre notamment des services conformes aux normes modernes.
+                    Akwaba
+                    Express met à la disposition des entreprises et des particuliers des services de qualité, en misant
+                    cependant sur la rapidité et la fiabilité, battant ainsi le défi du temps qui s’impose dans les rues
+                    abidjanaises.
+
+                    Akwaba Express a parfaitement connaissance des défis et réalités dont fait face la ville d’Abidjan
+                    et y
+                    a
+                    alors trouvé des solutions adaptées dans le but d’offrir à sa clientèle un service optimal.
+
+                    Akwaba Express s’engage à offrir une flexibilité dans le déplacement de vos colis dans toute la zone
+                    d’Abidjan.
+
+                </p>
+            </div>
+            <h1 class="ui horizontal divider section-title">NOS AGENCES ?</h1>
+
+            <div id='map'></div>
+            <div style="margin-top: 30px">
+                <h4 class="ui dividing header">TROUVEZ L'AGENCE LA PLUS PROCHE DE CHEZ VOUS </h4>
+                <div class="ui grid stackable" style="margin-top: 20px;">
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                    <div class="four wide column">
+                        <h3 class="ui header">
+                            <i class="map marker alternate icon"></i>
+                            <div class="content">
+                                Adjamé dallas
+                                <div class="sub header">Tél: +225 35 64 63 34</div>
+                            </div>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h1 class="ui horizontal divider section-title">CONTACTS ?</h1>
+                <div class="ae-column">
+                    <div id="contact-form">
+                        <form class="ui form" id="contact-form" action="/contact/info" method="POST">
+                            <h4 class="ui dividing header">FORMULAIRE POUR NOUS CONTACTER</h4>
+                            <div class="field">
+                                <label>Nom et prénom</label>
+                                <input type="text" name="name">
+                            </div>
+                            <div class="field">
+                                <label>Numéro de téléphone</label>
+                                <input type="tel" name="phone" class="phone">
+                            </div>
+                            <div class="field">
+                                <label>Adresse e-mail</label>
+                                <input type="tel" name="email">
+                            </div>
+                            <div class="field">
+                                <label>Message</label>
+                                <textarea name="message" id="" cols="30" rows="10"></textarea>
+                            </div>
+                            <div class="field">
+                                <label>Nous vous répondrons dans les instants suivants !</label>
+                            </div>
+                            <button class="ui fluid button primary submit" tabindex="0">Envoyer</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="ui row grid">
+                    <div class="ui column">
+
+                    </div>
+                    <div class="ui column"></div>
+                </div>
+                <div style="margin-top: 40px;">
+
+                </div>
+            </div>
+        </div>
+        <!--Footer-->
+        {{template "footer" ""}}
+    </div>
+</body>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYmVob3ViYSIsImEiOiJjanU0MTIzOXQwcW91NDFvNXlvZWl4dW14In0.kyNIuwfn3oV0wihAwPBgpA';
+    var map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+        center: [-4.024429, 5.345317],
+        zoom: 11, // starting zoom
+    });
+    var adjameDallas = new mapboxgl.Marker()
+        .setLngLat([-4.024868, 5.335219])
+        .addTo(map);
+    var aboboGare = new mapboxgl.Marker()
+        .setLngLat([-4.024353, 5.421043])
+        .addTo(map);
+    var adjameWilly = new mapboxgl.Marker()
+        .setLngLat([-4.022073, 5.371246])
+        .addTo(map);
+    var cocodyAngre = new mapboxgl.Marker()
+        .setLngLat([-3.983412, 5.394719])
+        .addTo(map);
+
+    var cocodyRti = new mapboxgl.Marker()
+        .setLngLat([-4.002949, 5.342152])
+        .addTo(map);
+    var marcory = new mapboxgl.Marker()
+        .setLngLat([-3.971517, 5.298594])
+        .addTo(map);
+    var treichville = new mapboxgl.Marker()
+        .setLngLat([-4.005960, 5.291583])
+        .addTo(map);
+    var yopougon1 = new mapboxgl.Marker()
+        .setLngLat([-4.070927, 5.317396])
+        .addTo(map);
+    var yopougon2 = new mapboxgl.Marker()
+        .setLngLat([-4.096257, 5.356710])
+        .addTo(map);
+    function showSideBar() {
+        $('.ui.sidebar').sidebar('toggle');
+    }
+    $('.ui.radio.checkbox')
+        .checkbox()
+        ;
+    $('.ui.dropdown')
+        .dropdown()
+        ;
+    $(".phone").inputmask({ "mask": "+225 99 99 99 99" });
+    $('#contact-form').form({
+        on: 'blur',
+        inline: true,
+        fields: {
+            name: {
+                identifier: 'name',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Veuillez saisir le nom de l\'expediteur'
+                    }
+                ]
+            },
+            phone: {
+                identifier: 'phone',
+                rules: [
+                    {
+                        type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
+                        prompt: 'Veuillez saisir un numéro de mobile valide'
+                    }
+                ]
+            },
+            email: {
+                identifier: 'email',
+                rules: [
+                    {
+                        type: 'email',
+                        prompt: 'Veuillez selectionner une commune'
+                    }
+                ]
+            },
+            message: {
+                identifier: 'message',
+                rules: [
+                    {
+                        type: 'minLength[10]',
+                        prompt: 'Veuillez saisir votre message (minimum 10 charatères) '
+                    }
+                ]
+            },
+        },
+    });
+</script>
+
+</html>
+{{ end }}

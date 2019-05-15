@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	templatesPath = "./user/site/templates/*"
-	assetsPath    = "./user/site/assets"
+	templatesPath = "./templates/*"
+	assetsPath    = "./assets"
 )
 
 // Handler represents the website handler methods set

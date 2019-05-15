@@ -6,6 +6,8 @@ import (
 	"github.com/behouba/akwaba/user/site"
 )
 
+const port = ":80"
+
 func main() {
 	dbURI := fmt.Sprintf(
 		"host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable",
@@ -13,5 +15,5 @@ func main() {
 	)
 	h := site.NewHandler(dbURI)
 	r := site.SetupRouter(h)
-	r.Run(":9999")
+	r.Run(port)
 }

@@ -1,0 +1,115 @@
+{{ define "login"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+    <link rel="stylesheet" href="../assets/css/blank.css">
+    <title>Connexion</title>
+</head>
+
+<body>
+    <div class="ui middle aligned center aligned grid stackable">
+        <div class="column">
+            <div class="center">
+                <a href="/">
+                    <img src="../assets/img/logo_red.png" class="image logo">
+                </a>
+            </div>
+            <h2 class="ui red image header">
+                <div class="content">
+                    Connexion
+                </div>
+            </h2>
+            {{ if .user }}
+            <div class="ui negative message transition">
+                <div class="header">
+                    {{.error}}
+                </div>
+            </div>
+            <form class="ui large form" id="login-form" action="/auth/login" method="POST">
+                <div class="ui error message"></div>
+                <div class="ui stacked segment">
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="user icon"></i>
+                            <input type="text" name="email" value="{{.user.Email}}" placeholder="E-mail">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <input type="password" name="password" value="{{.user.Password}}"
+                                placeholder="Mot de passe">
+                        </div>
+                    </div>
+                    <div class="ui fluid large primary submit button">Se connecter</div>
+                    <div style="margin-top: 20px">
+                        <a href="/auth/recovery" class="red-link">Mot de passe oublié?</a>
+                    </div>
+                </div>
+            </form>
+            {{ else }}
+            <form class="ui large form" id="login-form" action="/auth/login" method="POST">
+                <div class="ui error message"></div>
+                <div class="ui stacked segment">
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="user icon"></i>
+                            <input type="text" name="email" placeholder="E-mail">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <input type="password" name="password" placeholder="Mot de passe">
+                        </div>
+                    </div>
+                    <div class="ui fluid large primary submit button">Se connecter</div>
+                    <div style="margin-top: 20px">
+                        <a href="/auth/recovery" class="red-link">Mot de passe oublié?</a>
+                    </div>
+                </div>
+            </form>
+            {{end}}
+            <div class="ui divider">
+
+            </div>
+            <a href="/auth/registration" class="red-link">Inscription</a>
+        </div>
+    </div>
+</body>
+<script src="../assets/js/semantic.min.js"></script>
+
+<script>
+    $('#login-form').form({
+        inline: true,
+        fields: {
+            email: {
+                identifier: 'email',
+                rules: [
+                    {
+                        type: 'email',
+                        prompt: 'Veuillez saisir une adresse e-mail valide'
+                    }
+                ]
+            },
+            password: {
+                identifier: 'password',
+                rules: [
+                    {
+                        type: 'minLength[4]',
+                        prompt: 'Votre mot de passe doit contenir au moins 4 caractères'
+                    }
+                ]
+            },
+
+        }
+    });
+</script>
+
+</html>
+{{end}}
