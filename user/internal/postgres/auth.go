@@ -53,7 +53,7 @@ func (d *UserDB) Open(uri string) (err error) {
 }
 
 func getAllCities(db *sql.DB) (cities []akwaba.City, err error) {
-	rows, err := db.Query("SELECT id, name from city")
+	rows, err := db.Query("SELECT id, name from city ORDER BY name")
 	if err != nil {
 		return
 	}

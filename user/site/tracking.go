@@ -27,7 +27,7 @@ func (h *Handler) trackOrder(c *gin.Context) {
 
 	var events []akwaba.TrackingEvent
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 6; i++ {
 		t := akwaba.EventTime{RealTime: time.Now()}
 		t.FormatTimeFR()
 		events = append(

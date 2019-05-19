@@ -130,9 +130,13 @@
             </div>
 
             <div class="ui modal mini" id="cancelModal">
-                <!-- <i class="close icon"></i> -->
-                <div class="header center">
-                    Êtes-vous certain de vouloir annuler votre commande ?
+                <i class="close icon"></i>
+                <div class="header">
+                    ANNULATION DE COMMANDE
+                </div>
+                <div class="content">
+                    <h3> Êtes-vous certain de vouloir annuler votre commande ?
+                    </h3>
                 </div>
                 <div class="actions">
                     <div class="ui deny mini button">
@@ -145,19 +149,17 @@
                 </div>
             </div>
 
-            <div class="ui modal tiny card" id="trackingModal">
-                <!-- <i class="close icon"></i> -->
-                <div class="content" v-if="trackedOrder != null">
-                    <div style="margin: 10px 0px">
+            <div class="ui modal tiny card" id="trackingModal" style="min-height: 100px;">
+                <i class="close icon"></i>
+                <div class="header" v-if="trackedOrder != null">
+                    <div style="margin: 5px 0px">
                         <span class="track-header">{trackedOrder.parcel.nature}</span>
-                        <span class="right floated">
-                            <!-- <i class="check icon large"></i> -->
-                            <i class="shipping fast red icon large"></i>
-                        </span>
+                    </div>
+                    <div class="event-title">
+                        <span>{trackedOrder.events[trackedOrder.events.length - 1].status}</span>
                     </div>
                     <div class="event-content">
-                        <p>{trackedOrder.orderId}</p>
-                        <p>{trackedOrder.events[trackedOrder.events.length - 1].status}</p>
+                        <span>Commande: AE-{trackedOrder.orderId}</span>
                     </div>
                 </div>
                 <div class="content" v-if="trackedOrder != null">
@@ -204,39 +206,37 @@
                         <div class="ui text loader">Recherche en cours...</div>
                     </div>
                 </div>
-                <div class="actions">
-                    <div class="ui deny secondary mini right labeled icon button">
-                        FERMER
-                        <i class="close icon"></i>
-                    </div>
-                </div>
             </div>
             <div class="ui modal" id="detailModal">
-                <!-- <i class="close icon"></i> -->
+                <i class="close icon"></i>
                 <div class="header">DETAILS DE LA COMMANDE</div>
-                <div></div>
                 <div class="content" v-if="selectedOrder != null">
                     <h4 class="ui dividing header">EXPEDITEUR</h4>
-                    <p>{ selectedOrder.sender.fullName }</p>
-                    <P>{ selectedOrder.sender.city.name}</P>
-                    <p>{ selectedOrder.sender.address}</p>
-                    <p>Téléphone: { selectedOrder.sender.phone}</p>
+                    <div>
+                        <p>{ selectedOrder.sender.fullName }</p>
+                        <P>{ selectedOrder.sender.city.name}</P>
+                        <p>{ selectedOrder.sender.address}</p>
+                        <p>Téléphone: { selectedOrder.sender.phone}</p>
+                    </div>
                     <h4 class="ui dividing header">DESTINATAIRE</h4>
-                    <p>{ selectedOrder.receiver.fullName }</p>
-                    <P>{ selectedOrder.receiver.city.name}</P>
-                    <p>{ selectedOrder.receiver.address}</p>
-                    <p>Téléphone: { selectedOrder.receiver.phone}</p>
+                    <div>
+                        <p>{ selectedOrder.receiver.fullName }</p>
+                        <P>{ selectedOrder.receiver.city.name}</P>
+                        <p>{ selectedOrder.receiver.address}</p>
+                        <p>Téléphone: { selectedOrder.receiver.phone}</p>
+                    </div>
                     <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
-                    <p>{ selectedOrder.nature }</p>
-                    <p>Poids: { selectedOrder.weightInterval.name }</p>
-                    <p>{ selectedOrder.note }</p>
-                    <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
-                    <p>{ selectedOrder.paymentTypeId.name }</p>
-                    <h4 class="ui dividing header">COUT DE LA LIVRAISON</h4>
-                    <p style="text-align: right; font-weight: bold">{ selectedOrder.cost } FCFA</p>
+                    <div>
+                        <p>{ selectedOrder.nature }</p>
+                        <p>Poids: { selectedOrder.weightInterval.name }</p>
+                        <p>{ selectedOrder.note }</p>
+                    </div>
 
-                    <div class="description">
-                        <p></p>
+                    <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
+                    <div>
+                        <p>{ selectedOrder.paymentTypeId.name }</p>
+                        <h4 class="ui dividing header">COUT DE LA LIVRAISON</h4>
+                        <p style="text-align: right; font-weight: bold">{ selectedOrder.cost } FCFA</p>
                     </div>
                 </div>
                 <div class="content" v-else>
@@ -279,6 +279,9 @@
                 $('#detailModal').modal('show');
             },
             showTrackingModal: function (e) {
+                if (this.trackedOrder == null) {
+                    return
+                }
                 this.trackedOrder = null;
                 this.setSelectedOrderIndex(e)
                 this.fetchTracking();
@@ -309,10 +312,12 @@
                     })
             },
         },
-        created: function () {
+        beforeCreate: function () {
             axios.get("/profile/orders/active")
                 .then(res => {
                     this.orders = res.data.orders;
+                    this.selectedOrder = this.orders[0];
+                    this.fetchTracking();
                     console.log(res);
                 }).catch(err => {
                     console.log(err);

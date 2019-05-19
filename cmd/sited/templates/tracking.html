@@ -84,21 +84,27 @@
         <div class="ui container" id="tracking-app">
             <div id="tracking-input">
                 <h2 class="section-title">SUIVI DE COLIS</h2>
-                <p class="event-content">Veuillez indiquer votre numéro de suivi du colis (de 11 à 15 chiffres).
-                </p>
-                <form autocomplete="off" @submit="checkFormAndSubmit">
-                    <div v-bind:class="{error: error.hasError, loading: loading}" class="ui icon input large"
-                        style="width: 100%">
-                        <input type="text" id="trackingInput" v-model="orderId"
-                            placeholder="Entrez le numéro de suivi du colis">
-                        <i class="red search icon link" v-on:click="checkFormAndSubmit"></i>
-                    </div>
-                    <div id="error-msg" class="ui negative message" v-if="error.hasError" v-clock>
-                        <div class="header">
-                            {error.message}
+                <div>
+                    <p class="center">
+                        Suivez vos colis en indiquant le numéro de suivi ci-dessous.
+                    </p>
+                </div>
+                <div style="margin-top: 20px;">
+                    <form autocomplete="off" @submit="checkFormAndSubmit">
+                        <div v-bind:class="{error: error.hasError, loading: loading}" class="ui icon input large"
+                            style="width: 100%">
+                            <input type="text" id="trackingInput" v-model="orderId"
+                                placeholder="Entrez le numéro de suivi du colis">
+                            <i class="red search icon link" v-on:click="checkFormAndSubmit"></i>
                         </div>
-                    </div>
-                </form>
+                        <div id="error-msg" class="ui negative message" v-if="error.hasError" v-clock>
+                            <div class="header">
+                                {error.message}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
             </div>
             <div id="tracking-wrapper">
                 <div id="tracking-result" v-if="trackings.length > 0" v-clock>
@@ -162,8 +168,9 @@
                 </div>
             </div>
             {{if not .user.ID }}
-            <div style="text-align: center;">
-                <p>Inscrivez-vous pour enregistrer les numéros de suivi de vos colis et recevoir des notifications.
+            <div class="center">
+                <p class="center">Inscrivez-vous pour enregistrer les numéros de suivi de vos colis et recevoir des
+                    notifications.
                 </p>
                 <a href="/auth/registration" class="ui button red">Inscription</a>
             </div>

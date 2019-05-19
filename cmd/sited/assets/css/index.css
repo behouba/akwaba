@@ -15,6 +15,9 @@
         width: 150px;
         height: 60px;
     }
+    p, li {
+        text-align: justify;
+    }
 
     #mobile-header,
     #desktop-header {
@@ -26,10 +29,18 @@
             display: none !important;
         }
 
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 1em 0em;
+        }
+    
         .search-input {
             min-width: 500px;
         }
-
+        #map {
+            min-height: 550px;
+        }
         #desktop-header {
             display: block !important;
         }
@@ -80,15 +91,22 @@
         .search-input {
             width: 100%;
         }
-        .ui.menu {
+        .sidebar.ui.menu {
             font-size: 1.1rem;
+        }
+        .ui.menu {
+            font-size: 0.8rem;
+        }
+        p{
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 3px 0px;
         }
         #desktop-header {
             display: none !important;
         }
-
-        .section-title {
-            font-size: 1.5rem !important;
+        #map{
+            min-height: 300px;
         }
 
         .truncate {
@@ -183,18 +201,11 @@
         text-align: center;
     }
 
-    p {
-        font-size: 16px;
-        line-height: 1.6;
-        margin: 1em 0em;
-    }
-
 
     #map {
         top: 0;
         bottom: 0;
         width: 100%;
-        min-height: 550px;
         border: 2px solid #B02025;
     }
 

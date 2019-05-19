@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
+    <link rel="stylesheet" href="../assets/css/blank.css">
 
-    <title>Connexion</title>
+    <title>Recuperation du mot de passe</title>
 </head>
 
 <body>
@@ -24,7 +25,7 @@
                     Réinitialisation du mot de passe
                 </div>
             </h2>
-            <p>Un e-mail a été envoyé à {{.email}} avec un lien pour créer un nouveau mot de passe.</p>
+            <p class="center">Un e-mail a été envoyé à {{.email}} avec un lien pour créer un nouveau mot de passe.</p>
         </div>
     </div>
 </body>

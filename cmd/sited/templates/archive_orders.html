@@ -120,9 +120,13 @@
             </div>
 
             <div class="ui modal mini" id="cancelModal">
-                <!-- <i class="close icon"></i> -->
-                <div class="header center">
-                    Êtes-vous certain de vouloir annuler votre commande ?
+                <i class="close icon"></i>
+                <div class="header">
+                    ANNULATION DE COMMANDE
+                </div>
+                <div class="content">
+                    <h3> Êtes-vous certain de vouloir annuler votre commande ?
+                    </h3>
                 </div>
                 <div class="actions">
                     <div class="ui deny mini button">
@@ -137,8 +141,9 @@
 
 
             <div class="ui modal" id="detailModal">
+                <i class="close icon"></i>
                 <div class="header">DETAILS DE LA COMMANDE</div>
-                <div class="scrolling content" v-if="selectedOrder != null">
+                <div class="content" v-if="selectedOrder != null">
                     <h4 class="ui dividing header">EXPEDITEUR</h4>
                     <p>{ selectedOrder.sender.fullName }</p>
                     <P>{ selectedOrder.sender.city.name}</P>
@@ -218,6 +223,7 @@
             axios.get("/profile/orders/archive")
                 .then(res => {
                     this.orders = res.data.orders;
+                    this.selectedOrder = this.orders[0] || null;
                     console.log(res);
                 }).catch(err => {
                     console.log(err);

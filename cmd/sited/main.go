@@ -6,7 +6,8 @@ import (
 	"github.com/behouba/akwaba/user/site"
 )
 
-const port = ":80"
+const prodPort = ":80"
+const devPort = ":8080"
 
 func main() {
 	dbURI := fmt.Sprintf(
@@ -15,5 +16,5 @@ func main() {
 	)
 	h := site.NewHandler(dbURI)
 	r := site.SetupRouter(h)
-	r.Run(port)
+	r.Run(devPort)
 }
