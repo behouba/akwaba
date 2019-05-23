@@ -8,9 +8,10 @@ import (
 // Order states id constants values
 const (
 	OrderStateWaitingConfirmation = 1
-	OrderStateInProcessing        = 2
-	OrderStateDelivered           = 3
-	OrderStateCanceled            = 4
+	OrderStateWaitingPickUp       = 2
+	OrderStateInProcessing        = 3
+	OrderStateClosed              = 4
+	OrderStateCanceled            = 5
 )
 
 // Order struct represent order that will be created by users
@@ -72,7 +73,7 @@ type Track struct {
 	OrderID  int       `json:"orderId"`
 	Time     time.Time `json:"time"`
 	OfficeID int       `json:"officeId"`
-	EventID  int       `json:"EventId"`
+	EventID  int       `json:"eventId"`
 }
 
 // ValidateData function help validate data into new order before creation

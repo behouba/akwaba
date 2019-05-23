@@ -4,9 +4,11 @@ package adminapi
 
 import (
 	"log"
+	"time"
 
 	"github.com/behouba/akwaba/adminapi/internal/notifier"
 	"github.com/behouba/akwaba/adminapi/internal/postgres"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -20,6 +22,14 @@ const (
 	userBaseURL   = "/user"
 )
 
+var corsConfig = cors.New(cors.Config{
+	AllowOrigins:     []string{"http://localhost:8080"},
+	AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+	AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+	AllowCredentials: false,
+	MaxAge:           12 * time.Hour,
+})
+
 // Handler represents the API handler methods set
 type Handler struct {
 	db     *postgres.AdminDB
@@ -31,14 +41,18 @@ func SetupRouter(h *Handler) *gin.Engine {
 	r := gin.Default()
 	store := cookie.NewStore([]byte("akwaba"))
 	r.Use(sessions.Sessions("akwaba-admin", store))
+
+	r.Use(corsConfig)
+
 	v := r.Group(version)
-	v.Use(CORSMiddleware())
 	{
 		o := v.Group(orderBaseURL)
 		{
-			o.GET("/pending", h.pendingOrders)
+			o.GET("/to_confirm", h.ordersToConfirm)
+			o.GET("/to_pick_up", h.ordersToPickUp)
 			o.POST("/cancel/:id", h.cancelOrder)
 			o.POST("/confirm/:id", h.confirmOrder)
+			o.POST("/create", h.createOrder)
 		}
 	}
 	return r
@@ -47,21 +61,6 @@ func SetupRouter(h *Handler) *gin.Engine {
 func (h *Handler) setUpHandler(db *postgres.AdminDB, mailer *notifier.Mailer) {
 	h.db = db
 	h.mailer = mailer
-}
-func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, GET, PUT")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	}
 }
 
 // NewHandler return new handler and and error if one
