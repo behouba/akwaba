@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/behouba/akwaba"
 	"github.com/gin-gonic/gin"
@@ -22,31 +23,30 @@ func (h *Handler) officeParcels(c *gin.Context) {
 	})
 }
 
-func (h *Handler) parcelsOut(c *gin.Context) {
+func (h *Handler) parcelOut(c *gin.Context) {
 	emp := getEmployee(c, h.auth)
-	var ids []int64
-	var message string
-
-	if err := c.ShouldBind(&ids); err != nil {
+	parcelID, err := strconv.Atoi(c.Query("parcel_id"))
+	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
-	h.db.ParcelsOut(ids, emp.Office.ID)
-
-	if len(ids) > 1 {
-		message = fmt.Sprintf("%d colis ont quittés le bureau", len(ids))
-	} else {
-		message = "le colis a quitté le bureau"
+	err = h.db.ParcelOut(parcelID, &emp)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": message,
+		"message": "Le colis a quitté l'agence",
 	})
 }
 
 func (h *Handler) parcelIn(c *gin.Context) {
 	emp := getEmployee(c, h.auth)
-	trackID := c.Param("trackID")
+	trackID := c.Query("track_id")
 
 	parcelID, err := akwaba.DecodeTrackID(trackID)
 	if err != nil || parcelID == 0 {
@@ -76,6 +76,7 @@ func (h *Handler) parcelsToDeliver(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -83,27 +84,29 @@ func (h *Handler) parcelsToDeliver(c *gin.Context) {
 	})
 }
 
-func (h *Handler) parcelsDelivered(c *gin.Context) {
+func (h *Handler) parcelDelivered(c *gin.Context) {
 	emp := getEmployee(c, h.auth)
 
-	var message string
-	var ids []int
+	parcelID, err := strconv.Atoi(c.Query("parcel_id"))
 
-	if err := c.ShouldBind(&ids); err != nil {
+	if err != nil {
 		log.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, nil)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
-	h.db.SetDeliveredParcels(ids, &emp)
-
-	if len(ids) > 1 {
-		message = fmt.Sprintf("%d colis ont étés livrés", len(ids))
-	} else {
-		message = "le colis a été livré"
+	err = h.db.SetDeliveredParcel(parcelID, &emp)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": message,
+		"message": "La livraison du colis à été enregistrée",
 	})
 
 }

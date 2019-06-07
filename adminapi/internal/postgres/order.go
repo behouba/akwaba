@@ -104,8 +104,8 @@ func (a *AdminDB) ToPickUp(emp *akwaba.Employee) (orders []akwaba.Order, err err
 			d.id, pt.name as payment_type, cost, 
 			sender_full_name, sender_phone, sc.name as sender_city, 
 			sender_address, receiver_full_name, receiver_phone, 
-			rc.name  as receiver_city, receiver_address, note, 
-			nature,w.name as weight_interval, created_at,
+			rc.name  as receiver_city, receiver_address, d.note, 
+			d.nature,w.name as weight_interval, created_at,
 			state_id, ost.name as order_state
 		FROM delivery_order as d
 		LEFT JOIN order_state as ost ON
@@ -185,23 +185,21 @@ func (a *AdminDB) ConfirmOrder(id int, emp *akwaba.Employee) (err error) {
 	return
 }
 
-func (a *AdminDB) SetCollectedOrders(orderIDs []int, emp *akwaba.Employee) (err error) {
-	for _, id := range orderIDs {
-		err = a.changeOrderState(id, akwaba.OrderStateInProcessing)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		_, err = a.addNewParcel(id, emp.Office.ID)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		go a.recordActivity(fmt.Sprintf(
-			"Ramassage de la commande %d confirmée par l'administrateur %s",
-			id, emp.FullName,
-		))
+func (a *AdminDB) SetCollected(orderID int, emp *akwaba.Employee) (err error) {
+	err = a.changeOrderState(orderID, akwaba.OrderStateInProcessing)
+	if err != nil {
+		log.Println(err)
+		return
 	}
+	_, err = a.addNewParcel(orderID, emp.Office.ID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	go a.recordActivity(fmt.Sprintf(
+		"Ramassage de la commande %d confirmée par l'administrateur %s",
+		orderID, emp.FullName,
+	))
 	return
 }
 

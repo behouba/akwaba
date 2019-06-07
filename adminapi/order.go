@@ -131,23 +131,25 @@ func (h *Handler) createOrder(c *gin.Context) {
 	log.Println(order)
 }
 
-func (h *Handler) setCollectedOrders(c *gin.Context) {
-	emp := getEmployee(c, h.auth)
-
-	var ids []int
-
-	if err := c.ShouldBind(&ids); err != nil {
-		log.Println(err)
+func (h *Handler) collected(c *gin.Context) {
+	orderID, err := strconv.Atoi(c.Query("order_id"))
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Impossible de traiter cette requête.",
+			"message": "Numero de commande non valide.",
 		})
 		return
 	}
-	log.Println(ids)
+	emp := getEmployee(c, h.auth)
 
-	h.db.SetCollectedOrders(ids, &emp)
+	err = h.db.SetCollected(orderID, &emp)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("%d colis ont étés enregistrés.", len(ids)),
+		"message": "Ramassage enregistré avec succès.",
 	})
 }
