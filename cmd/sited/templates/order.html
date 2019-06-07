@@ -9,7 +9,7 @@
     {{ template "common-head" .}}
     <script src="../assets/js/jquery.inputmask.js"></script>
 
-    <title>Document</title>
+    <title>Commande de livraison Akwaba Express</title>
 </head>
 
 <body>
@@ -31,9 +31,6 @@
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
-        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="/general-conditions">Contidions generales</a>
-        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">
@@ -93,7 +90,7 @@
                     <h4 class="ui dividing header">EXPEDITEUR</h4>
                     <div class="two fields">
                         <div class="field required">
-                            <label>Nom et prénom</label>
+                            <label>Nom</label>
                             <input type="text" name="senderName">
                         </div>
                         <div class="field required">
@@ -103,8 +100,8 @@
                     </div>
                     <div class="two fields">
                         <div class="field required">
-                            <label>Ville / Commune</label>
-                            <select class="ui search fluid dropdown" name="senderCityId" autocomplete="off">
+                            <label>Commune</label>
+                            <select class="ui fluid dropdown" name="senderCityId" autocomplete="disabled">
                                 <option value=""></option>
                                 {{ range .cities }}
                                 <option value="{{.ID}}">{{.Name}}</option>
@@ -112,14 +109,14 @@
                             </select>
                         </div>
                         <div class="field required">
-                            <label>Adresse</label>
-                            <input type="text" name="senderAddress">
+                            <label>Adresse (quartier, secteur, rue)</label>
+                            <input type="text" name="senderAddress" placeholder="Ex: Williamsville, rue Champs Élysées">
                         </div>
                     </div>
                     <h4 class="ui dividing header">DESTINATAIRE</h4>
                     <div class="two fields">
                         <div class="field required">
-                            <label>Nom et prénom</label>
+                            <label>Nom</label>
                             <input type="text" name="receiverName">
                         </div>
                         <div class="field required">
@@ -129,8 +126,8 @@
                     </div>
                     <div class="two fields">
                         <div class="field required">
-                            <label>Ville / Commune</label>
-                            <select class="ui search fluid dropdown" name="receiverCityId" autocomplete="off">
+                            <label>Commune</label>
+                            <select class="ui fluid dropdown" name="receiverCityId" autocomplete="disabled">
                                 <option value=""></option>
                                 {{ range .cities }}
                                 <option value="{{.ID}}">{{.Name}}</option>
@@ -138,29 +135,30 @@
                             </select>
                         </div>
                         <div class="field required">
-                            <label>Adresse</label>
-                            <input type="text" name="receiverAddress">
+                            <label>Adresse (quartier, secteur, rue)</label>
+                            <input type="text" name="receiverAddress"
+                                placeholder="Ex: Williamsville, rue Champs Élysées">
                         </div>
                     </div>
                     <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
                     <div class="two fields">
                         <div class="field required">
                             <label>Poids du colis</label>
-                            <select class="ui search dropdown" name="weightIntervalId">
+                            <select class="ui dropdown" name="weightIntervalId">
                                 <option value=""></option>
                                 {{range .weightIntervals}}
                                 <option value="{{.ID}}">{{ .Name }}</option>
                                 {{end}}
                             </select>
                         </div>
-                        <div class="field">
-                            <label>Nature</label>
-                            <input type="text" name="parcelNature">
+                        <div class="field required">
+                            <label>Nature du colis</label>
+                            <input type="text" name="nature" placeholder="Ex: Documents, Chaussures, Sac...">
                         </div>
                     </div>
                     <div class="ui divider"></div>
                     <div class="field">
-                        <label>Note</label>
+                        <label>Informations supplémentaires (facultatif)</label>
                         <textarea name="note" id="" name="note" cols="30" rows="3"></textarea>
                     </div>
                     <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
@@ -187,9 +185,14 @@
                         {{ end }}
                     </div>
                     <div class="ui divider"></div>
-                    <div class="ui fluid submit button primary" style="margin: 20px 0px" tabindex="0">
-                        Continuer
+                    <div style="text-align: right;">
+                        <button class="ui right labeled icon button submit primary" style="margin: 20px 0px;"
+                            tabindex="0">
+                            <i class="right arrow icon"></i>
+                            Continuer
+                        </button>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -205,12 +208,8 @@
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');
     }
-    $('.ui.radio.checkbox')
-        .checkbox()
-        ;
-    $('.ui.dropdown')
-        .dropdown()
-        ;
+    $('#desktop-header .ui.dropdown').dropdown();
+    $('.ui.radio.checkbox').checkbox();
     $('#order-form').form({
         on: 'blur',
         inline: true,
@@ -297,6 +296,28 @@
                     }
                 ]
             },
+            nature: {
+                identifier: 'nature',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Veuillez saisir la nature du colis'
+                    }
+                ]
+            }
+        },
+        onFailure: function (formErrors, fields) {
+            for (field in fields) {
+                if (!$('.ui.form').form('is valid', field)) {
+                    let elem = $('.ui.form').form('get field', field)
+                    let dv = elem.closest('.field');
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: dv.offset().top
+                    }, 500);
+                    break;
+                }
+            }
+            return false;
         },
     });
 

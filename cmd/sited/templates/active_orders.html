@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
-    <title>AKWABA EXPRESS</title>
+    <title>COMMANDES</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 </head>
@@ -30,9 +30,6 @@
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
-        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="/general-conditions">Contidions generales</a>
-        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">
@@ -92,7 +89,7 @@
                     Commandes archivées
                 </a>
             </div>
-            <div style="margin-top: 50px" v-if="orders.length < 1">
+            <div style="margin-top: 50px" v-if="loading" v-clock>
                 <div class="ui active red centered inline text loader"></div>
             </div>
             <!-- <div class="no-orders">
@@ -100,7 +97,7 @@
                     Vous n'avez aucune commande active
                 </span>
             </div> -->
-            <div v-else-if="orders.length > 0" v-clock>
+            <div v-else-if="orders" v-clock>
                 <div class="ui card fluid" v-for="(o, index) in orders" :key="o.id">
                     <div class="content">
                         <div class="header">COMMANDE DE LIVRAISON: {o.id}</div>
@@ -127,6 +124,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div v-else v-clock>
+                <p class="center">Aucune commande active</p>
             </div>
 
             <div class="ui modal mini" id="cancelModal">
@@ -155,7 +155,7 @@
                     <div style="margin: 5px 0px">
                         <span class="track-header">{trackedOrder.parcel.nature}</span>
                     </div>
-                    <div class="event-title">
+                    <div class="event-title" v-if="trackedOrder.events">
                         <span>{trackedOrder.events[trackedOrder.events.length - 1].status}</span>
                     </div>
                     <div class="event-content">
@@ -263,6 +263,7 @@
             selectedOrder: null,
             orders: [],
             trackedOrder: null,
+            loading: true,
         },
         methods: {
             setSelectedOrderIndex: function (e) {
@@ -288,12 +289,17 @@
                 $('#trackingModal').modal('show');
             },
             fetchTracking: function () {
+                if (this.selectedOrder == null) {
+                    return
+                }
                 axios.get(`/order/track?id=${this.selectedOrder.id}`)
                     .then(res => {
+                        this.loading = false;
                         console.log(res);
                         this.trackedOrder = res.data.tracking;
                     })
                     .catch(err => {
+                        this.loading = false;
                         console.log(err);
                     })
             },
@@ -312,16 +318,18 @@
                     })
             },
         },
-        beforeCreate: function () {
+        created: function () {
             axios.get("/profile/orders/active")
                 .then(res => {
+                    this.loading = false;
                     this.orders = res.data.orders;
-                    this.selectedOrder = this.orders[0];
+                    this.selectedOrder = this.orders ? this.orders[0] : null;
                     this.fetchTracking();
                     console.log(res);
                 }).catch(err => {
+                    this.loading = false;
                     console.log(err);
-                })
+                });
         }
     })
     function showSideBar() {

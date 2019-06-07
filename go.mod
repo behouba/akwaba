@@ -8,6 +8,7 @@ require (
 	github.com/jung-kurt/gofpdf v1.4.1
 	github.com/lib/pq v1.1.1
 	github.com/satori/go.uuid v1.2.0
+	github.com/speps/go-hashids v2.0.0+incompatible
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )

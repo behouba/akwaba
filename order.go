@@ -17,10 +17,10 @@ const (
 // Order struct represent order that will be created by users
 type Order struct {
 	ID             int            `json:"id,omitempty"`
-	PaymentType    PaymentType    `json:"paymentTypeId"`
+	PaymentType    PaymentType    `json:"paymentType"`
 	CustomerID     int            `json:"customerId"`
 	CreatedAt      EventTime      `json:"createdAt"`
-	State          State          `json:"state"`
+	State          OrderState     `json:"state"`
 	Cost           float64        `json:"cost"`
 	Sender         Address        `json:"sender"`
 	Receiver       Address        `json:"receiver"`
@@ -30,7 +30,7 @@ type Order struct {
 }
 
 // State
-type State struct {
+type OrderState struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
@@ -43,8 +43,9 @@ type PaymentType struct {
 
 // City represent
 type City struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	OfficeID int    `json:"officeId"`
 }
 
 type WeightInterval struct {

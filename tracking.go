@@ -4,63 +4,74 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/speps/go-hashids"
 )
 
-// Differents order types identifier constants
 const (
-	OrderTypeOnline   = 1
-	OrderTypeOnCall   = 2
-	OrderTypeInOffice = 3
+	trackIDSalt    = "akwabaexpress"
+	trackIDCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 )
 
-// Payement types identifier
-const (
-	PaymentBySender   = 1
-	PaymentByReceiver = 2
-)
+func hashIDs() (*hashids.HashID, error) {
+	hd := hashids.NewData()
+	hd.Salt = trackIDSalt
+	hd.Alphabet = trackIDCharSet
+	hd.MinLength = 10
+	return hashids.NewWithData(hd)
+}
 
-// Events identifier constants
-const (
-	EventConfirmation       = 1
-	EventPickedUp           = 2
-	EventLeftOrigin         = 3
-	EventAtTransitOffice    = 4
-	EventLeftTransitOffice  = 5
-	EventAtDeliveryOffice   = 6
-	EventLeftDeliveryOffice = 7
-	EventDelivered          = 8
-	EventUserCancelation    = 9
-	EventAdminCancelation   = 10
-)
+func EncodeParcelID(id int) (trackID string, err error) {
+	h, err := hashIDs()
+	if err != nil {
+		return
+	}
+	trackID, err = h.Encode([]int{id})
+	if err != nil {
+		return
+	}
+	return
+}
 
-// TrackingEvent represent event emitted when parcel move.
-type TrackingEvent struct {
-	Time   EventTime `json:"time"`
-	Status string    `json:"status"`
-	Place  string    `json:"place"`
+func DecodeTrackID(trackID string) (parcelID int, err error) {
+	h, err := hashIDs()
+	if err != nil {
+		return
+	}
+	v, err := h.DecodeWithError(trackID)
+	if err != nil {
+		return
+	}
+	parcelID = v[0]
+	return
 }
 
 // Parcel represent parcel in delivery
 type Parcel struct {
-	Weight           float32 `json:"weight"`
-	Nature           string  `json:"nature"`
-	SenderFullName   string  `json:"senderFullName"`
-	ReceiverFullName string  `json:"receiverFullName"`
-	Origin           string  `json:"origin"`
-	Destination      string  `json:"destination"`
+	ParcelID int    `json:"parcelId"`
+	TrackID  string `json:"trackId"`
+	Order
 }
 
 // Tracking represent current state with all data about tracking historique of an order
 type Tracking struct {
-	OrderID int             `json:"orderId"`
-	Events  []TrackingEvent `json:"events"`
-	Parcel  Parcel          `json:"parcel"`
+	TrackID string  `json:"trackId"`
+	Events  []Event `json:"events"`
+	Parcel  Parcel  `json:"parcel"`
 }
 
 // EventTime hold event time and french formatted time string
 type EventTime struct {
 	RealTime  time.Time `json:"realTime"`
 	Formatted string    `json:"formatted"`
+}
+
+// Event represent an event in parcel tracking journey
+type Event struct {
+	ID    int       `json:"id"`
+	Title string    `json:"title"`
+	Time  EventTime `json:"time"`
+	City  City      `json:"city"`
 }
 
 // FormatTimeFR method set Formatted field of EventTime datatype

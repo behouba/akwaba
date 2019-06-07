@@ -12,7 +12,7 @@ func (d *UserDB) SaveOrder(order *akwaba.Order) (err error) {
 		`INSERT INTO delivery_order 
 		(payment_type_id, cost, sender_full_name, sender_phone, 
 			sender_city_id, sender_address, receiver_full_name, receiver_phone, 
-			receiver_city_id, receiver_address, note, nature, weight_interval_id,)
+			receiver_city_id, receiver_address, note, nature, weight_interval_id)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id;`,
 		order.PaymentType.ID, order.ComputeCost(), order.Sender.FullName,
 		order.Sender.Phone, order.Sender.City.ID, order.Sender.Address,
@@ -108,24 +108,27 @@ func (d *UserDB) ActiveOrders(userID int) (orders []akwaba.Order, err error) {
 	rows, err := d.db.Query(
 		`SELECT
 			delivery_order.id, payment_type.name as payment_type, cost, 
-			sender_full_name, sender_phone, city.name as sender_city, 
+			sender_full_name, sender_phone, sender_city.name as sender_city, 
 			sender_address, receiver_full_name, receiver_phone, 
-			city.name  as receiver_city, receiver_address, note, 
+			receiver_city.name  as receiver_city, receiver_address, note, 
 			nature,weight_interval.name as weight_interval, created_at,
 			state_id, order_state.name as order_state
 		FROM delivery_order
-		INNER JOIN order_state ON
-		delivery_order.state_id = order_state.id
-		INNER JOIN city ON
-		delivery_order.sender_city_id = city.id OR delivery_order.receiver_city_id = city.id
-		INNER JOIN payment_type ON
-		delivery_order.payment_type_id = payment_type.id
-		INNER JOIN weight_interval ON
-		delivery_order.weight_interval_id = weight_interval.id
+		LEFT JOIN order_state ON
+			delivery_order.state_id = order_state.id
+		LEFT JOIN city as sender_city ON
+			delivery_order.sender_city_id = sender_city.id
+		LEFT JOIN city as receiver_city ON
+			delivery_order.receiver_city_id = receiver_city.id
+		LEFT JOIN payment_type ON
+			delivery_order.payment_type_id = payment_type.id
+		LEFT JOIN weight_interval ON
+			delivery_order.weight_interval_id = weight_interval.id
 		WHERE customer_id=$1 AND (state_id=$2 OR state_id=$3)
 		ORDER BY created_at DESC;`,
 		userID, akwaba.OrderStateWaitingConfirmation, akwaba.OrderStateInProcessing,
 	)
+
 	if err != nil {
 		return
 	}
@@ -152,23 +155,25 @@ func (d *UserDB) ArchivedOrders(userID int) (orders []akwaba.Order, err error) {
 	rows, err := d.db.Query(
 		`SELECT
 			delivery_order.id, payment_type.name as payment_type, cost, 
-			sender_full_name, sender_phone, city.name as sender_city, 
+			sender_full_name, sender_phone, sender_city.name as sender_city, 
 			sender_address, receiver_full_name, receiver_phone, 
-			city.name  as receiver_city, receiver_address, note, 
+			receiver_city.name  as receiver_city, receiver_address, note, 
 			nature,weight_interval.name as weight_interval, created_at,
 			state_id, order_state.name as order_state
 		FROM delivery_order
-		INNER JOIN order_state ON
-		delivery_order.state_id = order_state.id
-		INNER JOIN city ON
-		delivery_order.sender_city_id = city.id OR delivery_order.receiver_city_id = city.id
-		INNER JOIN payment_type ON
-		delivery_order.payment_type_id = payment_type.id
-		INNER JOIN weight_interval ON
-		delivery_order.weight_interval_id = weight_interval.id
+		LEFT JOIN order_state ON
+			delivery_order.state_id = order_state.id
+		LEFT JOIN city as sender_city ON
+			delivery_order.sender_city_id = sender_city.id
+		LEFT JOIN city as receiver_city ON
+			delivery_order.receiver_city_id = receiver_city.id
+		LEFT JOIN payment_type ON
+			delivery_order.payment_type_id = payment_type.id
+		LEFT JOIN weight_interval ON
+			delivery_order.weight_interval_id = weight_interval.id
 		WHERE customer_id=$1 AND (state_id=$2 OR state_id=$3)
 		ORDER BY created_at DESC;`,
-		userID, akwaba.OrderStateCanceled, akwaba.OrderStateDelivered,
+		userID, akwaba.OrderStateCanceled, akwaba.OrderStateClosed,
 	)
 	if err != nil {
 		return

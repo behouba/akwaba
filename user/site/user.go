@@ -50,6 +50,7 @@ func (h *Handler) ordersJSON(c *gin.Context) {
 }
 
 func (h *Handler) settings(c *gin.Context) {
+	log.Println(getSessionUser(c))
 	c.HTML(http.StatusOK, "settings", gin.H{
 		"user":   getSessionUser(c),
 		"cities": h.DB.Cities,

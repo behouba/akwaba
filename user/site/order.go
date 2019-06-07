@@ -23,7 +23,7 @@ func orderFromForm(c *gin.Context) (order akwaba.Order) {
 	order.Receiver.Phone = c.PostForm("receiverPhone")
 	order.Receiver.City.ID, _ = strconv.Atoi(c.PostForm("receiverCityId"))
 	order.Receiver.Address = c.PostForm("receiverAddress")
-	order.Nature = c.PostForm("parcelNature")
+	order.Nature = c.PostForm("nature")
 	order.Note = c.PostForm("note")
 	return
 }
@@ -101,8 +101,7 @@ func (h *Handler) serveOrderReceipt(c *gin.Context) {
 	pdf := gofpdf.New("P", "mm", "A5", "")
 	pdf.AddPage()
 	pdf.SetFont("Arial", "", 12)
-	pdf.Write(10, "KOUAME BEHOUBA MANASSE \n")
-	pdf.Write(10, "KOUAME ATTOUBO JEAN-DIDIER")
+	pdf.Write(10, "FICHE INFORMATIVE SUR LA COMMANDE \n")
 
 	err := pdf.Output(c.Writer)
 	if err != nil {

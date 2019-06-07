@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
-    <title>AKWABA EXPRESS</title>
+    <title>COMMANDES</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 </head>
@@ -30,9 +30,6 @@
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
-        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="/general-conditions">Contidions generales</a>
-        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">
@@ -82,7 +79,7 @@
         </header>
 
         <!--Home page content-->
-        <div class="ui container wrapper" id="archive-orders">
+        <div class="ui container wrapper" id="active-orders">
             <h1 class="center section-title">COMMANDES</h1>
             <div class="ui secondary pointing menu">
                 <a class="item" href="/profile/orders">
@@ -92,7 +89,7 @@
                     Commandes archivées
                 </a>
             </div>
-            <div style="margin-top: 50px" v-if="orders.length < 1">
+            <div style="margin-top: 50px" v-if="loading" v-clock>
                 <div class="ui active red centered inline text loader"></div>
             </div>
             <!-- <div class="no-orders">
@@ -100,7 +97,7 @@
                     Vous n'avez aucune commande active
                 </span>
             </div> -->
-            <div v-else-if="orders.length > 0" v-clock>
+            <div v-else-if="orders" v-clock>
                 <div class="ui card fluid" v-for="(o, index) in orders" :key="o.id">
                     <div class="content">
                         <div class="header">COMMANDE DE LIVRAISON: {o.id}</div>
@@ -115,56 +112,102 @@
                             <i class="info icon"></i>
                             Details
                         </div>
+
                     </div>
                 </div>
             </div>
+            <div v-else v-clock>
+                <p class="center">Aucune commande active</p>
+            </div>
 
-            <div class="ui modal mini" id="cancelModal">
+            <div class="ui modal tiny card" id="trackingModal" style="min-height: 100px;">
                 <i class="close icon"></i>
-                <div class="header">
-                    ANNULATION DE COMMANDE
-                </div>
-                <div class="content">
-                    <h3> Êtes-vous certain de vouloir annuler votre commande ?
-                    </h3>
-                </div>
-                <div class="actions">
-                    <div class="ui deny mini button">
-                        NON
+                <div class="header" v-if="trackedOrder != null">
+                    <div style="margin: 5px 0px">
+                        <span class="track-header">{trackedOrder.parcel.nature}</span>
                     </div>
-                    <div class="ui negative mini right labeled icon button" v-on:click="cancelOrder">
-                        OUI
-                        <i class="checkmark icon"></i>
+                    <div class="event-title" v-if="trackedOrder.events">
+                        <span>{trackedOrder.events[trackedOrder.events.length - 1].status}</span>
+                    </div>
+                    <div class="event-content">
+                        <span>Commande: AE-{trackedOrder.orderId}</span>
+                    </div>
+                </div>
+                <div class="content" v-if="trackedOrder != null">
+                    <div class="ui small feed">
+                        <div class="event" v-for="t in trackedOrder.events">
+                            <div class="content">
+                                <div class="event-title">
+                                    <span>{t.status}</span>
+                                </div>
+                                <div class="event-content">
+                                    <span>{t.time.formatted}, </span>
+                                    <span>{t.place}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="content">
+                        <div class="track-summary">
+                            <div>
+                                <span>Poids: </span>
+                                <span>{trackedOrder.parcel.weight} kg</span>
+                            </div>
+                            <div>
+                                <span>Expediteur: </span>
+                                <span>{trackedOrder.parcel.senderFullName}</span>
+                            </div>
+                            <div>
+                                <span>Destinataire: </span>
+                                <span>{trackedOrder.parcel.receiverFullName}</span>
+                            </div>
+                            <div>
+                                <span>Destination: </span>
+                                <span>{trackedOrder.parcel.destination}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="extra content">
+                        <a style="color:#B02025">Imprimer</a>
+                    </div>
+                </div>
+                <div class="content" v-else>
+                    <div class="ui active inverted dimmer">
+                        <div class="ui text loader">Recherche en cours...</div>
                     </div>
                 </div>
             </div>
-
-
             <div class="ui modal" id="detailModal">
                 <i class="close icon"></i>
                 <div class="header">DETAILS DE LA COMMANDE</div>
                 <div class="content" v-if="selectedOrder != null">
                     <h4 class="ui dividing header">EXPEDITEUR</h4>
-                    <p>{ selectedOrder.sender.fullName }</p>
-                    <P>{ selectedOrder.sender.city.name}</P>
-                    <p>{ selectedOrder.sender.address}</p>
-                    <p>Téléphone: { selectedOrder.sender.phone}</p>
+                    <div>
+                        <p>{ selectedOrder.sender.fullName }</p>
+                        <P>{ selectedOrder.sender.city.name}</P>
+                        <p>{ selectedOrder.sender.address}</p>
+                        <p>Téléphone: { selectedOrder.sender.phone}</p>
+                    </div>
                     <h4 class="ui dividing header">DESTINATAIRE</h4>
-                    <p>{ selectedOrder.receiver.fullName }</p>
-                    <P>{ selectedOrder.receiver.city.name}</P>
-                    <p>{ selectedOrder.receiver.address}</p>
-                    <p>Téléphone: { selectedOrder.receiver.phone}</p>
+                    <div>
+                        <p>{ selectedOrder.receiver.fullName }</p>
+                        <P>{ selectedOrder.receiver.city.name}</P>
+                        <p>{ selectedOrder.receiver.address}</p>
+                        <p>Téléphone: { selectedOrder.receiver.phone}</p>
+                    </div>
                     <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
-                    <p>{ selectedOrder.nature }</p>
-                    <p>Poids: { selectedOrder.weightInterval.name }</p>
-                    <p>{ selectedOrder.note }</p>
-                    <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
-                    <p>{ selectedOrder.paymentTypeId.name }</p>
-                    <h4 class="ui dividing header">COUT DE LA LIVRAISON</h4>
-                    <p style="text-align: right; font-weight: bold">{ selectedOrder.cost } FCFA</p>
+                    <div>
+                        <p>{ selectedOrder.nature }</p>
+                        <p>Poids: { selectedOrder.weightInterval.name }</p>
+                        <p>{ selectedOrder.note }</p>
+                    </div>
 
-                    <div class="description">
-                        <p></p>
+                    <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
+                    <div>
+                        <p>{ selectedOrder.paymentTypeId.name }</p>
+                        <h4 class="ui dividing header">COUT DE LA LIVRAISON</h4>
+                        <p style="text-align: right; font-weight: bold">{ selectedOrder.cost } FCFA</p>
                     </div>
                 </div>
                 <div class="content" v-else>
@@ -185,49 +228,65 @@
 <script>
 
     var ordersApp = new Vue({
-        el: '#archive-orders',
+        el: '#active-orders',
         delimiters: ['{', '}'],
         data: {
             selectedOrder: null,
             orders: [],
+            trackedOrder: null,
+            loading: true,
         },
         methods: {
-            showCancelModal: function (e) {
+            setSelectedOrderIndex: function (e) {
                 var index = Number($(e.target).data("index"));
                 this.selectedOrder = this.orders[index];
                 console.log(this.selectedOrder);
+            },
+            showCancelModal: function (e) {
+                this.setSelectedOrderIndex(e)
                 $('#cancelModal').modal('show');
             },
             showDetailModal: function (e) {
-                var index = Number($(e.target).data("index"));
-                this.selectedOrder = this.orders[index];
-                console.log(this.selectedOrder);
+                this.setSelectedOrderIndex(e)
                 $('#detailModal').modal('show');
             },
-            cancelOrder: function () {
+            showTrackingModal: function (e) {
+                if (this.trackedOrder == null) {
+                    return
+                }
+                this.trackedOrder = null;
+                this.setSelectedOrderIndex(e)
+                this.fetchTracking();
+                $('#trackingModal').modal('show');
+            },
+            fetchTracking: function () {
                 if (this.selectedOrder == null) {
                     return
                 }
-                axios.patch(`/order/cancel/${this.selectedOrder.id}`)
+                axios.get(`/order/track?id=${this.selectedOrder.id}`)
                     .then(res => {
-                        console.log(res.status);
-                        if (res.status === 200) {
-                            window.location.reload();
-                        }
-                    }).catch(err => {
-                        console.log(err)
+                        this.loading = false;
+                        console.log(res);
+                        this.trackedOrder = res.data.tracking;
+                    })
+                    .catch(err => {
+                        this.loading = false;
+                        console.log(err);
                     })
             },
         },
         created: function () {
             axios.get("/profile/orders/archive")
                 .then(res => {
+                    this.loading = false;
                     this.orders = res.data.orders;
-                    this.selectedOrder = this.orders[0] || null;
+                    this.selectedOrder = this.orders ? this.orders[0] : null;
+                    this.fetchTracking();
                     console.log(res);
                 }).catch(err => {
+                    this.loading = false;
                     console.log(err);
-                })
+                });
         }
     })
     function showSideBar() {

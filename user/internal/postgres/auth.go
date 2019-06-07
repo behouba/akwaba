@@ -36,67 +36,19 @@ func (d *UserDB) Open(uri string) (err error) {
 	if err != nil {
 		return
 	}
-	d.Cities, err = getAllCities(db)
+	d.Cities, err = akwaba.GetAllCities(db)
 	if err != nil {
 		return
 	}
-	d.WeightIntervals, err = getWeightIntervals(db)
+	d.WeightIntervals, err = akwaba.GetWeightIntervals(db)
 	if err != nil {
 		return
 	}
-	d.PaymentTypes, err = getPaymentType(db)
+	d.PaymentTypes, err = akwaba.GetPaymentType(db)
 	if err != nil {
 		return
 	}
 	d.db = db
-	return
-}
-
-func getAllCities(db *sql.DB) (cities []akwaba.City, err error) {
-	rows, err := db.Query("SELECT id, name from city ORDER BY name")
-	if err != nil {
-		return
-	}
-	for rows.Next() {
-		var c akwaba.City
-		err = rows.Scan(&c.ID, &c.Name)
-		if err != nil {
-			log.Println(err)
-		}
-		cities = append(cities, c)
-	}
-	return
-}
-
-func getWeightIntervals(db *sql.DB) (w []akwaba.WeightInterval, err error) {
-	rows, err := db.Query("SELECT id, name from weight_interval order by id")
-	if err != nil {
-		return
-	}
-	for rows.Next() {
-		var i akwaba.WeightInterval
-		err = rows.Scan(&i.ID, &i.Name)
-		if err != nil {
-			log.Println(err)
-		}
-		w = append(w, i)
-	}
-	return
-}
-
-func getPaymentType(db *sql.DB) (pt []akwaba.PaymentType, err error) {
-	rows, err := db.Query("SELECT id, name from payment_type order by id")
-	if err != nil {
-		return
-	}
-	for rows.Next() {
-		var p akwaba.PaymentType
-		err = rows.Scan(&p.ID, &p.Name)
-		if err != nil {
-			log.Println(err)
-		}
-		pt = append(pt, p)
-	}
 	return
 }
 
@@ -153,14 +105,30 @@ func (d *UserDB) SaveNewCustomer(u *akwaba.User) (user *akwaba.User, statusCode 
 
 // Authenticate check if user provided email and password match and then return the user struct
 func (d *UserDB) Authenticate(email, password string) (user akwaba.User, err error) {
+	var addr sql.NullString
+	var cityID sql.NullInt64
+	var cityName sql.NullString
 	err = d.db.QueryRow(
-		`SELECT id, full_name, email, phone, hashed_password FROM customer WHERE email=$1`,
+		`SELECT 
+		customer.id, customer.full_name, customer.email, 
+		customer.phone, customer.hashed_password, 
+		customer.address, customer.city_id, city.name 
+		FROM customer
+		LEFT JOIN city ON city.id = customer.city_id
+		WHERE customer.email=$1`,
 		email,
-	).Scan(&user.ID, &user.FullName, &user.Email, &user.Phone, &user.HashedPassword)
+	).Scan(
+		&user.ID, &user.FullName, &user.Email,
+		&user.Phone, &user.HashedPassword,
+		&addr, &cityID, &cityName,
+	)
 	if err != nil {
 		user.Password = password
 		return
 	}
+	user.Address = addr.String
+	user.City.ID = int(cityID.Int64)
+	user.City.Name = cityName.String
 	err = user.ComparePassword(password)
 	if err != nil {
 		user.Password = password

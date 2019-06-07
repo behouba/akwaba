@@ -9,7 +9,7 @@
     {{ template "common-head" .}}
     <script src="../assets/js/jquery.inputmask.js"></script>
 
-    <title>Document</title>
+    <title>LIVRAISONS D’EXTRÊME URGENCE</title>
 </head>
 
 <body>
@@ -31,9 +31,6 @@
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
-        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="/general-conditions">Contidions generales</a>
-        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">
@@ -131,7 +128,7 @@
         $('.ui.sidebar').sidebar('toggle');
     }
     $('.ui.radio.checkbox').checkbox();
-    $('.ui.dropdown').dropdown();
+    $('#desktop-header .ui.dropdown').dropdown();
 
     $('#emergency-form').form({
         on: 'blur',

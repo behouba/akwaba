@@ -10,7 +10,7 @@
 
     {{ template "common-head" .}}
 
-    <title>Document</title>
+    <title>CALCULE DU COÛT DE LIVRAISON</title>
 </head>
 
 <body>
@@ -32,9 +32,6 @@
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item active" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
-        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="/general-conditions">Contidions generales</a>
-        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">
@@ -102,7 +99,7 @@
                             <div class="two fields">
                                 <div class="field">
                                     <label>Lieu de départ</label>
-                                    <select class="ui search dropdown" name="origin" id="originId">
+                                    <select class="ui dropdown" name="origin" id="originId">
                                         <option value=""></option>
                                         {{ range .cities }}
                                         <option value="{{.ID}}">{{.Name}}</option>
@@ -111,7 +108,7 @@
                                 </div>
                                 <div class="field">
                                     <label>Destination</label>
-                                    <select class="ui search dropdown" name="destination" id="destinationId">
+                                    <select class="ui dropdown" name="destination" id="destinationId">
                                         <option v3ue=""></option>
                                         {{ range .cities }}
                                         <option value="{{.ID}}">{{.Name}}</option>
@@ -153,7 +150,7 @@
         $('.ui.sidebar').sidebar('toggle');
     }
     $('.ui.radio.checkbox').checkbox();
-    $('.ui.dropdown').dropdown();
+    $('#desktop-header .ui.dropdown').dropdown();
 
     $('#pricing-form').form({
         inline: true,

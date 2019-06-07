@@ -4,11 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/behouba/dsapi"
+	"github.com/behouba/akwaba"
 	"github.com/dgrijalva/jwt-go"
 )
-
-var adminTokenDuration = time.Now().Add(1 * time.Minute)
 
 // Authenticator provide methods to use json web token for admin employees
 type Authenticator struct {
@@ -17,7 +15,7 @@ type Authenticator struct {
 }
 
 type claims struct {
-	dsapi.Employee
+	akwaba.Employee
 	jwt.StandardClaims
 }
 
@@ -28,12 +26,14 @@ func NewAdminAuth(secretKey string) *Authenticator {
 	}
 }
 
-// NewJWT take employee struct and create new jwt and return jwt string
-func (a *Authenticator) NewJWT(emp *dsapi.Employee) (token string, err error) {
+// NewToken take employee struct and create new jwt and return jwt string
+func (a *Authenticator) NewToken(emp *akwaba.Employee) (token string, err error) {
+	var duration = time.Now().Add(time.Hour)
+
 	a.claims = &claims{
 		Employee: *emp,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: adminTokenDuration.Unix(),
+			ExpiresAt: duration.Unix(),
 		},
 	}
 	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, a.claims)
@@ -42,9 +42,12 @@ func (a *Authenticator) NewJWT(emp *dsapi.Employee) (token string, err error) {
 	return
 }
 
-// ValidateJWT validate passed  jwt token
-func (a *Authenticator) ValidateJWT(token string) (emp dsapi.Employee, err error) {
-	tkn, err := jwt.ParseWithClaims(token, a.claims, func(t *jwt.Token) (interface{}, error) {
+// AuthenticateToken validate passed  jwt token
+func (a *Authenticator) AuthenticateToken(token string) (emp akwaba.Employee, err error) {
+
+	claims := &claims{}
+
+	tkn, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		return a.secretKey, nil
 	})
 	if err != nil {
@@ -55,6 +58,6 @@ func (a *Authenticator) ValidateJWT(token string) (emp dsapi.Employee, err error
 		err = errors.New("Invalid token")
 		return
 	}
-	emp = a.claims.Employee
+	emp = claims.Employee
 	return
 }

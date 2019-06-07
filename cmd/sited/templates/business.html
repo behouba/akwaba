@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
 
-    <title>Document</title>
+    <title>SOLUTIONS POUR ENTREPRISES</title>
 </head>
 
 <body>
@@ -30,9 +30,6 @@
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
-        <!-- <a class="item" href="#">Qui sommes nous ?</a> -->
-        <a class="red item" href="/general-conditions">Contidions generales</a>
-        <a class="red item" href="/privacy-policy">Politique de confidencialité</a>
     </div>
 
     <div class="pusher">
@@ -98,19 +95,19 @@
                 <form class="ui form">
                     <div class="field">
                         <label>Nom et prénom</label>
-                        <input type="text" name="shipping[first-name]">
+                        <input type="text" name="name">
                     </div>
                     <div class="field">
                         <label>Nom de l'entreprise</label>
-                        <input type="tel" name="shipping[first-name]">
+                        <input type="text" name="comagny">
                     </div>
                     <div class="field">
                         <label>Numéro de téléphone</label>
-                        <input type="tel" name="shipping[first-name]">
+                        <input type="text" name="phone">
                     </div>
                     <div class="field">
                         <label>Adresse e-mail</label>
-                        <input type="tel" name="shipping[first-name]">
+                        <input type="email" name="email">
                     </div>
                     <div class="field">
                         <label>Message</label>
@@ -128,12 +125,11 @@
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');
     }
-    $('.ui.radio.checkbox')
-        .checkbox()
-        ;
-    $('.ui.dropdown')
-        .dropdown()
-        ;
+    $(".phone").inputmask({ "mask": "+225 99 99 99 99" });
+
+    $('.ui.radio.checkbox').checkbox();
+    $('#desktop-header .ui.dropdown').dropdown();
+
 </script>
 
 </html>

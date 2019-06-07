@@ -1,9 +1,5 @@
 package akwaba
 
-import (
-	"time"
-)
-
 // AdminParcelManager interface for admin parcel
 type AdminParcelManager interface {
 	Track(orderID, officeID int) ([]Event, error)
@@ -29,30 +25,25 @@ type AdminUserManager interface {
 	UnFreezeUser(userID int) error
 }
 
-// Event represent an event in parcel tracking journey
-type Event struct {
-	Title      string    `json:"title"`
-	Time       time.Time `json:"time"`
-	OfficeName string    `json:"officeName"`
-	City       string    `json:"city"`
-}
-
 // AdminAuthenticator interface for admin login operations
 type AdminAuthenticator interface {
-	Check(a *AdminCredential) (Employee, error)
+	NewToken(emp *Employee) (string, error)
+	AuthenticateToken(token string) (Employee, error)
 }
 
 // Employee represent an employee with it identifiers
 type Employee struct {
-	ID         int    `json:"id"`
-	OfficeID   int    `json:"officeId"`
-	PositionID int    `json:"positionId"`
+	ID         int    `json:"id",omitempty`
 	FullName   string `json:"fullName"`
+	Phone      string `json:"phone"`
+	Email      string `json:"email"`
+	Login      string `json:"login"`
+	Password   string `json:"password"`
+	Office     Office `json:"office"`
+	PositionID int    `json:"positionId",omitempty`
 }
 
-// AdminCredential represent employee authentication data
-type AdminCredential struct {
-	ID       int    `json:"id,omitempty"`
-	Name     string `json:"name" binding:"required"`
-	Password string `json:"password" binding:"required"`
+type Office struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
