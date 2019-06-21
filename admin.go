@@ -33,17 +33,17 @@ type AdminAuthenticator interface {
 
 // Employee represent an employee with it identifiers
 type Employee struct {
-	ID         int    `json:"id",omitempty`
+	ID         uint32 `json:"id",omitempty`
 	FullName   string `json:"fullName"`
 	Phone      string `json:"phone"`
 	Email      string `json:"email"`
 	Login      string `json:"login"`
 	Password   string `json:"password"`
 	Office     Office `json:"office"`
-	PositionID int    `json:"positionId",omitempty`
+	PositionID uint8  `json:"positionId",omitempty`
 }
 
 type Office struct {
-	ID   int    `json:"id"`
+	ID   uint8  `json:"id"`
 	Name string `json:"name"`
 }

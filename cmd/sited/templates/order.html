@@ -78,251 +78,177 @@
                 </div>
             </div>
         </header>
-        <div class="ui container">
-            <div style="margin: 20px 0px">
-                <h2 class="section-title">VOTRE COMMANDE</h2>
-                <p class="center">Commandez votre livraison en ligne via le formulaire ci-dessous.
-                </p>
-            </div>
-            <div class="ui divider"></div>
-            <div class="ae-column stackable">
-                <form class="ui form segment" id="order-form" action="/order/create" method="POST">
-                    <h4 class="ui dividing header">EXPEDITEUR</h4>
-                    <div class="two fields">
-                        <div class="field required">
-                            <label>Nom</label>
-                            <input type="text" name="senderName">
-                        </div>
-                        <div class="field required">
-                            <label>Téléphone</label>
-                            <input type="tel" name="senderPhone" maxlength="16" class="phone">
-                        </div>
-                    </div>
-                    <div class="two fields">
-                        <div class="field required">
-                            <label>Commune</label>
-                            <select class="ui fluid dropdown" name="senderCityId" autocomplete="disabled">
-                                <option value=""></option>
-                                {{ range .cities }}
-                                <option value="{{.ID}}">{{.Name}}</option>
-                                {{ end }}
-                            </select>
-                        </div>
-                        <div class="field required">
-                            <label>Adresse (quartier, secteur, rue)</label>
-                            <input type="text" name="senderAddress" placeholder="Ex: Williamsville, rue Champs Élysées">
-                        </div>
-                    </div>
-                    <h4 class="ui dividing header">DESTINATAIRE</h4>
-                    <div class="two fields">
-                        <div class="field required">
-                            <label>Nom</label>
-                            <input type="text" name="receiverName">
-                        </div>
-                        <div class="field required">
-                            <label>Téléphone</label>
-                            <input type="tel" name="receiverPhone" class="phone">
-                        </div>
-                    </div>
-                    <div class="two fields">
-                        <div class="field required">
-                            <label>Commune</label>
-                            <select class="ui fluid dropdown" name="receiverCityId" autocomplete="disabled">
-                                <option value=""></option>
-                                {{ range .cities }}
-                                <option value="{{.ID}}">{{.Name}}</option>
-                                {{ end }}
-                            </select>
-                        </div>
-                        <div class="field required">
-                            <label>Adresse (quartier, secteur, rue)</label>
-                            <input type="text" name="receiverAddress"
-                                placeholder="Ex: Williamsville, rue Champs Élysées">
-                        </div>
-                    </div>
-                    <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
-                    <div class="two fields">
-                        <div class="field required">
-                            <label>Poids du colis</label>
-                            <select class="ui dropdown" name="weightIntervalId">
-                                <option value=""></option>
-                                {{range .weightIntervals}}
-                                <option value="{{.ID}}">{{ .Name }}</option>
-                                {{end}}
-                            </select>
-                        </div>
-                        <div class="field required">
-                            <label>Nature du colis</label>
-                            <input type="text" name="nature" placeholder="Ex: Documents, Chaussures, Sac...">
-                        </div>
-                    </div>
+        <div class="ui container" id="order-first-step">
+            <div class="stackable" style="max-width: 640px; margin: 60px auto">
+                <div>
+                    <h2 class="ui header">COMMANDEZ VOTRE LIVRAISON DE COLIS EN LIGNE</h2>
                     <div class="ui divider"></div>
+                    <p>Indiquez le lieu de depart, la destination ainsi que le poids du colis afin de calculer le
+                        coût de votre livraison.</p>
+                </div>
+                <form class="ui form">
                     <div class="field">
-                        <label>Informations supplémentaires (facultatif)</label>
-                        <textarea name="note" id="" name="note" cols="30" rows="3"></textarea>
-                    </div>
-                    <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
-                    <div class="grouped fields">
-                        <label for="paymentType">Selectionner votre mode paiement:</label>
-                        {{ range .paymentTypes }}
-                        {{ if eq .ID 1 }}
-                        <div class="field">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="paymentTypeId" value="{{.ID}}" checked tabindex="0"
-                                    class="hidden">
-                                <label>{{.Name}}</label>
-                            </div>
+                        <label>Depart</label>
+                        <div class="ui left icon input">
+                            <input id="origin" style="border-radius: 0px;" type="text">
+                            <i class="map marker alternate icon"></i>
                         </div>
-                        {{else}}
-                        <div class="field">
-                            <div class="ui radio checkbox">
-                                <input type="radio" name="paymentTypeId" value="{{.ID}}" tabindex="0" class="hidden">
-                                <label>{{.Name}}</label>
-                            </div>
+                    </div>
+                    <div class="field">
+                        <label>Destination</label>
+                        <div class="ui left icon input">
+                            <input id="destination" style="border-radius: 0px;" type="text">
+                            <i class="map marker alternate icon"></i>
                         </div>
-                        {{ end }}
-
-                        {{ end }}
                     </div>
-                    <div class="ui divider"></div>
-                    <div style="text-align: right;">
-                        <button class="ui right labeled icon button submit primary" style="margin: 20px 0px;"
-                            tabindex="0">
-                            <i class="right arrow icon"></i>
-                            Continuer
-                        </button>
+                    <div class="field">
+                        <label>Selectionnez l'interval de poids du colis</label>
+                        <select class="ui dropdown" name="weightInterval" id="weightIntervalId">
+                            {{range .weightIntervals}}
+                            <option value="{{.ID}}">{{ .Name }}</option>
+                            {{end}}
+                        </select>
                     </div>
-
-                </form>
             </div>
+            <div style="height: 100px;">
+
+            </div>
+            </form>
         </div>
-        <!--Footer-->
-        {{ template "footer" . }}
     </div>
+    <!-- <div class="ui container" style="display: none">
+        <div style="margin: 20px 0px">
+            <h2 class="section-title">VOTRE COMMANDE</h2>
+            <p class="center">Commandez votre livraison en ligne via le formulaire ci-dessous.
+            </p>
+        </div>
+        <div class="ui divider"></div>
+        <div class="ae-column stackable">
+            <form class="ui form segment" id="order-form" action="/order/create" method="POST">
+                <h4 class="ui dividing header">EXPEDITEUR</h4>
+                <div class="two fields">
+                    <div class="field required">
+                        <label>Nom</label>
+                        <input type="text" name="senderName">
+                    </div>
+                    <div class="field required">
+                        <label>Téléphone</label>
+                        <input type="tel" name="senderPhone" maxlength="16" class="phone">
+                    </div>
+                </div>
+                <div class="two fields">
+                    <div class="field required">
+                        <label>Commune</label>
+                        <select class="ui fluid dropdown" name="senderCityId" autocomplete="disabled">
+                            <option value=""></option>
+                            {{ range .cities }}
+                            <option value="{{.ID}}">{{.Name}}</option>
+                            {{ end }}
+                        </select>
+                    </div>
+                    <div class="field required">
+                        <label>Adresse (quartier, secteur, rue)</label>
+                        <input type="text" name="senderAddress" placeholder="Ex: Williamsville, rue Champs Élysées">
+                    </div>
+                </div>
+                <h4 class="ui dividing header">DESTINATAIRE</h4>
+                <div class="two fields">
+                    <div class="field required">
+                        <label>Nom</label>
+                        <input type="text" name="receiverName">
+                    </div>
+                    <div class="field required">
+                        <label>Téléphone</label>
+                        <input type="tel" name="receiverPhone" class="phone">
+                    </div>
+                </div>
+                <div class="two fields">
+                    <div class="field required">
+                        <label>Commune</label>
+                        <select class="ui fluid dropdown" name="receiverCityId" autocomplete="disabled">
+                            <option value=""></option>
+                            {{ range .cities }}
+                            <option value="{{.ID}}">{{.Name}}</option>
+                            {{ end }}
+                        </select>
+                    </div>
+                    <div class="field required">
+                        <label>Adresse (quartier, secteur, rue)</label>
+                        <input type="text" name="receiverAddress" placeholder="Ex: Williamsville, rue Champs Élysées">
+                    </div>
+                </div>
+                <h4 class="ui dividing header">INFORMATION SUR LE COLIS</h4>
+                <div class="two fields">
+                    <div class="field required">
+                        <label>Poids du colis</label>
+                        <select class="ui dropdown" name="weightIntervalId">
+                            <option value=""></option>
+                            {{range .weightIntervals}}
+                            <option value="{{.ID}}">{{ .Name }}</option>
+                            {{end}}
+                        </select>
+                    </div>
+                    <div class="field required">
+                        <label>Nature du colis</label>
+                        <input type="text" name="nature" placeholder="Ex: Documents, Chaussures, Sac...">
+                    </div>
+                </div>
+                <div class="ui divider"></div>
+                <div class="field">
+                    <label>Informations supplémentaires (facultatif)</label>
+                    <textarea name="note" id="" name="note" cols="30" rows="3"></textarea>
+                </div>
+                <h4 class="ui dividing header">MODE DE PAIEMENT</h4>
+                <div class="grouped fields">
+                    <label for="paymentType">Selectionner votre mode paiement:</label>
+                    {{ range .paymentTypes }}
+                    {{ if eq .ID 1 }}
+                    <div class="field">
+                        <div class="ui radio checkbox">
+                            <input type="radio" name="paymentTypeId" value="{{.ID}}" checked tabindex="0"
+                                class="hidden">
+                            <label>{{.Name}}</label>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="field">
+                        <div class="ui radio checkbox">
+                            <input type="radio" name="paymentTypeId" value="{{.ID}}" tabindex="0" class="hidden">
+                            <label>{{.Name}}</label>
+                        </div>
+                    </div>
+                    {{ end }}
+
+                    {{ end }}
+                </div>
+                <div class="ui divider"></div>
+                <div style="text-align: right;">
+                    <button class="ui right labeled icon button submit primary" style="margin: 20px 0px;" tabindex="0">
+                        <i class="right arrow icon"></i>
+                        Continuer
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div> -->
+    <div class="ui bottom fixed menu" style="height: 75px;">
+        <div id="price">
+            Coût de la livraison
+        </div>
+        <div class="ui active text small loader" id="price-loader" style="display: none">Calcule du coût de la livraison
+            en
+            cours...</div>
+    </div>
+    <!--Footer-->
+    {{ template "footer" . }}
+    </div>
+
 </body>
-<script src="../assets/js/semantic.min.js"></script>
-
-<script>
-    $(".phone").inputmask({ "mask": "+225 99 99 99 99" });
-
-    function showSideBar() {
-        $('.ui.sidebar').sidebar('toggle');
-    }
-    $('#desktop-header .ui.dropdown').dropdown();
-    $('.ui.radio.checkbox').checkbox();
-    $('#order-form').form({
-        on: 'blur',
-        inline: true,
-        fields: {
-            senderName: {
-                identifier: 'senderName',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez saisir le nom de l\'expediteur'
-                    }
-                ]
-            },
-            senderPhone: {
-                identifier: 'senderPhone',
-                rules: [
-                    {
-                        type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
-                        prompt: 'Veuillez saisir un numéro de mobile valide'
-                    }
-                ]
-            },
-            senderCityId: {
-                identifier: 'senderCityId',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez sélectionner une commune'
-                    }
-                ]
-            },
-            senderAddress: {
-                identifier: 'senderAddress',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez saisir l\'adresse'
-                    }
-                ]
-            },
-
-            receiverName: {
-                identifier: 'receiverName',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez saisir le nom du destinataire'
-                    }
-                ]
-            },
-            receiverPhone: {
-                identifier: 'receiverPhone',
-                rules: [
-                    {
-                        type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
-                        prompt: 'Veuillez saisir un numéro de mobile valide'
-                    }
-                ]
-            },
-            receiverCityId: {
-                identifier: 'receiverCityId',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez sélectionner une commune'
-                    }
-                ]
-            },
-            receiverAddress: {
-                identifier: 'receiverAddress',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez saisir l\'adresse'
-                    }
-                ]
-            },
-            weightIntervalId: {
-                identifier: 'weightIntervalId',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez sélectionner un interval de poids'
-                    }
-                ]
-            },
-            nature: {
-                identifier: 'nature',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez saisir la nature du colis'
-                    }
-                ]
-            }
-        },
-        onFailure: function (formErrors, fields) {
-            for (field in fields) {
-                if (!$('.ui.form').form('is valid', field)) {
-                    let elem = $('.ui.form').form('get field', field)
-                    let dv = elem.closest('.field');
-                    $([document.documentElement, document.body]).animate({
-                        scrollTop: dv.offset().top
-                    }, 500);
-                    break;
-                }
-            }
-            return false;
-        },
-    });
-
-</script>
 
 </html>
+<script src="../assets/js/order.js"></script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI&libraries=places&callback=initMap"></script>
 
 {{end}}

@@ -9,8 +9,8 @@ import (
 func (a *AdminDB) Login(emp *akwaba.Employee) (e akwaba.Employee, err error) {
 	err = a.db.QueryRow(
 		`SELECT 
-		e.id, e.full_name, e.phone, e.email, e.login, 
-		e.hashed_password, e.office_id, o.name
+			e.id, e.full_name, e.phone, e.email, e.login, 
+			e.hashed_password, e.office_id, o.name
 		FROM employee as e 
 		LEFT JOIN office as o 
 		ON e.office_id = o.id

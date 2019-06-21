@@ -1,8 +1,8 @@
+*{
+    font-family: 'Roboto', sans-serif;
+}
 
-    
-
-        
-    .wrapper {
+.wrapper {
         min-height: 400px;
     }
 
@@ -12,8 +12,8 @@
     
     /* header styling */
     .logo {
-        width: 150px;
-        height: 60px;
+        width: 100px;
+        height: 40px;
     }
     p, li {
         text-align: justify;
@@ -87,6 +87,9 @@
     @media only screen and (max-width: 768px) {
         #mobile-header {
             display: block !important;
+        }
+        h1.ui.header {
+            font-size: 1.5rem;
         }
         .search-input {
             width: 100%;
@@ -242,10 +245,18 @@
         margin: 40px auto 0px auto;
     }
 
-    #price {
-        margin-top: 80px;
+    .ui.bottom.menu{
+        color: #B02025 !important;
     }
-
+    .ui.bottom.menu #price {
+        margin-top: 25px;
+        text-align: center !important;
+        width: 100% !important;
+        font-size: 16px;
+    }
+    #price-loader {
+        width: 100% !important;
+    }
     .price-text {
         color: #B02025;
         font-size: 45px;
@@ -377,4 +388,33 @@
     font-size: 25px;
     color: #999999;
     line-height: normal;
+}
+
+
+/* order pricing form style */
+.field{
+    margin-top: 32px !important;
+}
+
+input {
+    border-radius: 0px !important;
+}
+
+select:not([multiple]) {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-position: right 50%;
+    background-repeat: no-repeat;
+    background-image: url('data:image/svg+xml;utf8,<?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="12" version="1"><path d="M4 8L0 4h8z"/></svg>');
+    background-color: #fff !important;
+}
+
+select {
+    border-radius: 0 !important;
+}
+
+.pac-container:after {
+    /* Disclaimer: not needed to show 'powered by Google' if also a Google Map is shown */
+    background-image: none !important;
+    height: 0px;
 }

@@ -5,20 +5,20 @@ import (
 	"time"
 )
 
-// Order states id constants values
-const (
-	OrderStateWaitingConfirmation = 1
-	OrderStateWaitingPickUp       = 2
-	OrderStateInProcessing        = 3
-	OrderStateClosed              = 4
-	OrderStateCanceled            = 5
+// Order states
+var (
+	OrderPending       = OrderState{ID: 1}
+	OrderWaitingPickUp = OrderState{ID: 2}
+	OrderInProcessing  = OrderState{ID: 3}
+	OrderClosed        = OrderState{ID: 4}
+	OrderCanceled      = OrderState{ID: 5}
 )
 
 // Order struct represent order that will be created by users
 type Order struct {
-	ID             int            `json:"id,omitempty"`
+	OrderID        uint64         `json:"orderId,omitempty"`
 	PaymentType    PaymentType    `json:"paymentType"`
-	CustomerID     int            `json:"customerId"`
+	CustomerID     uint           `json:"customerId"`
 	CreatedAt      EventTime      `json:"createdAt"`
 	State          OrderState     `json:"state"`
 	Cost           float64        `json:"cost"`
@@ -29,27 +29,27 @@ type Order struct {
 	Note           string         `json:"note"`
 }
 
-// State
+// OrderState data type represent order state id and corresponding label
 type OrderState struct {
-	ID   int    `json:"id"`
+	ID   uint8  `json:"id"`
 	Name string `json:"name"`
 }
 
 // PaymentType
 type PaymentType struct {
-	ID   int    `json:"id"`
+	ID   uint8  `json:"id"`
 	Name string `json:"name"`
 }
 
 // City represent
 type City struct {
-	ID       int    `json:"id"`
+	ID       uint8  `json:"id"`
 	Name     string `json:"name"`
-	OfficeID int    `json:"officeId"`
+	OfficeID uint8  `json:"officeId"`
 }
 
 type WeightInterval struct {
-	ID   int    `json:"id"`
+	ID   uint8  `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -61,7 +61,7 @@ func (o *Order) ComputeCost() (cost float64) {
 
 // Address represent delivery address provided by customers
 type Address struct {
-	ID int `json:"id,omitempty"`
+	ID uint64 `json:"id,omitempty"`
 	// CustomerID  int      `json:"customerId"`
 	City     City   `json:"city" binding:"required"`
 	FullName string `json:"fullName" binding:"required"`
@@ -71,7 +71,7 @@ type Address struct {
 
 // Track represent an event in order journey
 type Track struct {
-	OrderID  int       `json:"orderId"`
+	OrderID  uint64    `json:"orderId"`
 	Time     time.Time `json:"time"`
 	OfficeID int       `json:"officeId"`
 	EventID  int       `json:"eventId"`

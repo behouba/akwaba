@@ -29,7 +29,7 @@ type UserOrderer interface {
 // User is representation of new customer
 // registration's data
 type User struct {
-	ID             int    `json:"id,omitempty"`
+	ID             uint64 `json:"id,omitempty"`
 	FullName       string `json:"fullName"`
 	Phone          string `json:"phone"`
 	Email          string `json:"email"`

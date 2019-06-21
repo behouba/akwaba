@@ -1,8 +1,8 @@
 package adminapi
 
 import (
+	"log"
 	"net/http"
-	"time"
 
 	"github.com/behouba/akwaba"
 	"github.com/gin-gonic/gin"
@@ -10,37 +10,25 @@ import (
 
 // this should be deleted asap. Should rely on the ver
 func (h *Handler) trackOrder(c *gin.Context) {
-	time.Sleep(time.Second * 3)
-
 	trackID := c.Query("track_id")
 
-	var tracking akwaba.Tracking
-
-	var p akwaba.Parcel
-	p.Nature = "Téléphone portable"
-	p.Sender.FullName = "Jhon Doe"
-	p.Receiver.FullName = "Bob marley"
-	p.Sender.City.Name = "Adjamé"
-	p.Receiver.City.Name = "Cocody"
-
-	var events []akwaba.Event
-
-	for i := 0; i < 6; i++ {
-		t := akwaba.EventTime{RealTime: time.Now()}
-		t.FormatTimeFR()
-		events = append(
-			events,
-			akwaba.Event{
-				Time:  t,
-				Title: "Arrivé à l'agence",
-				City:  akwaba.City{Name: "Abobo gare"}},
-		)
+	parcelID, err := akwaba.DecodeTrackID(trackID)
+	if err != nil || parcelID == 0 {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Code de suivi incorrecte.",
+		})
+		return
 	}
 
-	tracking.TrackID = trackID
-	tracking.Events = events
-	tracking.Parcel = p
-
+	tracking, err := h.db.TrackParcel(parcelID)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"tracking": tracking,
 	})

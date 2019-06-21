@@ -20,7 +20,7 @@ func getEmployee(c *gin.Context, auth *jwt.Authenticator) (emp akwaba.Employee) 
 
 func (h *Handler) pendingOrders(c *gin.Context) {
 	emp := getEmployee(c, h.auth)
-	orders, err := h.db.ToConfirm(&emp)
+	orders, err := h.db.PendingOrders(emp.Office.ID)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -33,25 +33,25 @@ func (h *Handler) pendingOrders(c *gin.Context) {
 	})
 }
 
-func (h *Handler) ordersToPickUp(c *gin.Context) {
-	emp := getEmployee(c, h.auth)
+// func (h *Handler) ordersToPickUp(c *gin.Context) {
+// 	emp := getEmployee(c, h.auth)
 
-	orders, err := h.db.ToPickUp(&emp)
-	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"orders": orders,
-	})
-}
+// 	orders, err := h.db.PendingOrders(emp.Office.ID)
+// 	if err != nil {
+// 		log.Println(err)
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"error": err.Error(),
+// 		})
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"orders": orders,
+// 	})
+// }
 
 func (h *Handler) cancelOrder(c *gin.Context) {
 	emp := getEmployee(c, h.auth)
-	orderID, err := strconv.Atoi(c.Param("id"))
+	orderID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -80,7 +80,7 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 func (h *Handler) confirmOrder(c *gin.Context) {
 	emp := getEmployee(c, h.auth)
 
-	orderID, err := strconv.Atoi(c.Param("id"))
+	orderID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -129,27 +129,4 @@ func (h *Handler) createOrder(c *gin.Context) {
 		"order":   order,
 	})
 	log.Println(order)
-}
-
-func (h *Handler) collected(c *gin.Context) {
-	orderID, err := strconv.Atoi(c.Query("order_id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Numero de commande non valide.",
-		})
-		return
-	}
-	emp := getEmployee(c, h.auth)
-
-	err = h.db.SetCollected(orderID, &emp)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Ramassage enregistré avec succès.",
-	})
 }

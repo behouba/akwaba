@@ -49,8 +49,8 @@ func (a *AdminDB) Open(uri string) (err error) {
 	return
 }
 
-// ToConfirm retreive all pending orders that belong to the office id
-func (a *AdminDB) ToConfirm(emp *akwaba.Employee) (orders []akwaba.Order, err error) {
+// PendingOrders retreive all pending orders that belong to the office id
+func (a *AdminDB) PendingOrders(officeID uint8) (orders []akwaba.Order, err error) {
 	rows, err := a.db.Query(
 		`SELECT
 			d.id, pt.name as payment_type, cost, 
@@ -58,7 +58,7 @@ func (a *AdminDB) ToConfirm(emp *akwaba.Employee) (orders []akwaba.Order, err er
 			sender_address, receiver_full_name, receiver_phone, 
 			rc.name  as receiver_city, receiver_address, note, 
 			nature,w.name as weight_interval, created_at,
-			state_id, ost.name as order_state
+			d.state_id, ost.name as order_state
 		FROM delivery_order as d
 		LEFT JOIN order_state as ost ON
 			d.state_id = ost.id
@@ -70,9 +70,9 @@ func (a *AdminDB) ToConfirm(emp *akwaba.Employee) (orders []akwaba.Order, err er
 			d.payment_type_id = pt.id
 		LEFT JOIN weight_interval as w ON
 			d.weight_interval_id = w.id
-		WHERE state_id=$1 AND  sc.office_id=$2
+		WHERE d.state_id=$1 AND  sc.office_id=$2
 		ORDER BY created_at DESC;`,
-		akwaba.OrderStateWaitingConfirmation, emp.Office.ID,
+		akwaba.OrderPending.ID, officeID,
 	)
 	if err != nil {
 		return
@@ -81,55 +81,7 @@ func (a *AdminDB) ToConfirm(emp *akwaba.Employee) (orders []akwaba.Order, err er
 	for rows.Next() {
 		var o akwaba.Order
 
-		err = rows.Scan(&o.ID, &o.PaymentType.Name, &o.Cost, &o.Sender.FullName,
-			&o.Sender.Phone, &o.Sender.City.Name, &o.Sender.Address,
-			&o.Receiver.FullName, &o.Receiver.Phone, &o.Receiver.City.Name,
-			&o.Receiver.Address, &o.Note, &o.Nature, &o.WeightInterval.Name, &o.CreatedAt.RealTime,
-			&o.State.ID, &o.State.Name,
-		)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		o.CreatedAt.FormatTimeFR()
-		orders = append(orders, o)
-	}
-	return
-}
-
-// ToPickUp retreive all orders waiting to be picked up by provided office id
-func (a *AdminDB) ToPickUp(emp *akwaba.Employee) (orders []akwaba.Order, err error) {
-	rows, err := a.db.Query(
-		`SELECT
-			d.id, pt.name as payment_type, cost, 
-			sender_full_name, sender_phone, sc.name as sender_city, 
-			sender_address, receiver_full_name, receiver_phone, 
-			rc.name  as receiver_city, receiver_address, d.note, 
-			d.nature,w.name as weight_interval, created_at,
-			state_id, ost.name as order_state
-		FROM delivery_order as d
-		LEFT JOIN order_state as ost ON
-			d.state_id = ost.id
-		LEFT JOIN city as sc ON
-			d.sender_city_id = sc.id
-		LEFT JOIN city as rc ON
-			d.receiver_city_id = rc.id
-		LEFT JOIN payment_type as pt ON
-			d.payment_type_id = pt.id
-		LEFT JOIN weight_interval as w ON
-			d.weight_interval_id = w.id
-		WHERE state_id=$1 AND  sc.office_id=$2
-		ORDER BY created_at DESC;`,
-		akwaba.OrderStateWaitingPickUp, emp.Office.ID,
-	)
-	if err != nil {
-		return
-	}
-
-	for rows.Next() {
-		var o akwaba.Order
-
-		err = rows.Scan(&o.ID, &o.PaymentType.Name, &o.Cost, &o.Sender.FullName,
+		err = rows.Scan(&o.OrderID, &o.PaymentType.Name, &o.Cost, &o.Sender.FullName,
 			&o.Sender.Phone, &o.Sender.City.Name, &o.Sender.Address,
 			&o.Receiver.FullName, &o.Receiver.Phone, &o.Receiver.City.Name,
 			&o.Receiver.Address, &o.Note, &o.Nature, &o.WeightInterval.Name, &o.CreatedAt.RealTime,
@@ -157,13 +109,27 @@ func (a *AdminDB) CreateOrder(order *akwaba.Order) (err error) {
 		order.Sender.Phone, order.Sender.City.ID, order.Sender.Address,
 		order.Receiver.FullName, order.Receiver.Phone, order.Receiver.City.ID,
 		order.Receiver.Address, order.Note, order.Nature, order.WeightInterval.ID,
-		akwaba.OrderStateWaitingPickUp,
-	).Scan(&order.ID)
+		akwaba.OrderWaitingPickUp.ID,
+	).Scan(&order.OrderID)
+	if err != nil {
+		return
+	}
+	err = a.db.QueryRow(
+		`SELECT office_id FROM city WHERE id=$1`,
+		order.Sender.City.ID,
+	).Scan(&order.Sender.City.OfficeID)
+	if err != nil {
+		return
+	}
+	_, err = a.addNewParcel(order.OrderID, order.Sender.City.OfficeID)
+	if err != nil {
+		return
+	}
 	return
 }
 
-func (a *AdminDB) CancelOrder(id int, emp *akwaba.Employee) (err error) {
-	err = a.changeOrderState(id, akwaba.OrderStateCanceled)
+func (a *AdminDB) CancelOrder(id uint64, emp *akwaba.Employee) (err error) {
+	err = a.changeOrderState(id, &akwaba.OrderCanceled)
 	if err != nil {
 		return
 	}
@@ -176,19 +142,9 @@ func (a *AdminDB) CancelOrder(id int, emp *akwaba.Employee) (err error) {
 	return
 }
 
-func (a *AdminDB) ConfirmOrder(id int, emp *akwaba.Employee) (err error) {
-	err = a.changeOrderState(id, akwaba.OrderStateWaitingPickUp)
+func (a *AdminDB) ConfirmOrder(orderID uint64, emp *akwaba.Employee) (err error) {
+	err = a.changeOrderState(orderID, &akwaba.OrderWaitingPickUp)
 	if err != nil {
-		return
-	}
-	go a.recordActivity(fmt.Sprintf("Commande %d confirmée par l'administrateur %s", id, emp.FullName))
-	return
-}
-
-func (a *AdminDB) SetCollected(orderID int, emp *akwaba.Employee) (err error) {
-	err = a.changeOrderState(orderID, akwaba.OrderStateInProcessing)
-	if err != nil {
-		log.Println(err)
 		return
 	}
 	_, err = a.addNewParcel(orderID, emp.Office.ID)
@@ -196,30 +152,26 @@ func (a *AdminDB) SetCollected(orderID int, emp *akwaba.Employee) (err error) {
 		log.Println(err)
 		return
 	}
-	go a.recordActivity(fmt.Sprintf(
-		"Ramassage de la commande %d confirmée par l'administrateur %s",
-		orderID, emp.FullName,
-	))
 	return
 }
 
-func (a *AdminDB) changeOrderState(id, stateID int) (err error) {
-	var currentStateID int
+func (a *AdminDB) changeOrderState(orderID uint64, state *akwaba.OrderState) (err error) {
+	var currentStateID uint8
 	err = a.db.QueryRow(
 		`SELECT state_id from delivery_order WHERE id=$1`,
-		id,
+		orderID,
 	).Scan(&currentStateID)
 	if err != nil {
 		return
 	}
-	log.Printf("current state %d, new state %d", currentStateID, stateID)
-	err = checkStateChangeValidity(currentStateID, stateID)
+	log.Printf("current state %d, new state %d", currentStateID, state.ID)
+	err = checkStateChangeValidity(currentStateID, state.ID)
 	if err != nil {
 		return
 	}
 	_, err = a.db.Exec(
 		`UPDATE delivery_order SET state_id=$1 WHERE id=$2;`,
-		stateID, id,
+		state.ID, orderID,
 	)
 	if err != nil {
 		return
@@ -227,25 +179,25 @@ func (a *AdminDB) changeOrderState(id, stateID int) (err error) {
 	return
 }
 
-func checkStateChangeValidity(currentStateID, stateID int) (err error) {
+func checkStateChangeValidity(currentStateID, stateID uint8) (err error) {
 	switch currentStateID {
 	case stateID:
 		return errors.New("La commande à deja le status souhaitée")
-	case akwaba.OrderStateWaitingConfirmation:
-		if stateID != akwaba.OrderStateWaitingPickUp && stateID != akwaba.OrderStateCanceled {
+	case akwaba.OrderPending.ID:
+		if stateID != akwaba.OrderWaitingPickUp.ID && stateID != akwaba.OrderCanceled.ID {
 			return errors.New("Ce changement de status de commande n'est pas authorisé")
 		}
-	case akwaba.OrderStateWaitingPickUp:
-		if stateID != akwaba.OrderStateInProcessing && stateID != akwaba.OrderStateCanceled {
+	case akwaba.OrderWaitingPickUp.ID:
+		if stateID != akwaba.OrderInProcessing.ID && stateID != akwaba.OrderCanceled.ID {
 			return errors.New("Ce changement de status de commande n'est pas authorisé")
 		}
-	case akwaba.OrderStateInProcessing:
-		if stateID != akwaba.OrderStateClosed {
+	case akwaba.OrderInProcessing.ID:
+		if stateID != akwaba.OrderClosed.ID {
 			return errors.New("Ce changement de status de commande n'est pas authorisé")
 		}
-	case akwaba.OrderStateClosed:
+	case akwaba.OrderClosed.ID:
 		return errors.New("Cette commande est déja terminée, impossible de changer son status")
-	case akwaba.OrderStateCanceled:
+	case akwaba.OrderCanceled.ID:
 		return errors.New("Cette commande est déja annulée, impossible de changer son status")
 	}
 	return

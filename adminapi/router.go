@@ -53,16 +53,17 @@ func SetupRouter(h *Handler) *gin.Engine {
 		o.Use(h.authMiddleware())
 		{
 			o.GET("/pending", h.pendingOrders)
-			o.GET("/to_pick_up", h.ordersToPickUp)
+			// o.GET("/to_pick_up", h.ordersToPickUp)
 			o.PATCH("/cancel/:id", h.cancelOrder)
 			o.PATCH("/confirm/:id", h.confirmOrder)
 			o.POST("/create", h.createOrder)
-			o.PATCH("/collected", h.collected)
 		}
 
 		p := v.Group(parcelBaseURL)
 		p.Use(h.authMiddleware())
 		{
+			p.GET("/pick_up", h.parcelsToPickUp)
+			p.PATCH("/collected", h.collected)
 			p.GET("/office_stock", h.officeParcels)
 			p.PATCH("/left_office", h.parcelOut)
 			p.PATCH("/enter_office", h.parcelIn)
