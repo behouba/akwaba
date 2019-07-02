@@ -22,7 +22,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.Name}} </span></a>
         <a class="red item" href="/profile/orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
@@ -32,7 +32,7 @@
         {{end}}
         <hr>
         <a class="red item" href="/services">Nos services</a>
-        <a class="red item active" href="/order/create">Commande</a>
+        <a class="red item active" href="/order/pricing">Commande</a>
         <a class="red item" href="/tracking">Suivi de colis</a>
         <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
@@ -60,14 +60,14 @@
                         <img class="ui image logo" src="../assets/img/logo_trans.png">
                     </a>
                     <a class="red item" href="/services">Nos services</a>
-                    <a class="red item active" href="/order/create">Commande</a>
+                    <a class="red item active" href="/order/pricing">Commande</a>
                     <a class="red item" href="/tracking">Suivi de colis</a>
                     <a class="red item" href="/pricing">Coût de livraison</a>
                     <a class="red item" href="/about">À propos</a>
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.Name}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item" href="/profile/orders">Mes commandes</a>
                                 <a class="black item" href="/profile/settings">Reglages</a>
@@ -95,12 +95,12 @@
                 <div class="ui fluid raised card">
                     <div class="content">
                         <h4 class="ui dividing header">EXPEDITEUR</h4>
-                        <p>{{ .order.Sender.FullName }}</p>
+                        <p>{{ .order.Sender.Name }}</p>
                         <P>{{ .order.Sender.City.Name}}</P>
                         <p>{{ .order.Sender.Address}}</p>
                         <p>Téléphone: {{ .order.Sender.Phone}}</p>
                         <h4 class="ui dividing header">DESTINATAIRE</h4>
-                        <p>{{ .order.Receiver.FullName }}</p>
+                        <p>{{ .order.Receiver.Name }}</p>
                         <P>{{ .order.Receiver.City.Name}}</P>
                         <p>{{ .order.Receiver.Address}}</p>
                         <p>Téléphone: {{ .order.Receiver.Phone}}</p>
@@ -123,7 +123,7 @@
                             <div class="two fields">
                                 <div class="field">
                                     <label>Nom et prénom</label>
-                                    <input type="text" name="senderName" value="{{ .order.Sender.FullName }}">
+                                    <input type="text" name="senderName" value="{{ .order.Sender.Name }}">
                                 </div>
                                 <div class="field">
                                     <label>Téléphone</label>
@@ -147,7 +147,7 @@
                             <div class="two fields">
                                 <div class="field">
                                     <label>Nom et prénom</label>
-                                    <input type="text" name="receiverName" value="{{ .order.Receiver.FullName }}">
+                                    <input type="text" name="receiverName" value="{{ .order.Receiver.Name }}">
                                 </div>
                                 <div class="field">
                                     <label>Téléphone</label>

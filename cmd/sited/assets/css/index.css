@@ -1,7 +1,12 @@
 *{
     font-family: 'Roboto', sans-serif;
 }
-
+[v-cloak] {
+    display:none;
+  }
+  .service-icon{
+      text-align: center !important;
+  }
 .wrapper {
         min-height: 400px;
     }
@@ -23,10 +28,18 @@
     #desktop-header {
         margin: 0px 0px !important;
     }
+    .ui.dividing.header{
+        margin-top: 35px;
+    }
 
     @media only screen and (min-width: 768px) {
         #mobile-header {
             display: none !important;
+        }
+
+        /* order pricing form style */
+        .field{
+            margin-top: 32px !important;
         }
 
         p {
@@ -83,14 +96,26 @@
             font-size: 14px;
             line-height: 18px;
         }
+        .order-summary-item-text {
+            font-size: 18px;
+            line-height: 1.33;
+            color: #474747;
+        }
     }
     @media only screen and (max-width: 768px) {
         #mobile-header {
             display: block !important;
         }
-        h1.ui.header {
-            font-size: 1.5rem;
+        .order-summary-item-text {
+            font-size: 12px;
+            line-height: 1.33;
+            color: #474747;
         }
+
+        .field{
+            margin-top: 22px !important;
+        }
+
         .search-input {
             width: 100%;
         }
@@ -102,7 +127,7 @@
         }
         p{
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.6 !important;
             margin: 3px 0px;
         }
         #desktop-header {
@@ -231,7 +256,7 @@
     }
 
     .ae-column {
-        max-width: 700px;
+        max-width: 630px;
         margin: 40px auto;
     }
 
@@ -391,11 +416,6 @@
 }
 
 
-/* order pricing form style */
-.field{
-    margin-top: 32px !important;
-}
-
 input {
     border-radius: 0px !important;
 }
@@ -417,4 +437,10 @@ select {
     /* Disclaimer: not needed to show 'powered by Google' if also a Google Map is shown */
     background-image: none !important;
     height: 0px;
+}
+
+.error-label{
+    color: rgb(238, 68, 68);
+    word-break: break-word;
+    margin-top: 8px;
 }

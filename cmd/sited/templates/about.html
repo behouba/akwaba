@@ -10,8 +10,6 @@
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.css' rel='stylesheet' />
-    <script src="../assets/js/jquery.inputmask.js"></script>
-
     <title>QUI SOMMES NOUS ?</title>
 </head>
 
@@ -21,7 +19,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.Name}} </span></a>
         <a class="red item" href="/profile/orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
@@ -31,9 +29,8 @@
         {{end}}
         <hr>
         <a class="red item" href="/services">Nos services</a>
-        <a class="red item" href="/order/create">Commande</a>
+        <a class="red item" href="/order/pricing">Commande</a>
         <a class="red item" href="/tracking">Suivi de colis</a>
-        <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item active" href="/about">À propos</a>
     </div>
 
@@ -59,14 +56,13 @@
                         <img class="ui image logo" src="../assets/img/logo_trans.png">
                     </a>
                     <a class="red item" href="/services">Nos services</a>
-                    <a class="red item" href="/order/create">Commande</a>
+                    <a class="red item" href="/order/pricing">Commande</a>
                     <a class="red item" href="/tracking">Suivi de colis</a>
-                    <a class="red item" href="/pricing">Coût de livraison</a>
                     <a class="red item active" href="/about">À propos</a>
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.Name}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item" href="/profile/orders">Mes commandes</a>
                                 <a class="black item" href="/profile/settings">Reglages</a>
@@ -185,7 +181,7 @@
                 </div>
             </div>
 
-            <div>
+            <!-- <div>
                 <h1 class="ui horizontal divider section-title">CONTACTS ?</h1>
                 <p class="center">
                     Vous avez un message particulier à nous adresser ? Merci de nous contacter via le formulaire
@@ -227,7 +223,7 @@
                 <div style="margin-top: 40px;">
 
                 </div>
-            </div>
+            </div> -->
         </div>
         <!--Footer-->
         {{template "footer" ""}}

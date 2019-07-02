@@ -8,8 +8,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
     <title>Reglages</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="../assets/js/jquery.inputmask.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-the-mask@0.11.1/dist/vue-the-mask.min.js"></script>
 </head>
 
 <body>
@@ -17,7 +19,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.Name}} </span></a>
         <a class="red item" href="/profile/orders">Mes commandes</a>
         <a class="red item active" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
@@ -27,9 +29,8 @@
         {{end}}
         <hr>
         <a class="red item" href="/services">Nos services</a>
-        <a class="red item" href="/order/create">Commande</a>
+        <a class="red item" href="/order/pricing">Commande</a>
         <a class="red item" href="/tracking">Suivi de colis</a>
-        <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
     </div>
 
@@ -55,14 +56,13 @@
                         <img class="ui image logo" src="../assets/img/logo_trans.png">
                     </a>
                     <a class="red item" href="/services">Nos services</a>
-                    <a class="red item" href="/order/create">Commande</a>
+                    <a class="red item" href="/order/pricing">Commande</a>
                     <a class="red item" href="/tracking">Suivi de colis</a>
-                    <a class="red item" href="/pricing">Coût de livraison</a>
                     <a class="red item" href="/about">À propos</a>
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.Name}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item" href="/profile/orders">Mes commandes</a>
                                 <a class="black item" href="/profile/settings">Reglages</a>
@@ -81,66 +81,58 @@
 
 
         <!--Home page content-->
-        <div class="ui container">
-            <div id="settings" style="visibility:hidden">
-                <h1>DONNÉES DU COMPTE</h1>
-                <div class="ui negative message" v-if="error.hasError">
+        <div class="ui container" id="setting-app">
+            <div id="settings">
+                <h1 class="center">DONNÉES DU COMPTE</h1>
+                <div class="ui divider"></div>
+                <div class="ui negative message" v-if="error" v-cloak>
                     <p>
-                        {error.message}
+                        {error}
                     </p>
                 </div>
-                {{ if .success }}
-                <div class="ui success message" v-if="!error.hasError">
+                <div class="ui success message" v-else-if="success" v-cloak>
                     <p>
-                        {{.success}}
+                        {success}
                     </p>
                 </div>
-                {{else if .error}}
-                <div class="ui negative message" v-if="!error.hasError">
-                    <p>
-                        {{.error}}
-                    </p>
+                <div class="center" v-if="!user" v-cloak>
+                    <img src="../assets/img/dots_loader.gif" alt="">
                 </div>
-                {{ end }}
-                <form autocomplete="off" @submit="checkFormAndSubmit" class="ui form" action="/profile/settings"
-                    method="POST">
+                <form class="ui form" autocomplete="disabled" v-else @submit.prevent="submitUpdate" v-cloak>
                     <div class="field">
-                        <label>Nom et prénom</label>
-                        <input type="text" name="name" id="name" v-model="user.fullName">
+                        <label for="name">Nom et prénom</label>
+                        <input type="text" name="name" autocomplete="disable" v-validate="{required: true, min: 3}"
+                            v-model="user.name">
+                        <span class="error-label" v-cloak>{ errors.first('name') }</span>
                     </div>
                     <div class="field">
-                        <label>Téléphone</label>
-                        <input type="text" name="phone" id="phone" v-model="user.phone">
+                        <label for="email">E-mail</label>
+                        <input type="text" name="email" v-model="user.email" v-validate="{required: true, email: true}"
+                            data-vv-as="email" autocomplete="disable">
+                        <span class="error-label" v-cloak>{ errors.first('email') }</span>
                     </div>
                     <div class="field">
-                        <label>E-mail</label>
-                        <input type="text" readonly name="email" id="email" v-model="user.email">
+                        <label for="phone">Numéro de mobile</label>
+                        <input type="tel" name="phone" v-model="user.phone" v-validate="{required: true, length: 16}"
+                            v-mask="'+225 ## ## ## ##'" autocomplete="disable">
+                        <span class="error-label" v-cloak>{ errors.first('phone') }</span>
                     </div>
                     <div class="field">
-                        <label>Ville / Commune</label>
-                        <select class="ui fluid dropdown" autocomplete="disabled" v-model="user.cityId" name="cityId">
-                            {{ if eq .user.City.ID 0 }}
-                            <option value=""></option>
-                            {{ end }}
-                            {{ range .cities }}
-                            {{if eq .ID $.user.City.ID }}
-                            <option value="{{.ID}}" selected>{{.Name}}</option>
-                            {{else }}
-                            <option value="{{.ID}}">{{.Name}}</option>
-                            {{end}}
-                            {{ end }}
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label>Address</label>
+                        <label>Adresse</label>
                         <input type="text" name="address" v-model="user.address">
                     </div>
-                    <div class="field required">
-                        <label>Mot de passe requis pour les modificaiton</label>
-                        <input type="password" name="password" id="password" placeholder="Votre mot de passe">
+                    <div class="field">
+                        <label for="password">Mot de passe requis pour les modificaiton</label>
+                        <input type="password" autocomplete="disabled" name="password"
+                            v-validate="{required: true, min: 4}" v-model="user.password" autocomplete="disable">
+                        <span class="error-label" v-cloak>{ errors.first('password') }</span>
                     </div>
-                    <button class="ui button fluid primary" type="submit">Modifier</button>
+                    <div class="center">
+                        <button v-bind:class="{loading: loading, disabled: loading}" class="ui button primary"
+                            type="submit">Modifier</button>
+                    </div>
                 </form>
+
             </div>
         </div>
         <!--Footer-->
@@ -149,79 +141,12 @@
 
 
 </body>
+<script src="../assets/js/settings.js"></script>
 <script>
-    var app = new Vue({
-        el: '#settings',
-        delimiters: ['{', '}'],
-        data: {
-            error: {
-                hasError: false,
-                message: '',
-            },
-            user: {
-                fullName: '{{.user.FullName}}',
-                phone: '{{.user.Phone}}',
-                email: '{{.user.Email}}',
-                cityId: '{{ .user.City.ID }}',
-                address: '{{ .user.Address }}',
-            },
-        },
-        methods: {
-            validatePhone: function (phone) {
-                if (phone.length != 16) {
-                    return false;
-                }
-                var re = /^\+225 (\d{2}) (\d{2}) (\d{2}) (\d{2})/;
-                return re.test(phone);
-            },
-            newError: function (msg) {
-                this.error.hasError = true;
-                this.error.message = msg;
-                $('html, body').animate({
-                    scrollTop: $("#settings").offset().top
-                }, 500);
-            },
-            validEmail: function () {
-                var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                return re.test(this.user.email);
-            },
-            checkFormAndSubmit: function (e) {
-                e.preventDefault();
-
-                if (!this.validatePhone($("#phone").val())) {
-                    this.newError('Veuillez saisir un numéro de mobile valide');
-                    return
-                }
-                if (this.user.fullName.length < 4) {
-                    this.newError('Votre nom et prénom ne peuvent pas être trop courts');
-                    return
-                }
-                if (!this.validEmail()) {
-                    this.newError('Veuillez saisir une adresse e-mail valide');
-                    return
-                }
-                if ($("#password").val().length < 4) {
-                    this.newError('Mot de passe requis, votre mot de passe doit contenir au moins 4 caractères');
-                    return
-                }
-                e.target.submit();
-            },
-        },
-        created: function () {
-            console.log(this.user);
-        },
-        mounted: function () {
-            $("#settings").css('visibility', 'visible');
-            $("#phone").inputmask({ "mask": "+225 99 99 99 99" });
-        },
-    })
     function showSideBar() {
         $('.ui.sidebar').sidebar('toggle');
     }
-    $(document).ready(function () {
-
-        $('#desktop-header .ui.dropdown').dropdown();
-    });
+    $('#desktop-header .ui.dropdown').dropdown();
 </script>
 
 </html>

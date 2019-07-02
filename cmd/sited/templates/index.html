@@ -15,7 +15,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.Name}} </span></a>
         <a class="red item" href="/profile/orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
@@ -25,9 +25,8 @@
         {{end}}
         <hr>
         <a class="red item" href="/services">Nos services</a>
-        <a class="red item" href="/order/create">Commande</a>
+        <a class="red item" href="/order/pricing">Commande</a>
         <a class="red item" href="/tracking">Suivi de colis</a>
-        <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
     </div>
 
@@ -59,14 +58,13 @@
                         <img class="ui image logo" src="../assets/img/logo_trans.png">
                     </a>
                     <a class="red item" href="/services">Nos services</a>
-                    <a class="red item" href="/order/create">Commande</a>
+                    <a class="red item" href="/order/pricing">Commande</a>
                     <a class="red item" href="/tracking">Suivi de colis</a>
-                    <a class="red item" href="/pricing">Coût de livraison</a>
                     <a class="red item" href="/about">À propos</a>
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.Name}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item" href="/profile/orders">Mes commandes</a>
                                 <a class="black item" href="/profile/settings">Reglages</a>
@@ -91,7 +89,7 @@
                         <h1 class="ui inverted header">
                             LIVRAISON EXPRESS DE DOCUMENTS ET COLIS PARTOUT ABIDJAN.
                         </h1>
-                        <a class="ui large primary button" href="/order/create" style="margin-top: 20px">Commander une
+                        <a class="ui large primary button" href="/order/pricing" style="margin-top: 20px">Commander une
                             livraison <i class="right arrow icon"></i>
                         </a>
                         <h3 class="ui inverted header">SUIVRE VOTRE COLIS: </h3>
@@ -118,21 +116,25 @@
                     <h1 class="ui horizontal divider section-title">NOS SERVICES</h1>
                     <div>
                         <div class="ui three link cards stackable">
-                            <a class="card" href="/pricing">
+                            <a class="card" href="/order/pricing">
                                 <div class="content">
                                     <div class="header">
-                                        <h2 class="ui center aligned icon header red">
-                                            <i class="calculator icon"></i>
-                                            Calculer le prix de votre livraison
+                                        <div class="service-icon">
+                                            <img src="../assets/img/calculator.png" alt="">
+                                        </div>
+                                        <h2 class="ui center aligned header red">
+                                            Calculer le coût de votre livraison
                                         </h2>
                                     </div>
                                 </div>
                             </a>
-                            <a class="card" href="/order/create">
+                            <a class="card" href="/order/pricing">
                                 <div class="content">
                                     <div class="header">
-                                        <h2 class="ui center aligned icon header red">
-                                            <i class="clipboard outline icon"></i>
+                                        <div class="service-icon">
+                                            <img src="../assets/img/website.png" alt="">
+                                        </div>
+                                        <h2 class="ui center aligned header red">
                                             Commande de livraison en ligne
                                         </h2>
                                     </div>
@@ -141,8 +143,10 @@
                             <a class="card" href="/tracking">
                                 <div class="content">
                                     <div class="header">
-                                        <h2 class="ui center aligned icon header red">
-                                            <i class="search icon"></i>
+                                        <div class="service-icon">
+                                            <img src="../assets/img/track.png" alt="">
+                                        </div>
+                                        <h2 class="ui center aligned header red">
                                             Suivi de colis en ligne
                                         </h2>
                                     </div>
@@ -151,8 +155,10 @@
                             <a class="card" href="/services#fast-shipping">
                                 <div class="content">
                                     <div class="header">
-                                        <h2 class="ui center aligned icon header red">
-                                            <i class="shipping fast icon"></i>
+                                        <div class="service-icon">
+                                            <img src="../assets/img/clock.png" alt="">
+                                        </div>
+                                        <h2 class="ui center aligned header red">
                                             Livraisons d'extrême urgence
                                         </h2>
                                     </div>
@@ -161,8 +167,10 @@
                             <a class="card" href="/services#for-business">
                                 <div class="content">
                                     <div class="header">
-                                        <h2 class="ui center aligned icon header red">
-                                            <i class="briefcase icon"></i>
+                                        <div class="service-icon">
+                                            <img src="../assets/img/handshake.png" alt="">
+                                        </div>
+                                        <h2 class="ui center aligned header red">
                                             Solutions pour entreprises
                                         </h2>
                                     </div>
@@ -171,8 +179,10 @@
                             <a class="card" href="/services#management">
                                 <div class="content">
                                     <div class="header">
-                                        <h2 class="ui center aligned icon header red">
-                                            <i class="clock outline icon"></i>
+                                        <div class="service-icon">
+                                            <img src="../assets/img/calendar.png" alt="">
+                                        </div>
+                                        <h2 class="ui center aligned header red">
                                             Gestion des livraisons
                                         </h2>
                                     </div>

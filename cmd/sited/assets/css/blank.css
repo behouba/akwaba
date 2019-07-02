@@ -1,17 +1,11 @@
-body>.grid {
-    height: 100%;
-}
-
-.image {
-    margin-top: -100px;
-}
-
-.column {
-    max-width: 420px;
+.blank {
+    max-width: 520px;
+    padding: 10px;
+    margin: 55px auto !important;
 }
 
 .logo {
-    max-width: 200px;
+    max-width: 300px;
 }
 
 .center {
@@ -20,11 +14,9 @@ body>.grid {
 
 .red-link {
     color: #B02025 !important;
-    padding: 10px 0px;
+    padding: 13px 0px;
 }
-p {
-    font-size: 18px !important;
-}
+
 
 .muted-txt {
     color: #858585;

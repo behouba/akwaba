@@ -18,7 +18,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.Name}} </span></a>
         <a class="red item" href="/profile/orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Reglages</a>
         <a class="red item" href="/auth/logout">Deconnexion</a>
@@ -28,9 +28,8 @@
         {{end}}
         <hr>
         <a class="red item active" href="/services">Nos services</a>
-        <a class="red item" href="/order/create">Commande</a>
+        <a class="red item" href="/order/pricing">Commande</a>
         <a class="red item" href="/tracking">Suivi de colis</a>
-        <a class="red item" href="/pricing">Coût de livraison</a>
         <a class="red item" href="/about">À propos</a>
     </div>
 
@@ -56,14 +55,13 @@
                         <img class="ui image logo" src="../assets/img/logo_trans.png">
                     </a>
                     <a class="red item active" href="/services">Nos services</a>
-                    <a class="red item" href="/order/create">Commande</a>
+                    <a class="red item" href="/order/pricing">Commande</a>
                     <a class="red item" href="/tracking">Suivi de colis</a>
-                    <a class="red item" href="/pricing">Coût de livraison</a>
                     <a class="red item" href="/about">À propos</a>
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.Name}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item" href="/profile/orders">Mes commandes</a>
                                 <a class="black item" href="/profile/settings">Reglages</a>
@@ -102,8 +100,10 @@
                     <div class="ui two column divided very relaxed stackable grid container section-m">
                         <div class="row">
                             <div class="column">
-                                <h2 class="ui icon header centered aligned">
-                                    <i class="calculator icon"></i>
+                                <div class="service-icon">
+                                    <img src="../assets/img/calculator.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
                                     CALCULER LE COÛT D’UNE LIVRAISON
                                 </h2>
                                 <p> Nous vous permettons de connaître à l’avance le coût d’une livraison avec à votre
@@ -113,11 +113,13 @@
                                     Nous rappelons que ceci est une estimation et pourrait changer en fonction de la
                                     véracité des informations renseignées sur le formulaire.
                                 </p>
-                                <p>Cliquez <a href="/pricing">ici</a> pour y accéder.</p>
+                                <p>Cliquez <a href="/order/pricing">ici</a> pour y accéder.</p>
                             </div>
                             <div class="column">
-                                <h2 class="ui icon header centered aligned">
-                                    <i class="clipboard outline icon"></i>
+                                <div class="service-icon">
+                                    <img src="../assets/img/website.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
                                     COMMANDE DE LIVRAISON EN LIGNE
                                 </h2>
                                 <p>Akwaba Express a mis en place un service de création de commande en ligne. Vous
@@ -131,7 +133,7 @@
                                     la
                                     livraison dans un bref délai (3H30 maximum).
                                 </p>
-                                <p>Passez votre commande en ligne <a href="/order/create">ici</a>.</p>
+                                <p>Passez votre commande en ligne <a href="/order/pricing">ici</a>.</p>
                             </div>
                         </div>
                     </div>
@@ -141,8 +143,10 @@
                     <div class="ui two column divided very relaxed stackable grid container section-m">
                         <div class="row">
                             <div class="column">
-                                <h2 class="ui icon header centered aligned">
-                                    <i class="search icon"></i>
+                                <div class="service-icon">
+                                    <img src="../assets/img/track.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
                                     SUIVI DE COLIS EN LIGNE
                                 </h2>
                                 <p>Vous pouvez suivre l’état de votre colis en ligne en inscrivant à l’onglet réservé
@@ -156,8 +160,10 @@
                                 <p>Pour suivre votre colis, entrez le numéro de suivi <a href="/tracking">ici</a></p>
                             </div>
                             <div class="column" id="fast-shipping">
-                                <h2 class="ui icon header centered aligned">
-                                    <i class="shipping fast icon"></i>
+                                <div class="service-icon">
+                                    <img src="../assets/img/clock.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
                                     LIVRAISONS D’EXTRÊME URGENCE
                                 </h2>
                                 <p>Akwaba Express vous permet de vous sortir des situations d’extrêmes urgences pour
@@ -169,7 +175,7 @@
                                     quelque soit le lieu de destination.
                                 </p>
                                 <p>
-                                    Contactez nous <a href="/contact/emergency">ici</a> pour bénéficier du service
+                                    Contactez nous pour bénéficier du service
                                     d’extrême urgence.
                                 </p>
                             </div>
@@ -181,8 +187,10 @@
                     <div class="ui two column divided very relaxed stackable grid container section-m">
                         <div class="row">
                             <div class="column" id="for-business">
-                                <h2 class="ui icon header centered aligned">
-                                    <i class="briefcase icon"></i>
+                                <div class="service-icon">
+                                    <img src="../assets/img/handshake.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
                                     SOLUTIONS POUR ENTREPRISES
                                 </h2>
                                 <p>Besoin de forfait ou de partenariat pour votre entreprise ? Vous êtes au bon endroit
@@ -191,17 +199,18 @@
                                     services
                                     de sous-traitances voire des partenariats.
                                     Vous êtes une entreprise intéressée par nos services et vous souhaitez coopérer avec
-                                    nous, nous vous prions de nous contacter via notre <a href="/contact/business">
-                                        formulaire
-                                        dedié aux entreprise</a>. Des professionnels vous contacteront dans un bref
+                                    nous, nous vous prions de nous contacter. Des professionnels vous contacteront dans
+                                    un bref
                                     délai
                                     pour des échanges
                                     plus avancées. Akwaba Express s’engage à garder confidentiel toutes les informations
                                     renseignées sur le présent site.</p>
                             </div>
                             <div class="column" id="management">
-                                <h2 class="ui icon header centered aligned">
-                                    <i class="clock outline icon"></i>
+                                <div class="service-icon">
+                                    <img src="../assets/img/calendar.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
                                     GESTION DES LIVRAISONS
                                 </h2>
                                 <p>Akwaba Express offre la possibilité à sa clientèle de gérer à sa guise une ou
