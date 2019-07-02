@@ -51,20 +51,6 @@ type City struct {
 	OfficeID uint8  `json:"officeId"`
 }
 
-// ShipmentCategory represent shipment category
-type ShipmentCategory struct {
-	ID      uint8  `json:"id"`
-	Name    string `json:"name"`
-	MinCost uint   `json:"minCost"`
-	MaxCost uint   `json:"maxCost"`
-}
-
-// ComputeCost return totalCost of the order
-func (o *Order) ComputeCost() (cost uint16) {
-	o.Cost = 3500
-	return o.Cost
-}
-
 // Track represent an event in order journey
 type Track struct {
 	OrderID  uint64    `json:"orderId"`

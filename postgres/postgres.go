@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -18,11 +19,25 @@ type DB struct {
 	PaymentOptions     []akwaba.PaymentOption
 }
 
+const dbURIPattern = "host=%s port=%d user=%s password=%s dbname=%s sslmode=disable connect_timeout=100"
+
+type Config struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	DBName   string `yaml:"dbName"`
+	Password string `yaml:"password"`
+}
+
 // Open function open DB database
 // each server should have it own database user with corresponding rights on database
-func Open(uri string) (db *sqlx.DB, err error) {
+func Open(c *Config) (db *sqlx.DB, err error) {
 	// will open database connection here
 	// each server should have it own database user with corresponding rights on database
+	uri := fmt.Sprintf(
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		c.Host, c.Port, c.User, c.Password, c.DBName,
+	)
 	db, err = sqlx.Connect("postgres", uri)
 	if err != nil {
 		log.Println(err)

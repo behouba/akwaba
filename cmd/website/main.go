@@ -1,31 +1,50 @@
 package main
 
 import (
-	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/behouba/akwaba/website"
+	"gopkg.in/yaml.v2"
 )
 
-const prodPort = ":80"
-const devPort = ":8080"
-
 func main() {
-	dbURI := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable connect_timeout=100",
-		"35.181.50.39", 5432, "behouba", "akwabaexpress", "akwaba_express",
-	)
+	var config website.Config
+	bs, err := ioutil.ReadFile("/Users/a1/Documents/code/akwaba/dev-config.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = yaml.Unmarshal(bs, &config)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// gin.SetMode(gin.ReleaseMode)
 
-	router := website.NewRouter(website.NewHandler(dbURI))
+	router := website.NewRouter(website.NewHandler(&config))
 
 	s := &http.Server{
-		Addr:           devPort,
+		Addr:           getPort(),
 		Handler:        router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	s.ListenAndServe()
+	err = s.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getPort() (port string) {
+	if len(os.Args) == 1 {
+		return ":8080"
+	}
+	env := os.Args[1]
+	if env == "prod" {
+		return ":80"
+	}
+	return ":8080"
 }

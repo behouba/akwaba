@@ -28,3 +28,16 @@ type Shipment struct {
 	Category      ShipmentCategory
 	Weight        float64
 }
+
+// ShipmentCategory represent shipment category
+type ShipmentCategory struct {
+	ID      uint8  `json:"id"`
+	Name    string `json:"name"`
+	MinCost uint   `json:"minCost"`
+	MaxCost uint   `json:"maxCost"`
+}
+
+// ComputeCost return totalCost of the order
+func (s *Shipment) ComputeCost() (cost uint) {
+	return 3500
+}

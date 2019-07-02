@@ -19,7 +19,7 @@ func (h *Handler) handleLogin(c *gin.Context) {
 		return
 	}
 
-	cust, err := h.Auth.Authenticate(cust.Email, cust.Password)
+	cust, err := h.auth.Authenticate(cust.Email, cust.Password)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -49,7 +49,7 @@ func (h *Handler) handleRegistration(c *gin.Context) {
 	}
 	log.Println(data)
 
-	cust, err := h.CustomerStore.Save(&data)
+	cust, err := h.customerStore.Save(&data)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -58,7 +58,7 @@ func (h *Handler) handleRegistration(c *gin.Context) {
 		})
 		return
 	}
-	go h.Mailer.WelcomeEmail(&cust)
+	go h.mailer.WelcomeEmail(&cust)
 	saveSessionUser(cust, c)
 	c.JSON(http.StatusOK, gin.H{
 		"user": cust,
@@ -71,7 +71,7 @@ func (h *Handler) recovery(c *gin.Context) {
 
 func (h *Handler) handleRecovery(c *gin.Context) {
 	email := c.Query("email")
-	cust, err := h.CustomerStore.CustomerByEmail(email)
+	cust, err := h.customerStore.CustomerByEmail(email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"email":   email,
@@ -80,11 +80,11 @@ func (h *Handler) handleRecovery(c *gin.Context) {
 		return
 	}
 	go func() {
-		token, err := h.Auth.SetRecoveryToken(cust.Email)
+		token, err := h.auth.SetRecoveryToken(cust.Email)
 		if err != nil {
 			log.Println(err)
 		}
-		err = h.Mailer.ResetPasswordEmail(&cust, token)
+		err = h.mailer.ResetPasswordEmail(&cust, token)
 		if err != nil {
 			log.Println(err)
 		}
@@ -97,7 +97,7 @@ func (h *Handler) handleRecovery(c *gin.Context) {
 
 func (h *Handler) newPasswordRequest(c *gin.Context) {
 	token := c.Query("token")
-	_, err := h.Auth.CheckRecoveryToken(token)
+	_, err := h.auth.CheckRecoveryToken(token)
 	if err != nil {
 		log.Println(err)
 		c.HTML(http.StatusOK, "recovery-exp", gin.H{
@@ -126,7 +126,7 @@ func (h *Handler) handleNewPasswordRequest(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
-	userID, err := h.Auth.CheckRecoveryToken(data.Token)
+	userID, err := h.auth.CheckRecoveryToken(data.Token)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -135,7 +135,7 @@ func (h *Handler) handleNewPasswordRequest(c *gin.Context) {
 		return
 	}
 
-	err = h.Auth.UpdatePassword(userID, data.Token, data.NewPassword)
+	err = h.auth.UpdatePassword(userID, data.Token, data.NewPassword)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusUnauthorized, gin.H{

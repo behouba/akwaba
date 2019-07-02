@@ -1,2 +1,4 @@
 store/*
 *.pem
+prod-config.yml
+akwaba-website

@@ -12,17 +12,17 @@ import (
 )
 
 const (
-	templatesPath = "./templates/*"
-	assetsPath    = "./assets"
+	templatesPath = "./website/templates/*"
+	assetsPath    = "./website/assets"
 )
 
 // Handler represents the website  handler methods set
 type Handler struct {
-	Auth          akwaba.CustomerAuthentifier
-	CustomerStore akwaba.CustomerStorage
+	auth          akwaba.CustomerAuthentifier
+	customerStore akwaba.CustomerStorage
 	// Auth   *jwt.Authenticator
 	// Sms    *notifier.SMS
-	Mailer akwaba.CustomerMailer
+	mailer akwaba.CustomerMailer
 }
 
 // NewRouter create routes and return *gin.Engine
@@ -99,8 +99,8 @@ func NewRouter(h *Handler) *gin.Engine {
 }
 
 // NewHandler create take configurations info and return new user handler
-func NewHandler(dbURI string) *Handler {
-	db, err := postgres.Open(dbURI)
+func NewHandler(c *Config) *Handler {
+	db, err := postgres.Open(c.DB)
 	if err != nil {
 		log.Println(err)
 		panic(err)
@@ -110,9 +110,9 @@ func NewHandler(dbURI string) *Handler {
 
 	// sms := notifier.NewSMS()
 	return &Handler{
-		Auth:          postgres.Authenticator{DB: db},
-		CustomerStore: postgres.CustomerStorage{DB: db},
+		auth:          postgres.Authenticator{DB: db},
+		customerStore: postgres.CustomerStorage{DB: db},
 		// Sms:    sms,
-		Mailer: mail.NewCustomerMail("mail.spamora.net", "notifications@akwabaexpress.ci", "akwabaexpress", 587),
+		mailer: mail.NewCustomerMail(c.Mail),
 	}
 }

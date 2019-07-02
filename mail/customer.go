@@ -18,20 +18,16 @@ const (
 // to provide capability to send email to customer
 type CustomerMail struct {
 	D      *gomail.Dialer
-	Config MailerConfig
+	Config *Config
 }
 
 // NewCustomerMail return new sms objet
-func NewCustomerMail(smtp, email, password string, port int) *CustomerMail {
+func NewCustomerMail(c *Config) *CustomerMail {
 	// d := gomail.NewDialer("mail.spamora.net", 587, "notifications@akwabaexpress.ci", "akwabaexpress")
-	d := gomail.NewDialer(smtp, port, email, password)
+	d := gomail.NewDialer(c.SMTP, c.Port, c.Email, c.Password)
 	return &CustomerMail{
-		D: d,
-		Config: MailerConfig{
-			SMTP:     smtp,
-			Email:    email,
-			Password: password,
-			Port:     port},
+		D:      d,
+		Config: c,
 	}
 }
 
