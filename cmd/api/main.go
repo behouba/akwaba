@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/behouba/akwaba/user/api"
+	"github.com/behouba/akwaba/public/api"
 )
 
 func main() {

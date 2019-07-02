@@ -16,11 +16,11 @@ type AdminOrderManager interface {
 
 // AdminUserManager interface for admin to manage customer
 type AdminUserManager interface {
-	GetUserByPhone(phone string) ([]User, error)
-	GetUserByName(name string) ([]User, error)
+	GetUserByPhone(phone string) ([]Customer, error)
+	GetUserByName(name string) ([]Customer, error)
 	GetAddresses(userID int, addrType string) ([]Address, error)
 	SaveAddress(addr *Address) (int, error)
-	SaveUser(user *User) (int, error)
+	SaveUser(user *Customer) (int, error)
 	FreezeUser(userID int) error
 	UnFreezeUser(userID int) error
 }

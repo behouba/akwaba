@@ -69,7 +69,15 @@ func SetupRouter(h *Handler) *gin.Engine {
 			p.PATCH("/enter_office", h.parcelIn)
 			p.GET("/to_deliver", h.parcelsToDeliver)
 			p.PATCH("/delivered", h.parcelDelivered)
+			p.PATCH("/failed_delivery", h.failedDelivery)
 			p.GET("/track", h.trackOrder)
+		}
+		u := v.Group(userBaseURL)
+		u.Use(h.authMiddleware())
+		{
+			u.GET("/contact", h.userContact)
+			u.POST("/lock", h.lockContact)
+			u.POST("/unlock", h.unlockContact)
 		}
 	}
 	return r

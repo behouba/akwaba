@@ -38,6 +38,7 @@ func (h *Handler) login(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
+		"admin": employee,
 	})
 
 }

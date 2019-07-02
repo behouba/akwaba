@@ -1,0 +1,437 @@
+{{ define "privacy"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+    <title>POLITIQUE DE CONFIDENTIALITÉ</title>
+</head>
+
+<body>
+
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .user.ID}}
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item" href="/order/pricing">Commande</a>
+        <a class="red item" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/pricing">Coût de livraison</a>
+        <a class="red item" href="/about">À propos</a>
+    </div>
+
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item active" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item" href="/order/pricing">Commande</a>
+                    <a class="red item" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/pricing">Coût de livraison</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .user.ID}}
+                        <div class="ui dropdown item">
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <!--Home page content-->
+
+        <div class="ui text container" id="conditions">
+            <h1 class="ui header centered aligned">POLITIQUE DE CONFIDENTIALITÉ</h1>
+            <div class="ui divider"></div>
+
+            <p>
+                Akwaba Express (Côte d’Ivoire) attache toujours une grande importance à la protection de vos données
+                personnelles. Lorsque vous utilisez nos services ou que vous nous fournissez des produits et / ou des
+                services, nous recueillons et traitons vos données personnelles. Les activités de Akwaba Express
+                concernant
+                la collecte et le traitement de vos données personnelles sont définis dans la politique de
+                confidentialité.
+                Avant d'utiliser nos services ou de nous fournir des produits et/ou des services, veuillez lire
+                attentivement cette politique de confidentialité. Akwaba Express affichera cette politique ou les liens
+                menant à cette politique sur le site Web de la société <a href="">https://www.akwabaexpress.ci</a> et
+                dans les
+                conditions
+                générales du contrat. Si nous changeons cette politique, nous vous en informerons sur le site Web. Nous
+                publierons à tout moment la version mise à jour sur le site Web, ainsi qu'un résumé des principaux
+                changements.
+            </p>
+
+            <h3>1. Que signifie données personnelles ? </h3>
+            <p>
+                Les données personnelles désignent toute information concernant une personne physique identifiée ou
+                identifiable. Les exemples de données personnelles incluent le nom de la personne, son numéro
+                d'identification, son adresse électronique, son numéro de téléphone, son adresse postale, son adresse IP
+                et
+                le nom du compte.
+            </p>
+
+            <h3>2. Le contrôleur de données</h3>
+            <p>
+                Le responsable du traitement des données concernant le traitement de vos données personnelles est Akwaba
+                Express Côte d’Ivoire. Akwaba Express est le fournisseur de la présence numérique et décide en tant que
+                maître du fichier de données concerné, de sa teneur et de sa finalité.
+            </p>
+
+            <h3>3. Quelles données collectons-nous ?</h3>
+            <p>
+                En principe, notre présence numérique peut être utilisée sans que vous ayez à fournir des données
+                personnelles. Selon la pratique courante, certaines données telles que les adresse IP et d’autres
+                informations d’utilisation sont automatiquement collectées par notre logiciel d’analyse Web, puis
+                traitées
+                et évaluées de façon anonyme. En utilisant notre présence numérique, vous acceptez la collecte,
+                l’utilisation et la divulgation de ces données conformément à la présente déclaration de
+                confidentialité.
+                Nous collectons :
+                <ul>
+                    <li> De l'expéditeur : nom, adresse, coordonnées, identifiant national et informations sur
+                        l'expédition.
+                    </li>
+                    <li> Du destinataire : nom, adresse, coordonnées, identité nationale et informations sur
+                        l'expédition.
+                    </li>
+                </ul>
+                Les catégories de données personnelles que nous collectons lorsque vous fournissez des produits et / ou
+                des
+                services nous incluent : nom, numéro de téléphone et adresse électronique professionnelle de votre
+                personne
+                de contact.
+                Les catégories de données à caractère personnel que nous collectons dans le cadre de nos activités de
+                marketing direct comprennent : nom, numéro de téléphone et adresse électronique (professionnelle).
+            </p>
+
+            <h3>3.1. Enregistrement automatique</h3>
+            <p>
+                Nos serveurs web enregistrent automatiquement tout accès dans un fichier journal temporaire. Les données
+                spécifiques à l’utilisateur (telles que l’adresse IP de l’ordinateur utilisé, les données
+                d’identification
+                du navigateur utilisé, le système d’exploitation de l’ordinateur utilisé, la quantité de données
+                transmises,
+                le nom du fournisseur d’accès Internet, la date et l’heure de l’accès) et les données techniques (telles
+                que
+                le nom et l’URL de la page web de référence, la date et l’heure de l’accès au site Internet via un lien
+                et
+                le terme recherché en cas d’accès via un moteur de recherche) sont enregistrées et évaluées de manière
+                anonyme. En premier lieu, nous avons besoin de ces données pour permettre l’utilisation de nos contenus
+                (établissement de la connexion) et en interne, à des fins liées au système, comme l’administration
+                technique
+                et la sécurité du système. Ce faisant, nous pouvons aussi avoir recours à des cookies. Nous n’utilisons
+                pas
+                vos données personnelles à d’autres fins, à moins que vous n’ayez de surcroît consenti expressément au
+                traitement de vos données à d’autres fins dans le cadre de l’utilisation de certaines prestations ou que
+                nous y soyons légalement tenus.
+            </p>
+
+            <h3>3.2. Autres traitements de données</h3>
+            <p>
+                Pour l’utilisation de certains de nos services en ligne, vous devez préalablement vous enregistrer dans
+                le
+                Login en introduisant des informations personnelles. Le traitement des données dans le cadre de
+                l’utilisation des services est effectué conformément au contrat et aux conditions de participation
+                correspondantes ou aux conditions générales.
+                Pour le reste, nous ne traitons vos données personnelles que lorsque vous nous les envoyez, par exemple
+                lorsque vous remplissez un formulaire en ligne ou lorsque vous nous adressez un message par le biais de
+                nos
+                formulaires de contact. Dans ces cas, nous vous demandons de nous transmettre seulement les données
+                personnelles nécessaires à la fourniture des prestations proposées. Les données mises à notre
+                disposition
+                sont enregistrées dans nos systèmes informatiques.
+            </p>
+            <h3>4. Comment utilisons-nous vos données ?</h3>
+            <p>
+                La collecte de données nous aide à développer et améliorer notre présence numérique, ainsi qu’à
+                optimiser
+                nos offres de prestations. Nous utilisons les données collectées par enregistrement automatique aux fins
+                suivantes :
+                <ul>
+                    <li> pour vous permettre d’utiliser notre présence numérique (établissement d’une connexion) ;
+                    </li>
+                    <li>
+                        pour la gestion interne du site web, notamment pour assurer l’administration technique et la
+                        sécurité du
+                        système ;
+                    </li>
+                    <li>
+                        pour optimiser la convivialité, nous recueillons des statistiques sur le comportement de
+                        l’utilisateur à
+                        l’égard de notre présence numérique. Les données recueillies sont analysées ;
+                    </li>
+                    <li>
+                        pour la mise à disposition du login, des prestations en ligne et leur exécution conforme au
+                        contrat ;
+
+                    </li>
+                    <li>
+                        pour concevoir notre site web en fonction des groupes cibles (au travers d’informations ou de
+                        contenus
+                        ciblés qui peuvent vous intéresser) ;
+                    </li>
+                    <li>
+                        pour éviter la fraude et renforcer la sécurité du site web.
+
+                    </li>
+                </ul>
+
+
+
+            </p>
+            <h3>5. Comment utilisons-nous les cookies ?</h3>
+            <h3>5.1. Qu’est-ce qu’un cookie ?</h3>
+
+            <p>
+                Un cookie est un fichier texte comportant de petites suites de données (une suite de lettres et de
+                chiffres)
+                qui ne peut effectuer aucune opération tout seul. Ce fichier texte est transmis par le serveur web à
+                votre
+                navigateur lorsque vous visitez un site web. Le cookie est alors enregistré sur votre ordinateur local.
+                Il
+                existe deux types différents de cookies : les cookies temporaires et les cookies permanents. Nous
+                utilisons,
+                d’une part, des cookies temporaires qui sont automatiquement supprimés de votre terminal mobile ou
+                ordinateur à l’issue de la session de navigation et, d’autre part, des cookies permanents. Ces derniers
+                demeurent sur votre ordinateur ou terminal mobile jusqu’à dix ans après la session de navigation. À
+                l’issue
+                de la durée programmée, ils sont automatiquement désactivés.
+                Vous pouvez voir à tout moment quels cookies sont exécutés dans l’historique de votre navigateur.
+            </p>
+
+            <h3>5.2. Dans quelle mesure l’activation des cookies est-elle sûre ?</h3>
+            <p>
+                L’activation de cookies lors de la visite de notre présence numérique se fait en toute sécurité. Nous
+                vous
+                recommandons toutefois de supprimer les cookies et l’historique du navigateur utilisé lorsque vous avez
+                recours à un ordinateur autre que le vôtre. De cette façon, l’utilisateur suivant ne pourra pas prendre
+                connaissance de vos habitudes de navigation.
+            </p>
+
+            <h3>5.3. Comment utilisons-nous les cookies ?</h3>
+            <p>
+                Nous utilisons des cookies afin d’effectuer une analyse du comportement général des utilisateurs, dans
+                le
+                but d’optimiser notre présence numérique. Celle-ci doit être plus simple d’utilisation et les contenus
+                doivent être conçus de manière à pouvoir être retrouvés de façon plus intuitive. Il faut pouvoir les
+                développer et les structurer de façon plus intelligible. Il nous tient à cœur de concevoir notre
+                présence
+                numérique d’une manière conviviale répondant à vos besoins. Cela nous permet d’optimiser le site web en
+                vous
+                proposant des informations ou des contenus ciblés susceptibles de vous intéresser.
+            </p>
+
+            <h3>6. Finalité du traitement de vos données</h3>
+            <p>
+                Nous traitons vos données personnelles collectées afin de :
+                <ul>
+                    <li> passer la commande d'expédition ;
+                    </li>
+                    <li> générer les étiquettes de colis ;
+                    </li>
+                    <li>générer des factures pro format ;</li>
+                </ul>
+
+                Nous traitons vos données personnelles collectées dans le contexte où vous fournissez des produits et /
+                ou
+                des services à des fins de :
+                <ul>
+                    <li> exécution en vertu du contrat que nous avons avec vous ;
+                    </li>
+                    <li> paiement ou émission de factures.
+                    </li>
+                </ul>
+                Nous traitons vos données personnelles collectées dans le cadre de nos activités de marketing direct aux
+                fins de de promouvoir nos produits et nos prestations de services.
+            </p>
+
+            <h3>7. Périodes de rétention</h3>
+            <p>
+                Nous ne conserverons vos informations personnelles que le temps nécessaire à la réalisation des
+                objectifs
+                visés par la société Akwaba Express, notamment pour satisfaire à toute exigence légale, comptable ou en
+                matière de reporting.
+                En termes généraux, cela signifie que nous conserverons vos informations personnelles pendant toute la
+                durée
+                de votre relation avec nous. Il existe également certains types d'informations, tels que les
+                enregistrements
+                fiscaux, qui doivent être conservés pendant une certaine période par la loi. Nous supprimerons vos
+                données
+                personnelles si nous n'en avons plus besoin.
+                Dans certaines circonstances, nous pouvons anonymiser vos informations personnelles afin qu'elles ne
+                puissent plus être associées à vous. Dans ce cas, nous pourrons utiliser ces informations sans autre
+                préavis.
+            </p>
+
+            <h3>8. Droits et demandes des utilisateurs</h3>
+            <p>
+                Conformément aux lois en vigueur dans la république de Côte d’Ivoire, vous disposez d'un droit d'accès,
+                de
+                rectification, d'effacement, de restriction de traitement, de transférabilité des données et
+                d'opposition.
+                Veuillez noter que la plupart de ces droits ne sont pas absolus et que, sous réserve des exemptions
+                prévues
+                par la loi, ils ne peuvent s'appliquer qu'à certains types d'informations ou de traitements. Nous
+                décrivons
+                ci-dessous vos droits plus en détail et expliquons comment vous pouvez exercer ces droits. Nous
+                répondrons à
+                votre demande dans un délai d'un mois, mais nous avons le droit de prolonger cette période de deux mois.
+                Si
+                nous prolongeons le délai de réponse, nous vous en informerons dans un délai d'un mois à compter de
+                votre
+                demande. Ces droits sont :
+                <ul>
+                    <li> Nous avons besoin de votre consentement pour certaines des manières dont nous utilisons vos
+                        informations,
+                        par exemple pour le marketing. Vous pouvez retirer ce consentement à tout moment.</li>
+                    <li> Vous pouvez nous demander de confirmer si nous traitons vos informations.
+                    </li>
+                    <li> Vous pouvez demander à accéder à vos informations. Veuillez noter que pour protéger votre vie
+                        privée et
+                        maintenir votre sécurité, Akwaba Express prendra des mesures pour vérifier votre identité avant
+                        de
+                        vous
+                        accorder
+                        l'accès aux informations.</li>
+                    <li>
+                        Vous pouvez demander à corriger vos informations si elles sont fausses. </li>
+                    <li>
+                        Vous pouvez nous demander de supprimer certaines de vos informations. Vous avez le droit d'être
+                        oublié
+                        et
+                        vous pouvez demander à nos systèmes de cesser d'utiliser vos informations.
+                    </li>
+                    <li> Vous pouvez nous demander de limiter la façon dont nous utilisons vos informations.
+                    </li>
+                    <li> Vous pouvez nous demander de cesser de traiter vos données personnelles à des fins de marketing
+                        direct.</li>
+                    <li>
+                        Vous avez le droit de porter plainte auprès de l'autorité de surveillance compétente.
+                    </li>
+                    <li>
+                        Vous pouvez nous demander de vous aider à transférer certaines de vos informations vers d'autres
+                        sociétés.
+                    </li>
+                    <li>
+                        Pour vous aider, vous avez le droit de demander à une autre société de fournir vos informations
+                        dans un
+                        format facilement lisible.
+                    </li>
+                </ul>
+
+
+
+
+
+
+            </p>
+            <h3>9. Comment protégeons-nous vos données personnelles ?</h3>
+            <p>
+                Akwaba Express attache une grande importance à la sécurité de vos données personnelles et adoptera
+                toutes
+                les mesures de sécurité administratives, techniques, organisationnelles et physiques nécessaires pour
+                protéger vos données personnelles contre toute destruction, perte, altération, modification, accès,
+                divulgation accidentelle, illicite ou non autorisée. Les mesures spécifiques comprennent, sans toutefois
+                s'y
+                limiter :
+                <ul>
+                    <li>
+                        mesures techniques conformes aux normes de l'industrie, telles que techniques de cryptage,
+                        contrôle
+                        d'accès
+                        et évaluation de la sécurité de l'information ;
+                    </li>
+
+                    <li>
+                        les réglementations de gestion de la sécurité des données, telles que la politique de conformité
+                        des
+                        données, les réglementations de gestion de la sécurité, les accords de non-divulgation, la
+                        formation du
+                        personnel sur les données personnelles et la protection des données et les contrats ou accords
+                        juridiquement
+                        contraignants ;
+                    </li>
+                    <li>
+                        système d’intervention d’urgence en matière de sécurité de l’information, c’est-à-dire que, en
+                        cas de
+                        problème de sécurité de l’information, nous prendrons immédiatement des mesures d’urgence
+                        conformément
+                        aux
+                        dispositions législatives et réglementaires.
+                    </li>
+                </ul>
+
+
+
+            </p>
+
+            <h3>10. Modification de la déclaration de confidentialité</h3>
+            <p>
+                De temps à autre, il peut être nécessaire de modifier la présente déclaration de confidentialité, par
+                exemple en raison de l’évolution de notre présence numérique ou en cas de modifications légales. Akwaba
+                Express se réserve donc le droit de modifier à tout moment la déclaration de confidentialité avec effet
+                à
+                une date ultérieure. Nous vous recommandons par conséquent de relire cette déclaration de
+                confidentialité à
+                intervalles réguliers.
+            </p>
+
+        </div>
+        <!--Footer-->
+        {{ template "footer" .}}
+    </div>
+
+
+</body>
+<script>
+    function showSideBar() {
+        $('.ui.sidebar').sidebar('toggle');
+    }
+    $(document).ready(function () {
+
+        $('.ui.dropdown').dropdown();
+    });
+</script>
+
+</html>
+{{ end }}

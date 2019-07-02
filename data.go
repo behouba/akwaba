@@ -1,12 +1,15 @@
 package akwaba
 
 import (
-	"database/sql"
+	"github.com/jmoiron/sqlx"
+
 	"log"
 )
 
-func GetAllCities(db *sql.DB) (cities []City, err error) {
-	rows, err := db.Query("SELECT id, name, office_id from city ORDER BY name")
+func Cities(db *sqlx.DB) (cities []City, err error) {
+	rows, err := db.Query(
+		`SELECT city_id, name, office_id from cities ORDER BY name`,
+	)
 	if err != nil {
 		return
 	}
@@ -22,34 +25,38 @@ func GetAllCities(db *sql.DB) (cities []City, err error) {
 	return
 }
 
-func GetWeightIntervals(db *sql.DB) (w []WeightInterval, err error) {
-	rows, err := db.Query("SELECT id, name from weight_interval order by id")
+func ShipmentCategorys(db *sqlx.DB) (cat []ShipmentCategory, err error) {
+	rows, err := db.Query(
+		`SELECT shipment_category_id, name, min_cost, max_cost from shipment_categories order by shipment_category_id`,
+	)
 	if err != nil {
 		return
 	}
 	for rows.Next() {
-		var i WeightInterval
-		err = rows.Scan(&i.ID, &i.Name)
+		var c ShipmentCategory
+		err = rows.Scan(&c.ID, &c.Name, &c.MinCost, &c.MaxCost)
 		if err != nil {
 			log.Println(err)
 		}
-		w = append(w, i)
+		cat = append(cat, c)
 	}
 	return
 }
 
-func GetPaymentType(db *sql.DB) (pt []PaymentType, err error) {
-	rows, err := db.Query("SELECT id, name from payment_type order by id")
+func PaymentType(db *sqlx.DB) (po []PaymentOption, err error) {
+	rows, err := db.Query(
+		`SELECT payment_option_id, name from payment_options order by payment_option_id`,
+	)
 	if err != nil {
 		return
 	}
 	for rows.Next() {
-		var p PaymentType
+		var p PaymentOption
 		err = rows.Scan(&p.ID, &p.Name)
 		if err != nil {
 			log.Println(err)
 		}
-		pt = append(pt, p)
+		po = append(po, p)
 	}
 	return
 }

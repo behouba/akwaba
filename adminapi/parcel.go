@@ -153,3 +153,26 @@ func (h *Handler) collected(c *gin.Context) {
 		"message": "Ramassage enregistré avec succès.",
 	})
 }
+
+func (h *Handler) failedDelivery(c *gin.Context) {
+	emp := getEmployee(c, h.auth)
+
+	parcelID, err := strconv.ParseUint(c.Query("parcel_id"), 10, 64)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	err = h.db.SetDeliveryFailed(parcelID, &emp)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Echec de livraison enregistré.",
+	})
+}

@@ -13,10 +13,10 @@ import (
 
 // AdminDB hold database connection for admin users
 type AdminDB struct {
-	db              *sql.DB
-	Cities          []akwaba.City
-	WeightIntervals []akwaba.WeightInterval
-	PaymentTypes    []akwaba.PaymentType
+	db                *sql.DB
+	Cities            []akwaba.City
+	ShipmentCategorys []akwaba.ShipmentCategory
+	PaymentOptions    []akwaba.PaymentType
 }
 
 // Open function open DB database
@@ -36,11 +36,12 @@ func (a *AdminDB) Open(uri string) (err error) {
 	if err != nil {
 		return
 	}
-	a.WeightIntervals, err = akwaba.GetWeightIntervals(db)
+
+	a.ShipmentCategorys, err = akwaba.GetShipmentCategorys(db)
 	if err != nil {
 		return
 	}
-	a.PaymentTypes, err = akwaba.GetPaymentType(db)
+	a.PaymentOptions, err = akwaba.GetPaymentType(db)
 	if err != nil {
 		return
 	}
@@ -84,7 +85,7 @@ func (a *AdminDB) PendingOrders(officeID uint8) (orders []akwaba.Order, err erro
 		err = rows.Scan(&o.OrderID, &o.PaymentType.Name, &o.Cost, &o.Sender.FullName,
 			&o.Sender.Phone, &o.Sender.City.Name, &o.Sender.Address,
 			&o.Receiver.FullName, &o.Receiver.Phone, &o.Receiver.City.Name,
-			&o.Receiver.Address, &o.Note, &o.Nature, &o.WeightInterval.Name, &o.CreatedAt.RealTime,
+			&o.Receiver.Address, &o.Note, &o.Nature, &o.ShipmentCategory.Name, &o.CreatedAt.RealTime,
 			&o.State.ID, &o.State.Name,
 		)
 		if err != nil {
@@ -108,7 +109,7 @@ func (a *AdminDB) CreateOrder(order *akwaba.Order) (err error) {
 		order.PaymentType.ID, order.ComputeCost(), order.Sender.FullName,
 		order.Sender.Phone, order.Sender.City.ID, order.Sender.Address,
 		order.Receiver.FullName, order.Receiver.Phone, order.Receiver.City.ID,
-		order.Receiver.Address, order.Note, order.Nature, order.WeightInterval.ID,
+		order.Receiver.Address, order.Note, order.Nature, order.ShipmentCategory.ID,
 		akwaba.OrderWaitingPickUp.ID,
 	).Scan(&order.OrderID)
 	if err != nil {
@@ -128,6 +129,7 @@ func (a *AdminDB) CreateOrder(order *akwaba.Order) (err error) {
 	return
 }
 
+// CancelOrder cancel order
 func (a *AdminDB) CancelOrder(id uint64, emp *akwaba.Employee) (err error) {
 	err = a.changeOrderState(id, &akwaba.OrderCanceled)
 	if err != nil {
@@ -142,6 +144,7 @@ func (a *AdminDB) CancelOrder(id uint64, emp *akwaba.Employee) (err error) {
 	return
 }
 
+// ConfirmOrder confirm customer order
 func (a *AdminDB) ConfirmOrder(orderID uint64, emp *akwaba.Employee) (err error) {
 	err = a.changeOrderState(orderID, &akwaba.OrderWaitingPickUp)
 	if err != nil {

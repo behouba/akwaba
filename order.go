@@ -1,6 +1,8 @@
 package akwaba
 
 import (
+	"database/sql"
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -16,17 +18,18 @@ var (
 
 // Order struct represent order that will be created by users
 type Order struct {
-	OrderID        uint64         `json:"orderId,omitempty"`
-	PaymentType    PaymentType    `json:"paymentType"`
-	CustomerID     uint           `json:"customerId"`
-	CreatedAt      EventTime      `json:"createdAt"`
-	State          OrderState     `json:"state"`
-	Cost           float64        `json:"cost"`
-	Sender         Address        `json:"sender"`
-	Receiver       Address        `json:"receiver"`
-	WeightInterval WeightInterval `json:"weightInterval"`
-	Nature         string         `json:"nature"`
-	Note           string         `json:"note"`
+	OrderID          uint64           `json:"orderId"`
+	CustomerID       sql.NullInt64    `json:"customerId"`
+	Sender           json.RawMessage  `json:"sender"`
+	Receiver         json.RawMessage  `json:"receiver"`
+	PaymentOption    PaymentOption    `json:"paymentOption"`
+	ShipmentCategory ShipmentCategory `json:"shipmentCategory"`
+	SenderCity       City             `json:"origin"`
+	ReceiverCity     City             `json:"destination"`
+	State            OrderState       `json:"state"`
+	Cost             uint16           `json:"cost"`
+	CreatedAt        EventTime        `json:"createdAt"`
+	Nature           string           `json:"nature"`
 }
 
 // OrderState data type represent order state id and corresponding label
@@ -35,8 +38,8 @@ type OrderState struct {
 	Name string `json:"name"`
 }
 
-// PaymentType
-type PaymentType struct {
+// PaymentOption
+type PaymentOption struct {
 	ID   uint8  `json:"id"`
 	Name string `json:"name"`
 }
@@ -48,25 +51,18 @@ type City struct {
 	OfficeID uint8  `json:"officeId"`
 }
 
-type WeightInterval struct {
-	ID   uint8  `json:"id"`
-	Name string `json:"name"`
+// ShipmentCategory represent shipment category
+type ShipmentCategory struct {
+	ID      uint8  `json:"id"`
+	Name    string `json:"name"`
+	MinCost uint   `json:"minCost"`
+	MaxCost uint   `json:"maxCost"`
 }
 
 // ComputeCost return totalCost of the order
-func (o *Order) ComputeCost() (cost float64) {
+func (o *Order) ComputeCost() (cost uint16) {
 	o.Cost = 3500
 	return o.Cost
-}
-
-// Address represent delivery address provided by customers
-type Address struct {
-	ID uint64 `json:"id,omitempty"`
-	// CustomerID  int      `json:"customerId"`
-	City     City   `json:"city" binding:"required"`
-	FullName string `json:"fullName" binding:"required"`
-	Phone    string `json:"phone" binding:"required"`
-	Address  string `json:"address" binding:"required"`
 }
 
 // Track represent an event in order journey
@@ -80,31 +76,31 @@ type Track struct {
 // ValidateData function help validate data into new order before creation
 func (o *Order) ValidateData() (err error) {
 	// make checks and verification here
-	if len(o.Sender.FullName) < 1 {
-		return errors.New("Veuillez saisir le nom de l'expediteur")
-	}
-	if len(o.Sender.Phone) != 16 {
-		return errors.New("Veuillez saisir un numéro de mobile valide")
-	}
-	if o.Sender.City.ID == 0 {
-		return errors.New("Veuillez selectionner une commune")
-	}
-	if len(o.Sender.Address) < 1 {
-		return errors.New("Veuillez saisir l'adresse pour l'expediteur")
-	}
-	if len(o.Receiver.FullName) < 1 {
-		return errors.New("Veuillez saisir le nom du destinataire")
-	}
-	if len(o.Receiver.Phone) != 16 {
-		return errors.New("Veuillez saisir un numéro de mobile valide")
-	}
-	if o.Receiver.City.ID == 0 {
-		return errors.New("Veuillez selectionner une commune")
-	}
-	if len(o.Receiver.Address) < 1 {
-		return errors.New("Veuillez saisir l'adresse pour le destinataire")
-	}
-	if o.WeightInterval.ID == 0 {
+	// if len(o.Sender.Name) < 1 {
+	// 	return errors.New("Veuillez saisir le nom de l'expediteur")
+	// }
+	// if len(o.Sender.Phone) != 16 {
+	// 	return errors.New("Veuillez saisir un numéro de mobile valide")
+	// }
+	// if o.Sender.City.ID == 0 {
+	// 	return errors.New("Veuillez selectionner une commune")
+	// }
+	// if len(o.Sender.Address.Place.Formal) < 1 {
+	// 	return errors.New("Veuillez saisir l'adresse pour l'expediteur")
+	// }
+	// if len(o.Receiver.Name) < 1 {
+	// 	return errors.New("Veuillez saisir le nom du destinataire")
+	// }
+	// if len(o.Receiver.Phone) != 16 {
+	// 	return errors.New("Veuillez saisir un numéro de mobile valide")
+	// }
+	// if o.Receiver.City.ID == 0 {
+	// 	return errors.New("Veuillez selectionner une commune")
+	// }
+	// if len(o.Receiver.Address.Place.Formal) < 1 {
+	// 	return errors.New("Veuillez saisir l'adresse pour le destinataire")
+	// }
+	if o.ShipmentCategory.ID == 0 {
 		return errors.New("Veuillez selectionner un interval de poids")
 	}
 	return

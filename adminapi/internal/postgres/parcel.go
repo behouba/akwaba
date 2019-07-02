@@ -66,7 +66,7 @@ func (a *AdminDB) ParcelsToPickUp(officeID uint8) (parcels []akwaba.Parcel, err 
 		err = rows.Scan(&p.OrderID, &p.PaymentType.Name, &p.Cost, &p.Sender.FullName,
 			&p.Sender.Phone, &p.Sender.City.Name, &p.Sender.Address,
 			&p.Receiver.FullName, &p.Receiver.Phone, &p.Receiver.City.Name,
-			&p.Receiver.Address, &p.Note, &p.Nature, &p.WeightInterval.Name, &p.CreatedAt.RealTime,
+			&p.Receiver.Address, &p.Note, &p.Nature, &p.ShipmentCategory.Name, &p.CreatedAt.RealTime,
 			&p.State.ID, &p.State.Name, &p.ParcelID, &p.TrackID,
 		)
 		if err != nil {
@@ -114,7 +114,7 @@ func (a *AdminDB) OfficeParcels(emp *akwaba.Employee) (parcels []akwaba.Parcel, 
 		err = rows.Scan(&p.OrderID, &p.PaymentType.Name, &p.Cost, &p.Sender.FullName,
 			&p.Sender.Phone, &p.Sender.City.Name, &p.Sender.Address,
 			&p.Receiver.FullName, &p.Receiver.Phone, &p.Receiver.City.Name,
-			&p.Receiver.Address, &p.Note, &p.Nature, &p.WeightInterval.Name, &p.CreatedAt.RealTime,
+			&p.Receiver.Address, &p.Note, &p.Nature, &p.ShipmentCategory.Name, &p.CreatedAt.RealTime,
 			&p.State.ID, &p.State.Name, &p.ParcelID, &p.TrackID, &p.Weight,
 		)
 		if err != nil {
@@ -250,7 +250,7 @@ func (a *AdminDB) ParcelsToDeliver(emp *akwaba.Employee) (parcels []akwaba.Parce
 		err = rows.Scan(&p.OrderID, &p.PaymentType.Name, &p.Cost, &p.Sender.FullName,
 			&p.Sender.Phone, &p.Sender.City.Name, &p.Sender.Address,
 			&p.Receiver.FullName, &p.Receiver.Phone, &p.Receiver.City.Name,
-			&p.Receiver.Address, &p.Note, &p.Nature, &p.WeightInterval.Name, &p.CreatedAt.RealTime,
+			&p.Receiver.Address, &p.Note, &p.Nature, &p.ShipmentCategory.Name, &p.CreatedAt.RealTime,
 			&p.State.ID, &p.State.Name, &p.ParcelID, &p.TrackID, &p.Weight,
 		)
 		if err != nil {
@@ -294,6 +294,41 @@ func (a *AdminDB) SetDeliveredParcel(parcelID uint64, emp *akwaba.Employee) (err
 		return
 	}
 	go a.recordTrackingEvent(parcelID, akwaba.EventDelivered, emp.Office.ID)
+	// go a.recordActivity(fmt.Sprintf("Colis %d livré", parcelID))
+	return
+}
+
+func (a *AdminDB) SetDeliveryFailed(parcelID uint64, emp *akwaba.Employee) (err error) {
+	var stateID, receiverCityOfficeID sql.NullInt64
+	err = a.db.QueryRow(
+		`SELECT p.state_id, rc.office_id
+		 FROM parcel AS p 
+		 LEFT JOIN delivery_order AS d
+		 ON p.order_id = d.id
+		 LEFT JOIN city AS rc
+		 ON d.receiver_city_id = rc.id
+		 WHERE p.id=$1`,
+		parcelID,
+	).Scan(&stateID, &receiverCityOfficeID)
+	if err != nil {
+		return
+	}
+
+	if stateID.Int64 == int64(akwaba.ParcelDelivered.ID) {
+		return errors.New("Ce colis à déja été livré")
+	}
+	if receiverCityOfficeID.Int64 != int64(emp.Office.ID) {
+		return errors.New("Votre n'êtes pas autorisé d'éffectuer cette opération")
+	}
+	_, err = a.db.Exec(
+		`UPDATE parcel SET state_id=$1 WHERE id=$2 AND state_id!=$3 AND office_id=$4`,
+		akwaba.ParcelFailedDelivery.ID, parcelID, akwaba.ParcelDelivered.ID, emp.Office.ID,
+	)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	go a.recordTrackingEvent(parcelID, akwaba.EventFailedDelivery, emp.Office.ID)
 	// go a.recordActivity(fmt.Sprintf("Colis %d livré", parcelID))
 	return
 }

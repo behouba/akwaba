@@ -8,8 +8,8 @@ import (
 
 func (h *Handler) systemData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"cities":          h.db.Cities,
-		"weightIntervals": h.db.WeightIntervals,
-		"paymentTypes":    h.db.PaymentTypes,
+		"cities":             h.db.Cities,
+		"shipmentCategories": h.db.ShipmentCategorys,
+		"PaymentOptions":     h.db.PaymentOptions,
 	})
 }
