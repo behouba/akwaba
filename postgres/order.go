@@ -4,10 +4,23 @@ import (
 	"log"
 
 	"github.com/behouba/akwaba"
+	"github.com/jmoiron/sqlx"
 )
 
+type OrderStore struct {
+	db *sqlx.DB
+}
+
+func NewOrderStore(db *sqlx.DB) *OrderStore {
+	return &OrderStore{db: db}
+}
+
+func (o *OrderStore) CustomerOrders(id uint) (orders []akwaba.Order, err error) {
+	return
+}
+
 // SaveOrder save order
-func (d *DB) SaveOrder(order *akwaba.Order) (err error) {
+func (d *OrderStore) SaveOrder(order *akwaba.Order) (err error) {
 	// if order.CustomerID.Int64 == 0 {
 	// 	err = d.db.QueryRow(
 	// 		`INSERT INTO delivery_order
@@ -28,7 +41,7 @@ func (d *DB) SaveOrder(order *akwaba.Order) (err error) {
 	return
 }
 
-func (d *DB) GetOrderByID(id uint64) (order akwaba.Order, err error) {
+func (d *OrderStore) GetOrderByID(id uint64) (order akwaba.Order, err error) {
 	// err = d.db.QueryRow(
 	// 	`SELECT d.id, d.sender_data, d.receiver_data, w.name, d.nature, p.name, d.cost,
 	// 	d.created_at
@@ -47,7 +60,7 @@ func (d *DB) GetOrderByID(id uint64) (order akwaba.Order, err error) {
 }
 
 // CompleteOrder function complete order information
-// func (d *DB) CompleteOrder(order *akwaba.Order) (err error) {
+// func (d *OrderStore) CompleteOrder(order *akwaba.Order) (err error) {
 // 	order.Sender.City.Name, err = d.cityNameByID(order.Sender.City.ID)
 // 	if err != nil {
 // 		return
@@ -68,21 +81,21 @@ func (d *DB) GetOrderByID(id uint64) (order akwaba.Order, err error) {
 // 	return
 // }
 
-func (d *DB) cityNameByID(id uint8) (name string, err error) {
+func (d *OrderStore) cityNameByID(id uint8) (name string, err error) {
 	err = d.db.QueryRow("SELECT name FROM city WHERE id=$1",
 		id,
 	).Scan(&name)
 	return
 }
 
-func (d *DB) intervalNameByID(id uint8) (name string, err error) {
+func (d *OrderStore) intervalNameByID(id uint8) (name string, err error) {
 	err = d.db.QueryRow("SELECT name FROM weight_interval WHERE id=$1",
 		id,
 	).Scan(&name)
 	return
 }
 
-func (d *DB) paymentTypeNameByID(id uint8) (name string, err error) {
+func (d *OrderStore) paymentTypeNameByID(id uint8) (name string, err error) {
 	err = d.db.QueryRow("SELECT name FROM payment_type WHERE id=$1",
 		id,
 	).Scan(&name)
@@ -90,7 +103,7 @@ func (d *DB) paymentTypeNameByID(id uint8) (name string, err error) {
 }
 
 // CancelOrder update order state to "canceled"
-func (d *DB) CancelOrder(orderID uint64, userID uint) (id int, err error) {
+func (d *OrderStore) CancelOrder(orderID uint64, userID uint) (id int, err error) {
 	// Will check ownership of user before performing modification
 	// on order state in database
 	err = d.db.QueryRow(
@@ -104,7 +117,7 @@ func (d *DB) CancelOrder(orderID uint64, userID uint) (id int, err error) {
 }
 
 // Track method take an order id and return current trace data of order with error
-func (d *DB) Track(userID, orderID int) (oTrace akwaba.Order, err error) {
+func (d *OrderStore) Track(userID, orderID int) (oTrace akwaba.Order, err error) {
 	// if userID != 0 {
 	// 	log.Printf("Retriving order tracking by user %d for order %d info from database...\n", userID, orderID)
 	// 	return
@@ -113,7 +126,7 @@ func (d *DB) Track(userID, orderID int) (oTrace akwaba.Order, err error) {
 	return
 }
 
-func (d *DB) ActiveOrders(userID uint) (orders []akwaba.Order, err error) {
+func (d *OrderStore) ActiveOrders(userID uint) (orders []akwaba.Order, err error) {
 	// rows, err := d.db.Query(
 	// 	`SELECT d.id, d.sender_data, d.receiver_data, w.name, d.nature, p.name, d.cost,
 	// 	d.created_at, st.name, st.id
@@ -151,7 +164,7 @@ func (d *DB) ActiveOrders(userID uint) (orders []akwaba.Order, err error) {
 	return
 }
 
-func (d *DB) ArchivedOrders(userID uint) (orders []akwaba.Order, err error) {
+func (d *OrderStore) ArchivedOrders(userID uint) (orders []akwaba.Order, err error) {
 	// rows, err := d.db.Query(
 	// 	`SELECT
 	// 		delivery_order.id, payment_type.name as payment_type, cost,

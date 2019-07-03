@@ -10,16 +10,13 @@ import (
 )
 
 // DB hold database connection for users
-type DB struct {
-	db                 *sqlx.DB
-	Auth               Authenticator
-	CustomerStore      CustomerStorage
-	Cities             []akwaba.City
-	ShipmentCategories []akwaba.ShipmentCategory
-	PaymentOptions     []akwaba.PaymentOption
-}
-
 const dbURIPattern = "host=%s port=%d user=%s password=%s dbname=%s sslmode=disable connect_timeout=100"
+
+var (
+	cities             []akwaba.City
+	paymentOptions     []akwaba.PaymentOption
+	shipmentCategories []akwaba.ShipmentCategory
+)
 
 type Config struct {
 	Host     string `yaml:"host"`
@@ -35,7 +32,7 @@ func Open(c *Config) (db *sqlx.DB, err error) {
 	// will open database connection here
 	// each server should have it own database user with corresponding rights on database
 	uri := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		dbURIPattern,
 		c.Host, c.Port, c.User, c.Password, c.DBName,
 	)
 	db, err = sqlx.Connect("postgres", uri)
@@ -47,17 +44,29 @@ func Open(c *Config) (db *sqlx.DB, err error) {
 	db.SetMaxOpenConns(5)
 	db.SetConnMaxLifetime(time.Minute * 1)
 
-	// d.Cities, err = akwaba.Cities(db)
-	// if err != nil {
-	// 	return
-	// }
-	// d.ShipmentCategories, err = akwaba.ShipmentCategorys(db)
-	// if err != nil {
-	// 	return
-	// }
-	// d.PaymentOptions, err = akwaba.PaymentType(db)
-	// if err != nil {
-	// 	return
-	// }
+	cities, err = akwaba.Cities(db)
+	if err != nil {
+		return
+	}
+	shipmentCategories, err = akwaba.ShipmentCategorys(db)
+	if err != nil {
+		return
+	}
+	paymentOptions, err = akwaba.PaymentType(db)
+	if err != nil {
+		return
+	}
 	return
+}
+
+func Cities() []akwaba.City {
+	return cities
+}
+
+func PaymentOptions() []akwaba.PaymentOption {
+	return paymentOptions
+}
+
+func ShipmentCategories() []akwaba.ShipmentCategory {
+	return shipmentCategories
 }

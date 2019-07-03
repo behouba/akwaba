@@ -7,6 +7,7 @@ import (
 
 // Config hold configuration data for the website
 type Config struct {
-	DB   *postgres.Config `yaml:"database"`
-	Mail *mail.Config     `yaml:"mail"`
+	DB        *postgres.Config `yaml:"database"`
+	Mail      *mail.Config     `yaml:"mail"`
+	MapAPIKey string           `yaml:"mapApiKey"`
 }

@@ -4,23 +4,33 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
+// should be removed when the api is ready
 func (h *Handler) computePrice(c *gin.Context) {
 
-	originID, _ := strconv.Atoi(c.Query("originId"))
+	origin, destination := c.Query("origin"), c.Query("destination")
+	shipmentCategoryID, _ := strconv.Atoi(c.Query("shipmentCategoryId"))
 
-	destinationID, _ := strconv.Atoi(c.Query("destinationId"))
-
-	ShipmentCategoryID, _ := strconv.Atoi(c.Query("ShipmentCategoryId"))
-
-	time.Sleep(time.Second * 3)
-	log.Println(originID, destinationID, ShipmentCategoryID)
-
+	dist, err := h.distanceAPI.CalculateDistance(origin, destination)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Echec de la requête.",
+		})
+	}
+	price, err := h.calculator.Cost(dist, uint(shipmentCategoryID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Echec de la requête.",
+		})
+	}
+	log.Println(origin, destination, shipmentCategoryID)
 	c.JSON(http.StatusOK, gin.H{
-		"price": 4500.0,
+		"origin":      origin,
+		"destination": destination,
+		"distance":    dist,
+		"price":       price,
 	})
 }

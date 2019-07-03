@@ -32,6 +32,14 @@ type Order struct {
 	Nature           string           `json:"nature"`
 }
 
+type OrderService interface {
+	CustomerOrders(userID uint) (orders []Order, err error)
+}
+
+type PricingService interface {
+	ComputePrice(start, end string) (price uint, err error)
+}
+
 // OrderState data type represent order state id and corresponding label
 type OrderState struct {
 	ID   uint8  `json:"id"`

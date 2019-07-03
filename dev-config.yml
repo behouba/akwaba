@@ -10,3 +10,5 @@ mail:
   email: "notifications@akwabaexpress.ci"
   password: "akwabaexpress"
   port: 587
+
+mapApiKey: "AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI"

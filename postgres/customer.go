@@ -10,13 +10,17 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type CustomerStorage struct {
-	DB *sqlx.DB
+type CustomerStore struct {
+	db *sqlx.DB
 }
 
-func (s CustomerStorage) UpdateUser(data *akwaba.Customer, userID uint) (newUser akwaba.Customer, err error) {
+func NewCustomerStore(db *sqlx.DB) *CustomerStore {
+	return &CustomerStore{db: db}
+}
+
+func (s *CustomerStore) UpdateUser(data *akwaba.Customer, userID uint) (newUser akwaba.Customer, err error) {
 	var hashedPassword string
-	err = s.DB.QueryRow(
+	err = s.db.QueryRow(
 		`SELECT password FROM customer WHERE id=$1`,
 		userID,
 	).Scan(&hashedPassword)
@@ -28,7 +32,7 @@ func (s CustomerStorage) UpdateUser(data *akwaba.Customer, userID uint) (newUser
 		return
 	}
 
-	err = s.DB.QueryRow(
+	err = s.db.QueryRow(
 		`UPDATE customer 
 		SET full_name=$1, phone=$2, email=$3, address=$4
 		WHERE id=$5
@@ -43,8 +47,8 @@ func (s CustomerStorage) UpdateUser(data *akwaba.Customer, userID uint) (newUser
 	return
 }
 
-func (s CustomerStorage) CustomerByEmail(email string) (cust akwaba.Customer, err error) {
-	err = s.DB.QueryRow(
+func (s *CustomerStore) CustomerByEmail(email string) (cust akwaba.Customer, err error) {
+	err = s.db.QueryRow(
 		`SELECT customer_id, full_name, email, phone FROM customers WHERE email=$1`,
 		email,
 	).Scan(&cust.ID, &cust.FullName, &cust.Email, &cust.Phone)
@@ -56,12 +60,12 @@ func (s CustomerStorage) CustomerByEmail(email string) (cust akwaba.Customer, er
 
 // Save method save new customer info into database
 // and return customer struct from database with error
-func (s CustomerStorage) Save(c *akwaba.Customer) (cust akwaba.Customer, err error) {
+func (s *CustomerStore) Save(c *akwaba.Customer) (cust akwaba.Customer, err error) {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(c.Password), bcrypt.MinCost)
 	if err != nil {
 		return
 	}
-	err = s.DB.QueryRow(
+	err = s.db.QueryRow(
 		`INSERT INTO customers (full_name, phone, email, password) VALUES ($1, $2, $3, $4) RETURNING customer_id`,
 		c.FullName, c.Phone, c.Email, string(passwordHash),
 	).Scan(&c.ID)
@@ -77,5 +81,9 @@ func (s CustomerStorage) Save(c *akwaba.Customer) (cust akwaba.Customer, err err
 		err = errors.New("Erreur interne du serveur")
 	}
 	cust = *c
+	return
+}
+
+func (s *CustomerStore) UpdateInfo(newData *akwaba.Customer) (err error) {
 	return
 }

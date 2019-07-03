@@ -41,3 +41,11 @@ type ShipmentCategory struct {
 func (s *Shipment) ComputeCost() (cost uint) {
 	return 3500
 }
+
+// type DistanceCalculator interface {
+// 	DistanceOf(from, to string) (distance float64, err error)
+// }
+
+type CostCalculator interface {
+	Cost(distance float64, categoryID uint) (cost uint, err error)
+}

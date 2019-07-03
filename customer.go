@@ -40,4 +40,5 @@ type CustomerAuthentifier interface {
 type CustomerStorage interface {
 	CustomerByEmail(email string) (cust Customer, err error)
 	Save(c *Customer) (Customer, error)
+	UpdateInfo(newData *Customer) error
 }

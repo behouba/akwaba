@@ -29,7 +29,7 @@ func (h *Handler) handleLogin(c *gin.Context) {
 		return
 	}
 
-	saveSessionUser(cust, c)
+	saveSessionUser(&cust, c)
 	c.JSON(http.StatusOK, gin.H{
 		"user":    cust,
 		"message": "connection effectuée avec succès",
@@ -59,7 +59,7 @@ func (h *Handler) handleRegistration(c *gin.Context) {
 		return
 	}
 	go h.mailer.WelcomeEmail(&cust)
-	saveSessionUser(cust, c)
+	saveSessionUser(&cust, c)
 	c.JSON(http.StatusOK, gin.H{
 		"user": cust,
 	})

@@ -15,9 +15,9 @@ func sessionUser(c *gin.Context) (cust akwaba.Customer) {
 	return
 }
 
-func saveSessionUser(cust akwaba.Customer, c *gin.Context) {
+func saveSessionUser(cust *akwaba.Customer, c *gin.Context) {
 	s := sessions.Default(c)
-	s.Set("sessionUser", cust)
+	s.Set("sessionUser", *cust)
 	s.Save()
 }
 

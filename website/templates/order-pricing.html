@@ -9,6 +9,8 @@
     {{ template "common-head" .}}
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI&libraries=places"></script>
     <title>Commande de livraison Akwaba Express</title>
 </head>
 <style>
@@ -26,6 +28,7 @@
     }
 
     .order-summary {
+        margin-top: 80px;
         padding: 15px;
     }
 
@@ -105,7 +108,7 @@
                 </div>
             </div>
         </header>
-        <div class="ui container" id="order-first-step">
+        <div class="ui container" id="order-pricing">
             <div class="stackable" style="max-width: 640px; margin: 60px auto">
                 <div>
                     <div class="center">
@@ -121,41 +124,44 @@
                     <div class="field">
                         <label>Depart</label>
                         <div class="ui left icon input">
-                            <input id="origin" style="border-radius: 0px;" type="text">
+                            <input ref="origin" style="border-radius: 0px;" type="text">
                             <i class="map marker alternate icon"></i>
                         </div>
                     </div>
                     <div class="field">
                         <label>Destination</label>
                         <div class="ui left icon input">
-                            <input id="destination" style="border-radius: 0px;" type="text">
+                            <input ref="destination" style="border-radius: 0px;" type="text">
                             <i class="map marker alternate icon"></i>
                         </div>
                     </div>
                     <div class="field">
                         <label>Selectionnez l'interval de poids du colis</label>
-                        <select class="ui dropdown" name="ShipmentCategory" id="ShipmentCategoryId">
+                        <select class="ui dropdown" name="shipmentCategory" v-on:change="calculateCost"
+                            v-model="shipmentCategoryId">
+                            <option value=""></option>
                             {{range .shipmentCategories}}
                             <option value="{{.ID}}">{{ .Name }}</option>
                             {{end}}
                         </select>
                     </div>
                 </form>
-                <div id="vue-app" style="min-height: 100px;">
-                    <div class="order-summary-card" id="order-summary" v-show="hasSummary" v-cloak>
+                <div style="min-height: 200px;" id="order-summary">
+                    <div class="order-summary-card" v-if="hasSummary" v-cloak>
                         <div>
                             <div class="order-summary">
                                 <div class="order-summary-item">
                                     <div class="order-summary-item-title">Trajet</div>
                                     <div class="order-summary-item-text" id="path-text">
-                                        {origin} - {destination} <br /> {formattedDistance}
+                                        {pricing.origin} - {pricing.destination} <br /> {pricing.distance.toFixed(2)}
+                                        km
                                     </div>
                                 </div>
 
                                 <div class="order-summary-item">
                                     <div class="order-summary-item-title">Coût de la livraison</div>
                                     <div class="order-summary-item-text">
-                                        {price} FCFA
+                                        {pricing.price} FCFA
                                     </div>
                                 </div>
                                 <div class="order-summary-item">
@@ -166,25 +172,30 @@
                                 </div>
                                 <div style="text-align: right">
                                     <a class="ui primary button"
-                                        :href="`/order/form?originAddress=${origin}&destinationAddress=${destination}&ShipmentCategoryId=${ShipmentCategoryId}`">CONTINUER<i
+                                        :href="`/order/form?origin=${origin}&destination=${destination}&shipmentCategoryId=${shipmentCategoryId}`">CONTINUER<i
                                             class="right arrow icon"></i></a>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="ui bottom fixed menu" style="height: 65px;">
-                        <div v-if="hasSummary && !loading" v-cloak id="price">
-                            <a style="color: #B02025"
-                                :href="`/order/form?originAddress=${origin}&destinationAddress=${destination}&ShipmentCategoryId=${ShipmentCategoryId}`">
-                                Coût de la livraison <strong>{price} FCFA</strong></a>
+                    <div v-else-if="loading" style="margin-top: 100px;" v-cloak>
+                        <div class="center">
+                            <img src="../assets/img/dots_loader.gif">
                         </div>
-                        <div v-else style="width: 100%;text-align: center; margin-top: 25px;" v-cloak>
-                            <div v-if="loading">
-                                <img src="../assets/img/dots_loader.gif">
-                            </div>
-                            <div v-else>
-                                Selectionnez vos adresses dans la liste d'adresses suggérée
-                            </div>
+                    </div>
+                </div>
+                <div class="ui bottom fixed menu" style="height: 65px;">
+                    <div v-if="hasSummary && !loading" v-cloak id="price">
+                        <a style="color: #B02025"
+                            :href="`/order/form?origin=${origin}&destination=${destination}&shipmentCategoryId=${shipmentCategoryId}`">
+                            Coût de la livraison <strong>{pricing.price} FCFA</strong></a>
+                    </div>
+                    <div v-else style="width: 100%;text-align: center; margin-top: 25px;" v-cloak>
+                        <div v-if="loading">
+                            <img src="../assets/img/dots_loader.gif">
+                        </div>
+                        <div v-else>
+                            Selectionnez vos adresses dans la liste d'adresses suggérée
                         </div>
                     </div>
                 </div>
@@ -198,7 +209,7 @@
 
 </html>
 <script src="../assets/js/order_pricing.js"></script>
-<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI&libraries=places&callback=initMap"></script>
+<!-- <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI&libraries=places&callback=initMap"></script> -->
 
 {{end}}

@@ -1,29 +1,38 @@
 package website
 
-// func (h *Handler) orderForm(c *gin.Context) {
-// 	originAddress := c.Query("originAddress")
-// 	destinationAddress := c.Query("destinationAddress")
-// 	ShipmentCategoryID, _ := strconv.Atoi(c.Query("ShipmentCategoryId"))
+import (
+	"net/http"
+	"strconv"
 
-// 	var ShipmentCategory akwaba.ShipmentCategory
+	"github.com/behouba/akwaba"
+	"github.com/gin-gonic/gin"
+)
 
-// 	if originAddress == "" || destinationAddress == "" || ShipmentCategoryID > 3 || ShipmentCategoryID < 1 {
-// 		c.Redirect(http.StatusSeeOther, "/order/pricing")
-// 	}
+func (h *Handler) orderForm(c *gin.Context) {
+	origin, destination := c.Query("origin"), c.Query("destination")
 
-// 	for _, wi := range h.DB.ShipmentCategories {
-// 		if wi.ID == uint8(ShipmentCategoryID) {
-// 			ShipmentCategory = wi
-// 		}
-// 	}
-// 	c.HTML(http.StatusOK, "order-form", gin.H{
-// 		"user":               getSessionUser(c),
-// 		"originAddress":      originAddress,
-// 		"destinationAddress": destinationAddress,
-// 		"ShipmentCategory":   ShipmentCategory,
-// 		// "PaymentOptions":     h.DB.PaymentOptions,
-// 	})
-// }
+	shipmentCategoryID, _ := strconv.Atoi(c.Query("shipmentCategoryId"))
+
+	var shipmentCategory akwaba.ShipmentCategory
+
+	if origin == "" || destination == "" || shipmentCategoryID > 3 || shipmentCategoryID < 1 {
+		c.Redirect(http.StatusSeeOther, "/order/pricing")
+	}
+
+	for _, wi := range h.shipmentCategories {
+		if wi.ID == uint8(shipmentCategoryID) {
+			shipmentCategory = wi
+		}
+	}
+
+	c.HTML(http.StatusOK, "order-form", gin.H{
+		"user":             sessionUser(c),
+		"origin":           origin,
+		"destination":      destination,
+		"shipmentCategory": shipmentCategory,
+		"paymentOptions":   h.paymentOptions,
+	})
+}
 
 // func (h *Handler) handleOrderCreation(c *gin.Context) {
 // 	var order akwaba.Order
@@ -46,63 +55,54 @@ package website
 // 		})
 // 		return
 // 	}
-// if user.ID != 0 {
-// 	order.OrderID, err = h.DB.SaveCustomerOrder(&order, user.ID)
+// 	if user.ID != 0 {
+// 		order.OrderID, err = h.DB.SaveCustomerOrder(&order, user.ID)
+// 		if err != nil {
+// 			log.Println(err)
+// 			return
+// 		}
+// 	} else {
+// 		if user.ID != 0 {
+// 			order.CustomerID.Int64 = int64(user.ID)
+// 		}
+// 		err = h.SaveOrder(&order)
+// 		if err != nil {
+// 			log.Println(err)
+// 			c.JSON(http.StatusInternalServerError, gin.H{
+// 				"message": err.Error(),
+// 			})
+// 			return
+// 		}
+// 		log.Println(order)
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"order": order,
+// 		})
+// 	}
+
+// 	(func(h *Handler) confirmOrder)(c * gin.Context)
+
 // 	if err != nil {
 // 		log.Println(err)
+// 		c.Redirect(302, "/order/create")
 // 		return
 // 	}
-// } else {
-// if user.ID != 0 {
-// 	order.CustomerID.Int64 = int64(user.ID)
-// }
-// err = h.SaveOrder(&order)
-// if err != nil {
-// 	log.Println(err)
-// 	c.JSON(http.StatusInternalServerError, gin.H{
-// 		"message": err.Error(),
+
+// 	if user.ID != 0 {
+// 		err = h.DB.SaveCustomerOrder(&order, user.ID)
+// 		if err != nil {
+// 			log.Println(err)
+// 			return
+// 		}
+// 	} else {
+// 		err = h.DB.SaveOrder(&order)
+// 		if err != nil {
+// 			log.Println(err)
+// 			return
+// 		}
+// 	}
+// 	c.HTML(http.StatusOK, "order-created", gin.H{
+// 		"order": order,
 // 	})
-// 	return
-// }
-// log.Println(order)
-// c.JSON(http.StatusOK, gin.H{
-// 	"order": order,
-// })
-// }
-
-// func (h *Handler) confirmOrder(c *gin.Context) {
-// 	session := sessions.Default(c)
-
-// 	c.HTML(http.StatusOK, "confirm-order", gin.H{
-// 		"name": session.Get("name"),
-// 	})
-// }
-
-// func (h *Handler) handleConfirmOrder(c *gin.Context) {
-// order := orderFromForm(c)
-// err := order.ValidateData()
-// if err != nil {
-// 	log.Println(err)
-// 	c.Redirect(302, "/order/create")
-// 	return
-// }
-
-// if user.ID != 0 {
-// 	err = h.DB.SaveCustomerOrder(&order, user.ID)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return
-// 	}
-// } else {
-// 	err = h.DB.SaveOrder(&order)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return
-// 	}
-// }
-// c.HTML(http.StatusOK, "order-created", gin.H{
-// 	"order": order,
-// })
 // }
 
 // func (h *Handler) orderSuccess(c *gin.Context) {

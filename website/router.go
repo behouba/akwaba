@@ -3,6 +3,8 @@ package website
 import (
 	"log"
 
+	"github.com/behouba/akwaba/googlemap"
+
 	"github.com/behouba/akwaba"
 	"github.com/behouba/akwaba/mail"
 	"github.com/behouba/akwaba/postgres"
@@ -18,11 +20,14 @@ const (
 
 // Handler represents the website  handler methods set
 type Handler struct {
-	auth          akwaba.CustomerAuthentifier
-	customerStore akwaba.CustomerStorage
-	// Auth   *jwt.Authenticator
-	// Sms    *notifier.SMS
-	mailer akwaba.CustomerMailer
+	auth               akwaba.CustomerAuthentifier
+	customerStore      akwaba.CustomerStorage
+	mailer             akwaba.CustomerMailer
+	calculator         akwaba.CostCalculator
+	distanceAPI        *googlemap.DistanceAPI
+	cities             []akwaba.City
+	paymentOptions     []akwaba.PaymentOption
+	shipmentCategories []akwaba.ShipmentCategory
 }
 
 // NewRouter create routes and return *gin.Engine
@@ -30,7 +35,6 @@ func NewRouter(h *Handler) *gin.Engine {
 	r := gin.Default()
 	r.LoadHTMLGlob(templatesPath)
 	r.Static("/assets", assetsPath)
-
 	store := cookie.NewStore([]byte("akwaba"))
 	r.Use(sessions.Sessions("akwaba-auth", store))
 
@@ -50,10 +54,10 @@ func NewRouter(h *Handler) *gin.Engine {
 	order := r.Group("/order")
 	{
 		order.GET("/pricing", h.orderPricing)
-		// order.GET("/form", h.orderForm)
+		order.GET("/form", h.orderForm)
 		// order.POST("/create", h.handleOrderCreation)
 		// // order.GET("/confirm", h.confirmOrder)
-		// order.POST("/confirm", h.handleConfirmOrder)
+		// // order.POST("/confirm", h.handleConfirmOrder)
 		// order.GET("/receipt/:id", h.serveOrderReceipt)
 		// order.PATCH("/cancel/:id", authRequired, h.cancelOrder)
 		// order.GET("/track", h.trackOrder)
@@ -64,18 +68,17 @@ func NewRouter(h *Handler) *gin.Engine {
 	profile.Use(authRequired)
 	{
 		profile.GET("/settings", h.settings)
-		// profile.GET("/data", h.profileData)
-		// profile.GET("/orders", h.orders)
-		// profile.GET("/orders/:type", h.ordersJSON)
-		// profile.POST("/update", h.updateProfile)
+		profile.GET("/data", h.profileData)
+		profile.GET("/orders", h.orders)
+		profile.GET("/all-orders", h.ordersJSON)
+		profile.POST("/update", h.updateProfile)
 
 	}
 
-	// pricing := r.Group("/pricing")
-	// {
-	// 	pricing.GET("", h.pricing)
-	// 	pricing.GET("/compute", h.computePrice)
-	// }
+	pricing := r.Group("/pricing")
+	{
+		pricing.GET("/compute", h.computePrice)
+	}
 
 	// contact := r.Group("/contact")
 	// {
@@ -106,13 +109,14 @@ func NewHandler(c *Config) *Handler {
 		panic(err)
 	}
 
-	// auth := jwt.NewAuthenticator([]byte(jwtSecretKey))
-
-	// sms := notifier.NewSMS()
 	return &Handler{
-		auth:          postgres.Authenticator{DB: db},
-		customerStore: postgres.CustomerStorage{DB: db},
-		// Sms:    sms,
-		mailer: mail.NewCustomerMail(c.Mail),
+		auth:               postgres.NewAuthenticator(db),
+		customerStore:      postgres.NewCustomerStore(db),
+		mailer:             mail.NewCustomerMail(c.Mail),
+		calculator:         postgres.NewCalculator(db),
+		distanceAPI:        googlemap.NewDistanceAPI(c.MapAPIKey),
+		cities:             postgres.Cities(),
+		paymentOptions:     postgres.PaymentOptions(),
+		shipmentCategories: postgres.ShipmentCategories(),
 	}
 }

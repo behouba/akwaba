@@ -112,7 +112,7 @@
         <div class="ui container" id="order-app">
             <div class="ae-column stackable">
                 <div style="margin: 40px 0px 20px 0px;">
-                    <h3>Envoi de colis: {{.originAddress}} - {{.destinationAddress}}</h3>
+                    <h3>Envoi de colis: {{.origin}} - {{.destination}}</h3>
                     <p>Après avoir rempli le formulaire et validé votre commande, notre Service Clientèle vous
                         contactera
                         pour vérification et confirmation de la commande. Nous vous enverrons un coursier Akwaba
@@ -131,7 +131,7 @@
                     </div>
                     <div class="field">
                         <label>Adresse</label>
-                        <input readonly type="text" id="sfAddress" value="{{ .originAddress }}">
+                        <input readonly type="text" id="sfAddress" value="{{ .origin }}">
                     </div>
                     <div class="field required">
                         <label>Complément d'adresse (quartier, secteur, rue)</label>
@@ -158,7 +158,7 @@
                     </div>
                     <div class="field">
                         <label>Adresse</label>
-                        <input readonly type="text" id="rfAddress" value="{{.destinationAddress}}">
+                        <input readonly type="text" id="rfAddress" value="{{.destination}}">
                     </div>
                     <div class="field required">
                         <label>Complément d'adresse (quartier, secteur, rue)</label>
@@ -178,7 +178,7 @@
                         <div class="field">
                             <label>Poids du colis</label>
                             <input readonly type="text" id="ShipmentCategory"
-                                data-interval-id="{{.ShipmentCategory.ID}}" value="{{.ShipmentCategory.Name}}">
+                                data-interval-id="{{.ShipmentCategory.ID}}" value="{{.shipmentCategory.Name}}">
                         </div>
                         <div class="field required">
                             <label>Nature du colis</label>
@@ -194,7 +194,7 @@
 
                         <div class="field">
                             <select name="paymentTypeId" v-model="order.paymentType.id">
-                                {{ range .PaymentOptions }}
+                                {{ range .paymentOptions }}
                                 <option value="{{.ID}}">{{.Name}}</option>
                                 {{ end }}
                             </select>
@@ -281,98 +281,6 @@
     }
     $('#desktop-header .ui.dropdown').dropdown();
     $('.ui.radio.checkbox').checkbox();
-    // $('#order-form').form({
-    //     on: 'blur',
-    //     inline: true,
-    //     fields: {
-    //         senderName: {
-    //             identifier: 'senderName',
-    //             rules: [
-    //                 {
-    //                     type: 'empty',
-    //                     prompt: 'Veuillez saisir le nom de l\'expediteur'
-    //                 }
-    //             ]
-    //         },
-    //         senderPhone: {
-    //             identifier: 'senderPhone',
-    //             rules: [
-    //                 {
-    //                     type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
-    //                     prompt: 'Veuillez saisir un numéro de mobile valide'
-    //                 }
-    //             ]
-    //         },
-    //         senderAddress: {
-    //             identifier: 'senderAddress',
-    //             rules: [
-    //                 {
-    //                     type: 'empty',
-    //                     prompt: 'Veuillez compléter d\'adresse de l\'expéditeur'
-    //                 }
-    //             ]
-    //         },
-
-    //         receiverName: {
-    //             identifier: 'receiverName',
-    //             rules: [
-    //                 {
-    //                     type: 'empty',
-    //                     prompt: 'Veuillez saisir le nom du destinataire'
-    //                 }
-    //             ]
-    //         },
-    //         receiverPhone: {
-    //             identifier: 'receiverPhone',
-    //             rules: [
-    //                 {
-    //                     type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
-    //                     prompt: 'Veuillez saisir un numéro de mobile valide'
-    //                 }
-    //             ]
-    //         },
-    //         receiverAddress: {
-    //             identifier: 'receiverAddress',
-    //             rules: [
-    //                 {
-    //                     type: 'empty',
-    //                     prompt: 'Veuillez ompléter l\'adresse du destinataire'
-    //                 }
-    //             ]
-    //         },
-    //         ShipmentCategoryId: {
-    //             identifier: 'ShipmentCategoryId',
-    //             rules: [
-    //                 {
-    //                     type: 'empty',
-    //                     prompt: 'Veuillez sélectionner un interval de poids'
-    //                 }
-    //             ]
-    //         },
-    //         nature: {
-    //             identifier: 'nature',
-    //             rules: [
-    //                 {
-    //                     type: 'empty',
-    //                     prompt: 'Veuillez saisir la nature du colis'
-    //                 }
-    //             ]
-    //         }
-    //     },
-    //     onFailure: function (formErrors, fields) {
-    //         for (field in fields) {
-    //             if (!$('.ui.form').form('is valid', field)) {
-    //                 let elem = $('.ui.form').form('get field', field)
-    //                 let dv = elem.closest('.field');
-    //                 $([document.documentElement, document.body]).animate({
-    //                     scrollTop: dv.offset().top
-    //                 }, 500);
-    //                 break;
-    //             }
-    //         }
-    //         return false;
-    //     },
-    // });
 
     function Order() {
         return {

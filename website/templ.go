@@ -36,13 +36,6 @@ func (h *Handler) tracking(c *gin.Context) {
 		"user": sessionUser(c),
 	})
 }
-func (h *Handler) pricing(c *gin.Context) {
-	c.HTML(http.StatusOK, "pricing", gin.H{
-		"user": sessionUser(c),
-		// "cities":          h.DB.Cities,
-		// "shipmentCategories": h.DB.ShipmentCategorys,
-	})
-}
 
 func (h *Handler) conditions(c *gin.Context) {
 	c.HTML(http.StatusOK, "conditions", gin.H{
@@ -81,12 +74,26 @@ func (h *Handler) handleEmergency(c *gin.Context) {
 
 func (h *Handler) orderPricing(c *gin.Context) {
 	c.HTML(http.StatusOK, "order-pricing", gin.H{
-		"user": sessionUser(c),
-		// "shipmentCategories": h.DB.ShipmentCategories,
+		"user":               sessionUser(c),
+		"shipmentCategories": h.shipmentCategories,
 	})
 }
 
 func (h *Handler) noRoute(c *gin.Context) {
 	log.Println("404 page route triggered")
 	c.HTML(http.StatusNotFound, "404", nil)
+}
+
+func (h *Handler) settings(c *gin.Context) {
+	log.Println(sessionUser(c))
+	c.HTML(http.StatusOK, "settings", gin.H{
+		"user": sessionUser(c),
+	})
+}
+
+func (h *Handler) orders(c *gin.Context) {
+	user := sessionUser(c)
+	c.HTML(http.StatusOK, "user-orders", gin.H{
+		"user": user,
+	})
 }
