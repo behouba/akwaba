@@ -136,12 +136,11 @@
                         </div>
                     </div>
                     <div class="field">
-                        <label>Selectionnez l'interval de poids du colis</label>
-                        <select class="ui dropdown" name="shipmentCategory" v-on:change="calculateCost"
-                            v-model="shipmentCategoryId">
+                        <label>Selectionnez un catégorie</label>
+                        <select name="shipmentCategory" v-on:change="calculateCost" v-model="categoryId">
                             <option value=""></option>
-                            {{range .shipmentCategories}}
-                            <option value="{{.ID}}">{{ .Name }}</option>
+                            {{range $key, $value := .shipmentCategories}}
+                            <option value="{{$key}}">{{ $value }}</option>
                             {{end}}
                         </select>
                     </div>
@@ -153,7 +152,8 @@
                                 <div class="order-summary-item">
                                     <div class="order-summary-item-title">Trajet</div>
                                     <div class="order-summary-item-text" id="path-text">
-                                        {pricing.origin} - {pricing.destination} <br /> {pricing.distance.toFixed(2)}
+                                        {origin.name} - {destination.name}
+                                        <br /> {pricing.distance.toFixed(2)}
                                         km
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@
                                 <div class="order-summary-item">
                                     <div class="order-summary-item-title">Coût de la livraison</div>
                                     <div class="order-summary-item-text">
-                                        {pricing.price} FCFA
+                                        {pricing.cost} FCFA
                                     </div>
                                 </div>
                                 <div class="order-summary-item">
@@ -172,7 +172,7 @@
                                 </div>
                                 <div style="text-align: right">
                                     <a class="ui primary button"
-                                        :href="`/order/form?origin=${origin}&destination=${destination}&shipmentCategoryId=${shipmentCategoryId}`">CONTINUER<i
+                                        :href="`/order/form?origin=${origin.name}&destination=${destination.name}&categoryId=${categoryId}`">CONTINUER<i
                                             class="right arrow icon"></i></a>
                                 </div>
                             </div>
@@ -187,8 +187,8 @@
                 <div class="ui bottom fixed menu" style="height: 65px;">
                     <div v-if="hasSummary && !loading" v-cloak id="price">
                         <a style="color: #B02025"
-                            :href="`/order/form?origin=${origin}&destination=${destination}&shipmentCategoryId=${shipmentCategoryId}`">
-                            Coût de la livraison <strong>{pricing.price} FCFA</strong></a>
+                            :href="`/order/form?origin=${origin.name}&destination=${destination.name}&categoryId=${categoryId}`">
+                            Coût de la livraison <strong>{pricing.cost} FCFA</strong></a>
                     </div>
                     <div v-else style="width: 100%;text-align: center; margin-top: 25px;" v-cloak>
                         <div v-if="loading">

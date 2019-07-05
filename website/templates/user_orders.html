@@ -101,15 +101,15 @@
                             <h3>Nº: {o.orderId}</h3>
                             <div class="description">
                                 <p>{ o.nature }</p>
-                                <p>Crée le: { o.createdAt.formatted }</p>
+                                <p>Crée le: { formatDate(o.timeCreated) }</p>
                                 <p>État de la commande: { o.state.name }</p>
                             </div>
                         </div>
                         <div class="extra content" style="text-align: right">
-                            <a v-if="o.state.id != 5" class="ui tiny basic button" v-bind:data-index="index">
+                            <!-- <a v-if="o.state.id != 5" class="ui tiny basic button" v-bind:data-index="index">
                                 <i class="search icon"></i>
                                 Suivre
-                            </a>
+                            </a> -->
                             <a class="ui tiny button" target="blank" :href="`/order/receipt/${o.orderId}`">
                                 <i class="info icon"></i>
                                 Details
@@ -161,8 +161,12 @@
             selectedOrderId: 0,
         },
         methods: {
+            formatDate(dateString) {
+                var d = new Date(dateString)
+                return d.toLocaleDateString('fr');
+            },
             fetchActiveOrders: function () {
-                axios.get("/profile/orders/active")
+                axios.get("/profile/all-orders")
                     .then(res => {
                         this.loading = false;
                         this.orders = res.data.orders || [];
@@ -197,13 +201,6 @@
             this.fetchActiveOrders();
         }
     })
-    function showSideBar() {
-        $('.ui.sidebar').sidebar('toggle');
-    }
-    $(document).ready(function () {
-
-        $('.ui.dropdown').dropdown();
-    });
 </script>
 
 </html>

@@ -1,9 +1,6 @@
 package akwaba
 
-import (
-	"encoding/json"
-	"time"
-)
+import "time"
 
 // Parcel state id values
 var (
@@ -17,16 +14,19 @@ var (
 
 // Shipment represent parcel in delivery
 type Shipment struct {
-	ID            uint64
-	Sender        *json.RawMessage
-	Recipient     *json.RawMessage
-	TimeAccepted  time.Time
-	TimeDelivered time.Time
-	OrderID       uint64
-	PickupCityID  City
-	DeliveryCity  City
-	Category      ShipmentCategory
-	Weight        float64
+	ID            uint64           `json:"id"`
+	Sender        Address          `json:"sender"`
+	Recipient     Address          `json:"recipient"`
+	TimeAccepted  time.Time        `json:"timeAccepted"`
+	TimeDelivered time.Time        `json:"timeDelivered"`
+	OrderID       uint64           `json:"orderId"`
+	PickupCity    City             `json:"pickupCity"`
+	DeliveryCity  City             `json:"deliveryCity"`
+	Category      ShipmentCategory `json:"category"`
+	Cost          uint             `json:"cost"`
+	PaymentOption PaymentOption    `json:"paymentOption"`
+	Weight        float64          `json:"weight"`
+	Nature        string           `json:"nature"`
 }
 
 // ShipmentCategory represent shipment category
@@ -37,15 +37,14 @@ type ShipmentCategory struct {
 	MaxCost uint   `json:"maxCost"`
 }
 
-// ComputeCost return totalCost of the order
-func (s *Shipment) ComputeCost() (cost uint) {
-	return 3500
+// Address of pickup or delivery
+type Address struct {
+	ContactName string `json:"contactName"`
+	Phone       string `json:"phone"`
+	GooglePlace string `json:"googlePlace"`
+	Description string `json:"description"`
 }
 
-// type DistanceCalculator interface {
-// 	DistanceOf(from, to string) (distance float64, err error)
-// }
-
-type CostCalculator interface {
-	Cost(distance float64, categoryID uint) (cost uint, err error)
+type ShipmentCalculator interface {
+	Cost(from, to string, categoryID uint8) (cost uint, distance float64, err error)
 }

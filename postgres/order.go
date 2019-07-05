@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/behouba/akwaba"
@@ -9,53 +10,82 @@ import (
 
 type OrderStore struct {
 	db *sqlx.DB
+	Calculator
 }
 
 func NewOrderStore(db *sqlx.DB) *OrderStore {
 	return &OrderStore{db: db}
 }
 
-func (o *OrderStore) CustomerOrders(id uint) (orders []akwaba.Order, err error) {
+func (o *OrderStore) CustomerOrders(customerID uint) (orders []akwaba.Order, err error) {
+	rows, err := o.db.Query(
+		`SELECT 
+		o.order_id, o.time_created, o.order_state_id, ost.name, o.shipments 
+		FROM orders AS o
+		INNER JOIN order_states AS ost
+		ON o.order_state_id = ost.order_state_id
+		WHERE customer_id=$1 ORDER BY o.time_created DESC`,
+		customerID,
+	)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var o akwaba.Order
+		var r json.RawMessage
+		err = rows.Scan(&o.OrderID, &o.TimeCreated, &o.State.ID, &o.State.Name, &r)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		err = json.Unmarshal(r, &o.Shipments)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		orders = append(orders, o)
+	}
 	return
 }
 
 // SaveOrder save order
-func (d *OrderStore) SaveOrder(order *akwaba.Order) (err error) {
-	// if order.CustomerID.Int64 == 0 {
-	// 	err = d.db.QueryRow(
-	// 		`INSERT INTO delivery_order
-	// 		(sender_data, receiver_data, weight_interval_id, nature, payment_type_id, cost)
-	// 		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;`,
-	// 		string(order.Sender), string(order.Receiver), order.ShipmentCategory.ID, order.Nature,
-	// 		order.PaymentType.ID, order.ComputeCost(),
-	// 	).Scan(&order.OrderID)
-	// } else {
-	// 	err = d.db.QueryRow(
-	// 		`INSERT INTO delivery_order
-	// 		(customer_id, sender_data, receiver_data, weight_interval_id, nature, payment_type_id, cost)
-	// 		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id;`,
-	// 		order.CustomerID.Int64, string(order.Sender), string(order.Receiver), order.ShipmentCategory.ID, order.Nature,
-	// 		order.PaymentType.ID, order.ComputeCost(),
-	// 	).Scan(&order.OrderID)
-	// }
+func (o *OrderStore) Save(shipments []akwaba.Shipment, customerID uint) (orderID uint64, err error) {
+
+	shipmentsBytes, err := json.Marshal(shipments)
+	if err != nil {
+		return
+	}
+
+	err = o.db.QueryRow(
+		"INSERT INTO orders (customer_id, order_state_id, shipments) VALUES ($1, $2, $3) RETURNING order_id",
+		customerID, akwaba.OrderStatePendingID, json.RawMessage(shipmentsBytes),
+	).Scan(&orderID)
 	return
 }
 
-func (d *OrderStore) GetOrderByID(id uint64) (order akwaba.Order, err error) {
-	// err = d.db.QueryRow(
-	// 	`SELECT d.id, d.sender_data, d.receiver_data, w.name, d.nature, p.name, d.cost,
-	// 	d.created_at
-	// 	FROM delivery_order AS d
-	// 	LEFT JOIN weight_interval AS w
-	// 	ON w.id = d.weight_interval_id
-	// 	LEFT JOIN payment_type AS p
-	// 	ON p.id = d.payment_type_id
-	// 	WHERE d.id=$1;`, id,
-	// ).Scan(
-	// 	&order.OrderID, &order.Sender, &order.Receiver, &order.ShipmentCategory.Name,
-	// 	&order.Nature, &order.PaymentType.Name, &order.Cost, &order.CreatedAt.RealTime,
-	// )
-	// order.CreatedAt.FormatTimeFR()
+func (o *OrderStore) Cancel(orderID uint64) (err error) {
+	return
+}
+
+func (o *OrderStore) OrderByID(orderID uint64) (order akwaba.Order, err error) {
+	var shipments json.RawMessage
+	o.db.QueryRow(
+		`SELECT 
+		o.order_id, o.customer_id, o.time_created, o.order_state_id, ost.name, shipments
+		FROM orders AS o
+		INNER JOIN order_states AS ost
+		ON o.order_state_id = ost.order_state_id
+		WHERE o.order_id=$1`,
+		orderID,
+	).Scan(
+		&order.OrderID, &order.CustomerID, &order.TimeCreated,
+		&order.State.ID, &order.State.Name, &shipments,
+	)
+	// log.Println(string(shipments))
+	err = json.Unmarshal(shipments, &order.Shipments)
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -81,38 +111,17 @@ func (d *OrderStore) GetOrderByID(id uint64) (order akwaba.Order, err error) {
 // 	return
 // }
 
-func (d *OrderStore) cityNameByID(id uint8) (name string, err error) {
-	err = d.db.QueryRow("SELECT name FROM city WHERE id=$1",
-		id,
-	).Scan(&name)
-	return
-}
-
-func (d *OrderStore) intervalNameByID(id uint8) (name string, err error) {
-	err = d.db.QueryRow("SELECT name FROM weight_interval WHERE id=$1",
-		id,
-	).Scan(&name)
-	return
-}
-
-func (d *OrderStore) paymentTypeNameByID(id uint8) (name string, err error) {
-	err = d.db.QueryRow("SELECT name FROM payment_type WHERE id=$1",
-		id,
-	).Scan(&name)
-	return
-}
-
 // CancelOrder update order state to "canceled"
 func (d *OrderStore) CancelOrder(orderID uint64, userID uint) (id int, err error) {
 	// Will check ownership of user before performing modification
 	// on order state in database
-	err = d.db.QueryRow(
-		`UPDATE delivery_order SET state_id=$1 WHERE id=$2 AND customer_id=$3 RETURNING id`,
-		akwaba.OrderCanceled.ID, orderID, userID,
-	).Scan(&id)
-	if err == nil {
-		log.Printf("User %d just canceled order %d...", userID, orderID)
-	}
+	// err = d.db.QueryRow(
+	// 	`UPDATE delivery_order SET state_id=$1 WHERE id=$2 AND customer_id=$3 RETURNING id`,
+	// 	akwaba.OrderCanceled.ID, orderID, userID,
+	// ).Scan(&id)
+	// if err == nil {
+	// 	log.Printf("User %d just canceled order %d...", userID, orderID)
+	// }
 	return
 }
 

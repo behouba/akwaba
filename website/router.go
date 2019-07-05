@@ -3,8 +3,6 @@ package website
 import (
 	"log"
 
-	"github.com/behouba/akwaba/googlemap"
-
 	"github.com/behouba/akwaba"
 	"github.com/behouba/akwaba/mail"
 	"github.com/behouba/akwaba/postgres"
@@ -23,11 +21,11 @@ type Handler struct {
 	auth               akwaba.CustomerAuthentifier
 	customerStore      akwaba.CustomerStorage
 	mailer             akwaba.CustomerMailer
-	calculator         akwaba.CostCalculator
-	distanceAPI        *googlemap.DistanceAPI
-	cities             []akwaba.City
-	paymentOptions     []akwaba.PaymentOption
-	shipmentCategories []akwaba.ShipmentCategory
+	calculator         akwaba.ShipmentCalculator
+	orderStore         akwaba.OrderService
+	cities             akwaba.KeyVal
+	paymentOptions     akwaba.KeyVal
+	shipmentCategories akwaba.KeyVal
 }
 
 // NewRouter create routes and return *gin.Engine
@@ -55,13 +53,13 @@ func NewRouter(h *Handler) *gin.Engine {
 	{
 		order.GET("/pricing", h.orderPricing)
 		order.GET("/form", h.orderForm)
-		// order.POST("/create", h.handleOrderCreation)
+		order.POST("/create", h.handleOrderCreation)
 		// // order.GET("/confirm", h.confirmOrder)
 		// // order.POST("/confirm", h.handleConfirmOrder)
-		// order.GET("/receipt/:id", h.serveOrderReceipt)
+		order.GET("/receipt/:id", h.serveOrderReceipt)
 		// order.PATCH("/cancel/:id", authRequired, h.cancelOrder)
 		// order.GET("/track", h.trackOrder)
-		// order.GET("/success", h.orderSuccess)
+		order.GET("/success", h.orderSuccess)
 	}
 
 	profile := r.Group("/profile")
@@ -113,8 +111,8 @@ func NewHandler(c *Config) *Handler {
 		auth:               postgres.NewAuthenticator(db),
 		customerStore:      postgres.NewCustomerStore(db),
 		mailer:             mail.NewCustomerMail(c.Mail),
-		calculator:         postgres.NewCalculator(db),
-		distanceAPI:        googlemap.NewDistanceAPI(c.MapAPIKey),
+		calculator:         postgres.NewCalculator(db, c.MapAPIKey),
+		orderStore:         postgres.NewOrderStore(db),
 		cities:             postgres.Cities(),
 		paymentOptions:     postgres.PaymentOptions(),
 		shipmentCategories: postgres.ShipmentCategories(),

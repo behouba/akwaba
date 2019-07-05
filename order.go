@@ -1,39 +1,34 @@
 package akwaba
 
 import (
-	"database/sql"
-	"encoding/json"
-	"errors"
+	"fmt"
+	"strings"
 	"time"
 )
 
 // Order states
-var (
-	OrderPending       = OrderState{ID: 1}
-	OrderWaitingPickUp = OrderState{ID: 2}
-	OrderInProcessing  = OrderState{ID: 3}
-	OrderClosed        = OrderState{ID: 4}
-	OrderCanceled      = OrderState{ID: 5}
+const (
+	OrderStatePendingID   uint8 = 1
+	OrderInProcessing     uint8 = 2
+	OrderStateCompletedID uint8 = 3
+	OrderStateCanceledID  uint8 = 4
 )
 
 // Order struct represent order that will be created by users
 type Order struct {
-	OrderID          uint64           `json:"orderId"`
-	CustomerID       sql.NullInt64    `json:"customerId"`
-	Sender           json.RawMessage  `json:"sender"`
-	Receiver         json.RawMessage  `json:"receiver"`
-	PaymentOption    PaymentOption    `json:"paymentOption"`
-	ShipmentCategory ShipmentCategory `json:"shipmentCategory"`
-	SenderCity       City             `json:"origin"`
-	ReceiverCity     City             `json:"destination"`
-	State            OrderState       `json:"state"`
-	Cost             uint16           `json:"cost"`
-	CreatedAt        EventTime        `json:"createdAt"`
-	Nature           string           `json:"nature"`
+	OrderID     uint64     `json:"orderId"`
+	CustomerID  uint       `json:"customerId"`
+	Shipments   []Shipment `json:"shipments"`
+	State       OrderState `json:"state"`
+	TimeCreated time.Time  `json:"timeCreated"`
+	TimeClosed  time.Time  `json:"timeClosed"`
 }
 
 type OrderService interface {
+	OrderByID(orderID uint64) (order Order, err error)
 	CustomerOrders(userID uint) (orders []Order, err error)
+	Save(shipments []Shipment, customerID uint) (orderID uint64, err error)
+	Cancel(orderID uint64) (err error)
 }
 
 type PricingService interface {
@@ -46,7 +41,7 @@ type OrderState struct {
 	Name string `json:"name"`
 }
 
-// PaymentOption
+// PaymentOption data type represent payement options
 type PaymentOption struct {
 	ID   uint8  `json:"id"`
 	Name string `json:"name"`
@@ -65,6 +60,48 @@ type Track struct {
 	Time     time.Time `json:"time"`
 	OfficeID int       `json:"officeId"`
 	EventID  int       `json:"eventId"`
+}
+
+func (o Order) FormatTimeFR() (formatted string) {
+	timeString := strings.Join(
+		strings.Split(
+			fmt.Sprintf(o.TimeCreated.Format("15:04:05")), ":",
+		)[:2], ":",
+	)
+	var month string
+	switch o.TimeCreated.Month().String() {
+	case "January":
+		month = "Janvier"
+	case "February":
+		month = "Février"
+	case "March":
+		month = "Mars"
+	case "April":
+		month = "Avril"
+	case "May":
+		month = "Mai"
+	case "June":
+		month = "Juin"
+	case "July":
+		month = "Juillet"
+	case "August":
+		month = "Août"
+	case "September":
+		month = "Septembre"
+	case "October":
+		month = "Octobre"
+	case "November":
+		month = "Novembre"
+	case "December":
+		month = "Décembre"
+	}
+	formatted = fmt.Sprintf(
+		"%d %s, %d à %s",
+		o.TimeCreated.Day(),
+		month, o.TimeCreated.Year(),
+		timeString,
+	)
+	return
 }
 
 // ValidateData function help validate data into new order before creation
@@ -94,8 +131,5 @@ func (o *Order) ValidateData() (err error) {
 	// if len(o.Receiver.Address.Place.Formal) < 1 {
 	// 	return errors.New("Veuillez saisir l'adresse pour le destinataire")
 	// }
-	if o.ShipmentCategory.ID == 0 {
-		return errors.New("Veuillez selectionner un interval de poids")
-	}
 	return
 }

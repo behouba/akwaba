@@ -112,7 +112,7 @@
         <div class="ui container" id="order-app">
             <div class="ae-column stackable">
                 <div style="margin: 40px 0px 20px 0px;">
-                    <h3>Envoi de colis: {{.origin}} - {{.destination}}</h3>
+                    <h3>Livraison de {{.categoryName}} à {{.destination}}</h3>
                     <p>Après avoir rempli le formulaire et validé votre commande, notre Service Clientèle vous
                         contactera
                         pour vérification et confirmation de la commande. Nous vous enverrons un coursier Akwaba
@@ -126,17 +126,17 @@
                     <div class="field required">
                         <label>Nom</label>
                         <input type="text" ref="senderNameInput" name="senderName" autocomplete="disable"
-                            v-validate="{ required: true, min: 3 }" v-model="order.sender.name">
+                            v-validate="{ required: true, min: 3 }" v-model="shipment.sender.contactName">
                         <span class="error-label" v-cloak>{ errors.first('senderName') }</span>
                     </div>
                     <div class="field">
                         <label>Adresse</label>
-                        <input readonly type="text" id="sfAddress" value="{{ .origin }}">
+                        <input readonly type="text" ref="originPlace" value="{{ .origin }}">
                     </div>
                     <div class="field required">
                         <label>Complément d'adresse (quartier, secteur, rue)</label>
                         <input type="text" ref="senderAddressInput" name="senderAddress"
-                            v-validate="{required: true, min: 3}" v-model="order.sender.address.affix"
+                            v-validate="{required: true, min: 3}" v-model="shipment.sender.description"
                             placeholder="Ex: Williamsville, rue Champs Élysées">
                         <span class="error-label" v-cloak>{ errors.first('senderAddress') }</span>
 
@@ -144,45 +144,46 @@
                     <div class="field required">
                         <label>Téléphone</label>
                         <input type="tel" ref="senderPhoneInput" v-validate="{required: true, length: 16}"
-                            v-mask="'+225 ## ## ## ##'" name="senderPhone" v-model="order.sender.phone">
+                            v-mask="'+225 ## ## ## ##'" name="senderPhone" v-model="shipment.sender.phone">
                         <span class="error-label" class="error-label" v-cloak>{ errors.first('senderPhone') }</span>
                     </div>
 
                     <h3 class="ui dividing header">DESTINATAIRE</h3>
                     <div class="field required">
                         <label>Nom</label>
-                        <input type="text" ref="receiverNameInput" name="receiverName"
-                            v-validate="{ required: true, min: 3 }" v-model="order.receiver.name">
-                        <span class="error-label" v-cloak>{ errors.first('receiverName') }</span>
+                        <input type="text" ref="recipientNameInput" name="recipientName"
+                            v-validate="{ required: true, min: 3 }" v-model="shipment.recipient.contactName">
+                        <span class="error-label" v-cloak>{ errors.first('recipientName') }</span>
 
                     </div>
                     <div class="field">
                         <label>Adresse</label>
-                        <input readonly type="text" id="rfAddress" value="{{.destination}}">
+                        <input readonly type="text" ref="destinationPlace" value="{{.destination}}">
                     </div>
                     <div class="field required">
                         <label>Complément d'adresse (quartier, secteur, rue)</label>
-                        <input type="text" ref="receiverAddressInput" name="receiverAddress"
-                            v-validate="{required: true, min: 3}" v-model="order.receiver.address.affix"
+                        <input type="text" ref="recipientAddressInput" name="recipientAddress"
+                            v-validate="{required: true, min: 3}" v-model="shipment.recipient.description"
                             placeholder="Ex: Williamsville, rue Champs Élysées">
-                        <span class="error-label" v-cloak>{errors.first('receiverAddress')}</span>
+                        <span class="error-label" v-cloak>{errors.first('recipientAddress')}</span>
                     </div>
                     <div class="field required">
                         <label>Téléphone</label>
-                        <input type="tel" ref="receiverPhoneInput" name="receiverPhone" v-model="order.receiver.phone"
-                            v-validate="{required: true, length: 16}" v-mask="'+225 ## ## ## ##'">
-                        <span class="error-label" v-cloak>{errors.first('receiverPhone')}</span>
+                        <input type="tel" ref="recipientPhoneInput" name="recipientPhone"
+                            v-model="shipment.recipient.phone" v-validate="{required: true, length: 16}"
+                            v-mask="'+225 ## ## ## ##'">
+                        <span class="error-label" v-cloak>{errors.first('recipientPhone')}</span>
                     </div>
                     <h3 class="ui dividing header">INFORMATION SUR LE COLIS</h3>
                     <div class="two fields">
                         <div class="field">
                             <label>Poids du colis</label>
-                            <input readonly type="text" id="ShipmentCategory"
-                                data-interval-id="{{.ShipmentCategory.ID}}" value="{{.shipmentCategory.Name}}">
+                            <input readonly type="text" id="category" ref="category" data-category-id="{{.categoryID}}"
+                                value="{{.categoryName}}">
                         </div>
                         <div class="field required">
                             <label>Nature du colis</label>
-                            <input type="text" ref="natureInput" v-model="order.nature"
+                            <input type="text" ref="natureInput" v-model="shipment.nature"
                                 v-validate="{required: true, min: 3}" name="nature"
                                 placeholder="Ex: Documents, Chaussures, Sac...">
                             <span class="error-label" v-cloak>{errors.first('nature')}</span>
@@ -193,9 +194,9 @@
                         <label for="paymentType">Selectionner votre mode paiement:</label>
 
                         <div class="field">
-                            <select name="paymentTypeId" v-model="order.paymentType.id">
-                                {{ range .paymentOptions }}
-                                <option value="{{.ID}}">{{.Name}}</option>
+                            <select name="paymentOptionId" v-model="shipment.paymentOption.id">
+                                {{ range $key, $value := .paymentOptions }}
+                                <option value="{{$key}}">{{$value}}</option>
                                 {{ end }}
                             </select>
                         </div>
@@ -216,7 +217,7 @@
             </div>
             <div class="ui bottom fixed menu" style="height: 65px;">
                 <div id="price">
-                    Coût de la livraison <strong>2500 FCFA</strong>
+                    Coût de la livraison <strong>{{.cost}} FCFA</strong>
                 </div>
             </div>
         </div>
@@ -227,10 +228,9 @@
 </body>
 
 </html>
-<!-- <script src="../assets/js/order.js"></script> -->
+<!-- <script src="../assets/js/shipment.js"></script> -->
 
 <script>
-    // $(".phone").inputmask({ "mask": "+225 99 99 99 99" });
     const dictionary = {
         en: {
             custom: {
@@ -246,15 +246,15 @@
                     required: 'Veuillez saisir un numéro de mobile valide',
                     length: 'Veuillez saisir un numéro de mobile valide',
                 },
-                receiverName: {
+                recipientName: {
                     required: 'Veuillez saisir le nom du destinataire.',
                     min: 'le nom du destinataire doit contenir au moins 3 caractères'
                 },
-                receiverAddress: {
+                recipientAddress: {
                     required: 'Veuillez compléter d\'adresse du destinataire.',
                     min: 'Veuillez compléter d\'adresse du destinataire.',
                 },
-                receiverPhone: {
+                recipientPhone: {
                     required: 'Veuillez saisir un numéro de mobile valide',
                     length: 'Veuillez saisir un numéro de mobile valide',
                 },
@@ -274,38 +274,26 @@
         dictionary: dictionary,
     });
 
-
-
-    function showSideBar() {
-        $('.ui.sidebar').sidebar('toggle');
-    }
-    $('#desktop-header .ui.dropdown').dropdown();
-    $('.ui.radio.checkbox').checkbox();
-
-    function Order() {
+    function Shipment() {
         return {
             sender: {
-                name: null,
-                address: {
-                    formal: null,
-                    affix: null,
-                },
+                contactName: null,
+                googlePlace: null,
+                description: null,
                 phone: null,
             },
-            receiver: {
-                name: null,
-                address: {
-                    formal: null,
-                    affix: null,
-                },
+            recipient: {
+                contactName: null,
+                googlePlace: null,
+                description: null,
                 phone: null,
             },
             nature: null,
-            ShipmentCategory: {
+            category: {
                 id: null,
                 name: null,
             },
-            paymentType: {
+            paymentOption: {
                 id: 1,
             }
         }
@@ -314,18 +302,18 @@
         el: "#order-app",
         data() {
             return {
-                order: Order(),
+                shipment: Shipment(),
                 loading: false,
                 error: null,
             }
         },
         methods: {
-            submitOrder: async function () {
-                this.order.sender.address.formal = $('#sfAddress').val();
-                this.order.receiver.address.formal = $('#rfAddress').val();
-                this.order.ShipmentCategory.id = Number($('#ShipmentCategory').data('interval-id'));
-                this.order.paymentType.id = Number(this.order.paymentType.id);
-                console.log(JSON.parse(JSON.stringify(this.order)));
+            async submitOrder() {
+                this.shipment.sender.googlePlace = this.$refs.originPlace.value;
+                this.shipment.recipient.googlePlace = this.$refs.destinationPlace.value;
+                this.shipment.category.id = Number(this.$refs.category.dataset.categoryId);
+                this.shipment.paymentOption.id = Number(this.shipment.paymentOption.id);
+                console.log(JSON.parse(JSON.stringify(this.shipment)));
 
                 await this.$validator.validate();
                 const firstField = await Object.keys(this.errors.collect())[0];
@@ -335,14 +323,19 @@
                 }
                 this.loading = true;
 
+                // create array of shipments. After business customer will be able to create many shipments in
+                // one order
+                var shipments = [];
+                shipments.push(this.shipment);
                 try {
-                    let response = await axios.post("/order/create", this.order);
+                    let response = await axios.post("/order/create", shipments);
                     console.log(response);
                     this.loading = false;
                     if (response.data) {
-                        window.location.href = "/order/success?orderId=" + response.data.order.orderId;
+                        console.log(response.data.orderId);
+                        window.location.href = "/order/success?orderId=" + response.data.orderId;
                     } else {
-                        alert('La création de commande a échoué, veuillez réessayer s\'il vous plait');
+                        this.error = 'La création de commande a échoué, veuillez réessayer s\'il vous plait';
                     }
                 } catch (error) {
                     this.loading = false;
@@ -358,12 +351,12 @@
                         this.error = "Echec de l'opération: vérifiez votre connexion internet."
                     } else {
                         // Something happened in setting up the request and triggered an Error
-                        alert('Error', error.message);
+                        this.error = error.message;
                     }
-                    alert(error)
+                    console.log(error)
                 }
             }
-        },
+        }
     })
 </script>
 

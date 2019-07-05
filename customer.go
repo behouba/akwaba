@@ -21,14 +21,6 @@ type Customer struct {
 	IsActive        bool   `json:"isActive"`
 }
 
-// Address of pickup or delivery
-type Address struct {
-	ContactName string `json:"contactName"`
-	Phone       string `json:"phone"`
-	GooglePlace string `json:"googlePlace"`
-	Description string `json:"description"`
-}
-
 // CustomerAuthentifier define customer authentication interface
 type CustomerAuthentifier interface {
 	Authenticate(email, password string) (Customer, error)

@@ -1,36 +1,64 @@
 package postgres
 
 import (
+	"context"
 	"errors"
 
 	"github.com/jmoiron/sqlx"
+	"googlemaps.github.io/maps"
 )
 
 type Calculator struct {
-	db *sqlx.DB
+	db     *sqlx.DB
+	apiKey string
 }
 
-func NewCalculator(db *sqlx.DB) *Calculator {
-	return &Calculator{db: db}
+func NewCalculator(db *sqlx.DB, key string) *Calculator {
+	return &Calculator{db: db, apiKey: key}
 }
 
-func (p *Calculator) Cost(d float64, categoryId uint) (cost uint, err error) {
-	if d <= 0 || d > 100 {
-		return 0, errors.New("Cette distance n'est pas supporté par notre système")
+func (c *Calculator) Cost(from, to string, categoryId uint8) (cost uint, distance float64, err error) {
+	distance, err = c.distance(from, to)
+	if err != nil {
+		return
+	}
+	if distance <= 0 || distance > 100 {
+		return 0, 0, errors.New("Cette distance n'est pas supporté par notre système")
 	}
 	var minCost, maxCost float64
-	err = p.db.QueryRow(
+	err = c.db.QueryRow(
 		"SELECT min_cost, max_cost FROM shipment_categories WHERE shipment_category_id=$1",
 		categoryId,
 	).Scan(&minCost, &maxCost)
 	if err != nil {
 		return
 	}
-	if d <= 7 {
+	if distance <= 7 {
 		cost = uint(minCost)
 		return
 	}
-	return uint((d * maxCost / 100) + minCost), nil
+	cost = uint((distance * maxCost / 100) + minCost)
+	return
+}
+
+// calculate distance between to place with google place directions api
+func (c *Calculator) distance(from, to string) (distance float64, err error) {
+	client, err := maps.NewClient(maps.WithAPIKey(c.apiKey))
+	if err != nil {
+		return
+	}
+	r := &maps.DirectionsRequest{
+		Origin:      from,
+		Destination: to,
+		Language:    "fr",
+		Region:      "ci",
+	}
+	route, _, err := client.Directions(context.Background(), r)
+	if err != nil {
+		return
+	}
+	distance = float64(route[0].Legs[0].Distance.Meters) / 1000
+	return
 }
 
 //     var price;

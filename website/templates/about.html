@@ -265,58 +265,6 @@
     var yopougon2 = new mapboxgl.Marker()
         .setLngLat([-4.096257, 5.356710])
         .addTo(map);
-    function showSideBar() {
-        $('.ui.sidebar').sidebar('toggle');
-    }
-    $('.ui.radio.checkbox')
-        .checkbox()
-        ;
-    $('.ui.dropdown')
-        .dropdown()
-        ;
-    $(".phone").inputmask({ "mask": "+225 99 99 99 99" });
-    $('#contact-form').form({
-        on: 'blur',
-        inline: true,
-        fields: {
-            name: {
-                identifier: 'name',
-                rules: [
-                    {
-                        type: 'empty',
-                        prompt: 'Veuillez saisir le nom de l\'expediteur'
-                    }
-                ]
-            },
-            phone: {
-                identifier: 'phone',
-                rules: [
-                    {
-                        type: 'regExp[^\\+225 (\\d{2}) (\\d{2}) (\\d{2}) (\\d{2})]',
-                        prompt: 'Veuillez saisir un numéro de mobile valide'
-                    }
-                ]
-            },
-            email: {
-                identifier: 'email',
-                rules: [
-                    {
-                        type: 'email',
-                        prompt: 'Veuillez selectionner une commune'
-                    }
-                ]
-            },
-            message: {
-                identifier: 'message',
-                rules: [
-                    {
-                        type: 'minLength[10]',
-                        prompt: 'Veuillez saisir votre message (minimum 10 charatères) '
-                    }
-                ]
-            },
-        },
-    });
 </script>
 
 </html>

@@ -13,7 +13,7 @@ var pricingApp = new Vue({
     data: {
         origin: null,
         destination: null,
-        shipmentCategoryId: null,
+        categoryId: null,
         pricing: null,
         formattedDistance: null,
         priceComputed: false,
@@ -29,14 +29,14 @@ var pricingApp = new Vue({
     methods: {
         async calculateCost() {
             this.loading = true;
-            if (!this.origin || !this.destination || !this.shipmentCategoryId) {
+            if (!this.origin || !this.destination || !this.categoryId) {
                 this.pricing = null;
                 this.loading = false;
                 return
             }
             try {
                 let response = await axios.get(
-                    `/pricing/compute?origin=${this.origin}&destination=${this.destination}&shipmentCategoryId=${this.shipmentCategoryId}`,
+                    `/pricing/compute?origin=${this.origin.name}&destination=${this.destination.name}&categoryId=${this.categoryId}`,
                 )
                 this.pricing = response.data;
                 console.log(response)
@@ -52,17 +52,15 @@ var pricingApp = new Vue({
         this.destAutocomplete = new google.maps.places.Autocomplete((this.$refs.destination), options);
         this.origAutocomplete.addListener('place_changed', () => {
             this.loading = true;
-            var place = this.origAutocomplete.getPlace();
-            this.origin = place.name;
-            console.log(place.formatted_address);
+            this.origin = this.origAutocomplete.getPlace();
+            console.log(this.origin)
             this.calculateCost();
         });
 
         this.destAutocomplete.addListener('place_changed', () => {
             this.loading = true;
-            var place = this.destAutocomplete.getPlace();
-            this.destination = place.name;
-            console.log(place.formatted_address);
+            this.destination = this.destAutocomplete.getPlace();
+            console.log(this.destination)
             this.calculateCost();
         });
     }

@@ -12,25 +12,20 @@ import (
 func (h *Handler) computePrice(c *gin.Context) {
 
 	origin, destination := c.Query("origin"), c.Query("destination")
-	shipmentCategoryID, _ := strconv.Atoi(c.Query("shipmentCategoryId"))
+	categoryID, _ := strconv.Atoi(c.Query("categoryId"))
 
-	dist, err := h.distanceAPI.CalculateDistance(origin, destination)
+	cost, dist, err := h.calculator.Cost(origin, destination, uint8(categoryID))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Echec de la requête.",
 		})
+		return
 	}
-	price, err := h.calculator.Cost(dist, uint(shipmentCategoryID))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Echec de la requête.",
-		})
-	}
-	log.Println(origin, destination, shipmentCategoryID)
+	log.Println(origin, destination, categoryID)
 	c.JSON(http.StatusOK, gin.H{
 		"origin":      origin,
 		"destination": destination,
 		"distance":    dist,
-		"price":       price,
+		"cost":        cost,
 	})
 }

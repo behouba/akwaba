@@ -18,25 +18,15 @@ import (
 // }
 
 func (h *Handler) ordersJSON(c *gin.Context) {
-	// user := sessionUser(c)
+	user := sessionUser(c)
 
-	// if t == "active" {
-	// 	orders, err := h.DB.ActiveOrders(user.ID)
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 	}
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"orders": orders,
-	// 	})
-	// } else if t == "archive" {
-	// 	orders, err := h.DB.ArchivedOrders(user.ID)
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 	}
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"orders": orders,
-	// 	})
-	// }
+	orders, err := h.orderStore.CustomerOrders(user.ID)
+	if err != nil {
+		log.Println(err)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"orders": orders,
+	})
 }
 
 func (h *Handler) updateProfile(c *gin.Context) {

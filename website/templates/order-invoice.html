@@ -34,7 +34,7 @@
     }
 
     .text-sm {
-        font-size: 11px;
+        font-size: 15px;
         line-height: 15px;
     }
 
@@ -78,6 +78,8 @@
     <div>
 
         <!-- content -->
+        {{ $order := .order}}
+        {{ range $index, $shipment := .order.Shipments}}
         <div class="invoice-box" id="invoice-box" v-if="order" v-cloak>
             <div class="row">
                 <div class="col">
@@ -94,8 +96,8 @@
             <!-- <div style="text-align: center"> <strong>FACTURE DE LIVRAISON</strong></div> -->
             <div style="font-weight: bold" class="row">
                 <div class="col">
-                    <div>N° DE COMMANDE: {{ .order.OrderID }}</div>
-                    <div>Abidjan le: {{.order.CreatedAt.Formatted}} </div>
+                    <div>N° DE COMMANDE: {{ $order.OrderID }}</div>
+                    <div>Abidjan le: {{$order.FormatTimeFR}} </div>
                 </div>
                 <div class="col">
                     <div style="float: right">
@@ -107,50 +109,51 @@
                 <h4 class="header">EXPÉDITEUR</h4>
                 <div>
                     <strong>NOM:</strong>
-                    {{.sender.Name}}
+                    {{$shipment.Sender.ContactName}}
                 </div>
                 <div>
                     <strong>ADDRESSE:</strong>
-                    {{.sender.Place.Formal }}, {{.sender.Place.Affix}}
+                    {{$shipment.Sender.GooglePlace }}, {{$shipment.Sender.Description}}
                 </div>
                 <div>
                     <strong>TÉLÉPHONE:</strong>
-                    {{.sender.Phone}}
+                    {{$shipment.Sender.Phone}}
                 </div>
             </div>
             <div>
                 <h4 class="header">DESTINATAIRE</h4>
                 <div>
                     <strong>NOM:</strong>
-                    {{.receiver.Name}}
+                    {{$shipment.Recipient.ContactName}}
                 </div>
                 <div>
                     <strong>ADDRESSE:</strong>
-                    {{.receiver.Place.Formal }}, {{.receiver.Place.Affix}}
+                    {{$shipment.Recipient.GooglePlace}}, {{$shipment.Recipient.Description}}
                 </div>
                 <div>
                     <strong>TÉLÉPHONE:</strong>
-                    {{.receiver.Phone}}
+                    {{$shipment.Recipient.Phone}}
                 </div>
             </div>
             <div>
                 <h4 class="header">INFORMATION SUR LE COLIS</h4>
                 <div>
                     <strong>NATURE:</strong>
-                    {{.order.Nature}}
+                    {{$shipment.Nature}}
                 </div>
                 <div>
-                    <strong>INTERVAL DE POIDS:</strong>
-                    {{.order.ShipmentCategory.Name}}
+                    <strong>CATEGORIE:</strong>
+                    {{$shipment.Category.Name}}
                 </div>
             </div>
             <div>
-                <h4 class="header">COÛT DE LA LIVRAISON ({{.order.PaymentType.Name}})</h4>
+                <h4 class="header">COÛT DE LA LIVRAISON ({{$shipment.PaymentOption.Name}})</h4>
                 <div class="price">
-                    <strong>{{.order.Cost}} FCFA</strong>
+                    <strong>{{$shipment.Cost}} FCFA</strong>
                 </div>
             </div>
         </div>
+        {{end}}
     </div>
 </body>
 

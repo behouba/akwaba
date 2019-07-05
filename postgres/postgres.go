@@ -13,9 +13,9 @@ import (
 const dbURIPattern = "host=%s port=%d user=%s password=%s dbname=%s sslmode=disable connect_timeout=100"
 
 var (
-	cities             []akwaba.City
-	paymentOptions     []akwaba.PaymentOption
-	shipmentCategories []akwaba.ShipmentCategory
+	cities             akwaba.KeyVal
+	paymentOptions     akwaba.KeyVal
+	shipmentCategories akwaba.KeyVal
 )
 
 type Config struct {
@@ -59,14 +59,14 @@ func Open(c *Config) (db *sqlx.DB, err error) {
 	return
 }
 
-func Cities() []akwaba.City {
+func Cities() akwaba.KeyVal {
 	return cities
 }
 
-func PaymentOptions() []akwaba.PaymentOption {
+func PaymentOptions() akwaba.KeyVal {
 	return paymentOptions
 }
 
-func ShipmentCategories() []akwaba.ShipmentCategory {
+func ShipmentCategories() akwaba.KeyVal {
 	return shipmentCategories
 }
