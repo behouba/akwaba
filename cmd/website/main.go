@@ -7,13 +7,15 @@ import (
 	"os"
 	"time"
 
+	"github.com/behouba/akwaba/mail"
+	"github.com/behouba/akwaba/postgres"
 	"github.com/behouba/akwaba/website"
 	"gopkg.in/yaml.v2"
 )
 
 func main() {
 	var config website.Config
-	bs, err := ioutil.ReadFile("/Users/a1/Documents/code/akwaba/dev-config.yml")
+	bs, err := ioutil.ReadFile("/Users/a1/Documents/code/akwaba/website/dev-config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,7 +25,18 @@ func main() {
 	}
 	// gin.SetMode(gin.ReleaseMode)
 
-	router := website.NewRouter(website.NewHandler(&config))
+	db, err := postgres.Open(config.DB)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	handler := website.NewHandler(
+		postgres.NewAuthenticator(db), postgres.NewCustomerStore(db), mail.NewCustomerMail(config.Mail),
+		postgres.NewPricingStorage(db, config.MapAPIKey), postgres.NewOrderStore(db, config.MapAPIKey), postgres.Cities(),
+		postgres.PaymentOptions(), postgres.ShipmentCategories(),
+	)
+
+	router := website.NewRouter(handler)
 
 	s := &http.Server{
 		Addr:           getPort(),
@@ -40,7 +53,7 @@ func main() {
 
 func getPort() (port string) {
 	if len(os.Args) == 1 {
-		return ":8080"
+		return ":8081"
 	}
 	env := os.Args[1]
 	if env == "prod" {

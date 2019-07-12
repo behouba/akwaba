@@ -15,6 +15,10 @@
     .description p {
         line-height: 1.2 !important;
     }
+
+    .positive-status {
+        color: lightgreen;
+    }
 </style>
 
 <body>
@@ -102,7 +106,7 @@
                             <div class="description">
                                 <p>{ o.nature }</p>
                                 <p>Crée le: { formatDate(o.timeCreated) }</p>
-                                <p>État de la commande: { o.state.name }</p>
+                                <p>{ o.state.name }</p>
                             </div>
                         </div>
                         <div class="extra content" style="text-align: right">

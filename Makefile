@@ -22,3 +22,10 @@ clean:
 
 build-website-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(W_ENTRY_DIR)/$(W_BINARY) $(W_ENTRY_DIR)/main.go
+
+
+
+build-adminapi:
+	$(GOBUILD) -o ./cmd/admin/adminapi ./cmd/admin/main.go
+run-adminapi: build-adminapi
+	./cmd/admin/adminapi

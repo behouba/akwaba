@@ -20,6 +20,7 @@ require (
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.3.0
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
 	golang.org/x/sys v0.0.0-20190626221950-04f50cda93cb // indirect

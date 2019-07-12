@@ -16,23 +16,25 @@ const (
 
 // Order struct represent order that will be created by users
 type Order struct {
-	OrderID     uint64     `json:"orderId"`
-	CustomerID  uint       `json:"customerId"`
-	Shipments   []Shipment `json:"shipments"`
-	State       OrderState `json:"state"`
-	TimeCreated time.Time  `json:"timeCreated"`
-	TimeClosed  time.Time  `json:"timeClosed"`
+	OrderID       uint64           `json:"orderId"`
+	CustomerID    uint             `json:"customerId"`
+	Sender        Address          `json:"sender"`
+	Recipient     Address          `json:"recipient"`
+	Category      ShipmentCategory `json:"category"`
+	PaymentOption PaymentOption    `json:"paymentOption"`
+	State         OrderState       `json:"state"`
+	TimeCreated   time.Time        `json:"timeCreated"`
+	TimeClosed    time.Time        `json:"timeClosed"`
+	Nature        string           `json:"nature"`
+	Cost          uint             `json:"cost"`
+	Distance      float64          `json:"distance"`
 }
 
 type OrderService interface {
 	OrderByID(orderID uint64) (order Order, err error)
 	CustomerOrders(userID uint) (orders []Order, err error)
-	Save(shipments []Shipment, customerID uint) (orderID uint64, err error)
+	Save(order *Order) (orderID uint64, err error)
 	Cancel(orderID uint64) (err error)
-}
-
-type PricingService interface {
-	ComputePrice(start, end string) (price uint, err error)
 }
 
 // OrderState data type represent order state id and corresponding label

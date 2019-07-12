@@ -117,22 +117,28 @@
                     <!-- <img src="../assets/img/distance.png" style="width: 150px;" alt=""> -->
                     <h2 class="ui header">Calculer le tarif et les délais d'envoi de votre colis</h2>
                     <div class="ui divider"></div>
-                    <p>Indiquez le lieu de depart, la destination ainsi que le poids du colis afin de calculer le
+                    <p>Indiquez le lieu de depart, la destination ainsi que la catégorie du colis afin de calculer le
                         coût de votre livraison.</p>
                 </div>
                 <form class="ui form">
                     <div class="field">
                         <label>Depart</label>
-                        <div class="ui left icon input">
-                            <input ref="origin" style="border-radius: 0px;" type="text">
-                            <i class="map marker alternate icon"></i>
+                        <div class="ui search" id="origin">
+                            <div class="ui left icon input">
+                                <input class="prompt" type="text" ref="origin" style="border-radius: 0px;"
+                                    placeholder="Indiquez un lieu">
+                                <i class="map marker alternate icon"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="field">
                         <label>Destination</label>
-                        <div class="ui left icon input">
-                            <input ref="destination" style="border-radius: 0px;" type="text">
-                            <i class="map marker alternate icon"></i>
+                        <div class="ui search" id="destination">
+                            <div class="ui left icon input">
+                                <input class="prompt" type="text" ref="destination" style="border-radius: 0px;"
+                                    placeholder="Indiquez un lieu">
+                                <i class="map marker alternate icon"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="field">
@@ -152,9 +158,8 @@
                                 <div class="order-summary-item">
                                     <div class="order-summary-item-title">Trajet</div>
                                     <div class="order-summary-item-text" id="path-text">
-                                        {origin.name} - {destination.name}
-                                        <br /> {pricing.distance.toFixed(2)}
-                                        km
+                                        {origin} - {destination}
+                                        <br /> <span v-if="pricing.distance">{pricing.distance.toFixed(2)} km</span>
                                     </div>
                                 </div>
 
@@ -172,7 +177,7 @@
                                 </div>
                                 <div style="text-align: right">
                                     <a class="ui primary button"
-                                        :href="`/order/form?origin=${origin.name}&destination=${destination.name}&categoryId=${categoryId}`">CONTINUER<i
+                                        :href="`/order/form?origin=${origin}&destination=${destination}&categoryId=${categoryId}`">CONTINUER<i
                                             class="right arrow icon"></i></a>
                                 </div>
                             </div>
@@ -187,7 +192,7 @@
                 <div class="ui bottom fixed menu" style="height: 65px;">
                     <div v-if="hasSummary && !loading" v-cloak id="price">
                         <a style="color: #B02025"
-                            :href="`/order/form?origin=${origin.name}&destination=${destination.name}&categoryId=${categoryId}`">
+                            :href="`/order/form?origin=${origin}&destination=${destination}&categoryId=${categoryId}`">
                             Coût de la livraison <strong>{pricing.cost} FCFA</strong></a>
                     </div>
                     <div v-else style="width: 100%;text-align: center; margin-top: 25px;" v-cloak>

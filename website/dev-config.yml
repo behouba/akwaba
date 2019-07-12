@@ -1,0 +1,14 @@
+database:
+  host: "35.181.50.39"
+  port: 5432
+  user: "behouba"
+  password: "akwabaexpress"
+  dbName: "akwaba_express"
+
+mail:
+  smtp: "mail.spamora.net"
+  email: "notifications@akwabaexpress.ci"
+  password: "akwabaexpress"
+  port: 587
+
+mapApiKey: "AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI"

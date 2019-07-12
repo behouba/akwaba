@@ -101,17 +101,6 @@ func (d *Authenticator) UpdatePassword(userID uint, token, newPassword string) (
 	return
 }
 
-// CheckPhone check if phone number exist in database then return nil
-// is phone exit and error if not
-// func (d *Authenticator) CheckPhone(phone string) (user akwaba.Customer, err error) {
-// 	err = d.db.QueryRow(
-// 		`SELECT id, full_name, phone, email FROM customer WHERE phone=$1`,
-// 		phone,
-// 	).Scan(&user.ID, &user.FullName, &user.Phone, &user.Email)
-// 	return
-// }
 
-// UserByPhone take user phone number and return user struct
-// func (d *Authenticator) UserByPhone(phone string) (user akwaba.Customer, err error) {
-// 	return akwaba.Customer{ID: 5, Name: "Kouame behouba", Email: "behouba@gmail.com", Phone: phone}, nil
-// }
+
+

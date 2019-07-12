@@ -209,7 +209,7 @@ CREATE TABLE public.shipments (
     time_accepted timestamp without time zone NOT NULL DEFAULT NOW(),
     time_delivered timestamp without time zone,
     order_id bigint NOT NULL,
-    shipping_cost integer NOT NULL,
+    cost integer NOT NULL,
     pickup_city_id int NOT NULL, -- should think which option is best between office_id or city_id (pickup and delivery area)
     delivery_city_id int NOT NULL,
     weight_interval_id smallint NOT NULL,

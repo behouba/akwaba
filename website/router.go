@@ -1,11 +1,7 @@
 package website
 
 import (
-	"log"
-
 	"github.com/behouba/akwaba"
-	"github.com/behouba/akwaba/mail"
-	"github.com/behouba/akwaba/postgres"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -21,7 +17,7 @@ type Handler struct {
 	auth               akwaba.CustomerAuthentifier
 	customerStore      akwaba.CustomerStorage
 	mailer             akwaba.CustomerMailer
-	calculator         akwaba.ShipmentCalculator
+	pricing            akwaba.PricingService
 	orderStore         akwaba.OrderService
 	cities             akwaba.KeyVal
 	paymentOptions     akwaba.KeyVal
@@ -78,6 +74,10 @@ func NewRouter(h *Handler) *gin.Engine {
 		pricing.GET("/compute", h.computePrice)
 	}
 
+	search := r.Group("/search")
+	{
+		search.GET("/area", h.searchArea)
+	}
 	// contact := r.Group("/contact")
 	// {
 	// 	contact.GET("/business", h.businessContact)
@@ -100,21 +100,33 @@ func NewRouter(h *Handler) *gin.Engine {
 }
 
 // NewHandler create take configurations info and return new user handler
-func NewHandler(c *Config) *Handler {
-	db, err := postgres.Open(c.DB)
-	if err != nil {
-		log.Println(err)
-		panic(err)
-	}
+// auth               akwaba.CustomerAuthentifier
+// 	customerStore      akwaba.CustomerStorage
+// 	mailer             akwaba.CustomerMailer
+// 	pricing         akwaba.ShipmentCalculator
+// 	orderStore         akwaba.OrderService
+// 	cities             akwaba.KeyVal
+// 	paymentOptions     akwaba.KeyVal
+// 	shipmentCategories akwaba.KeyVal
+func NewHandler(
+	auth akwaba.CustomerAuthentifier, customerStore akwaba.CustomerStorage,
+	mailer akwaba.CustomerMailer, pricing akwaba.PricingService, orderStore akwaba.OrderService,
+	cities akwaba.KeyVal, paymentOptions akwaba.KeyVal, shipmentCategories akwaba.KeyVal,
+) *Handler {
+	// db, err := postgres.Open(c.DB)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	panic(err)
+	// }
 
 	return &Handler{
-		auth:               postgres.NewAuthenticator(db),
-		customerStore:      postgres.NewCustomerStore(db),
-		mailer:             mail.NewCustomerMail(c.Mail),
-		calculator:         postgres.NewCalculator(db, c.MapAPIKey),
-		orderStore:         postgres.NewOrderStore(db),
-		cities:             postgres.Cities(),
-		paymentOptions:     postgres.PaymentOptions(),
-		shipmentCategories: postgres.ShipmentCategories(),
+		auth:               auth,
+		customerStore:      customerStore,
+		mailer:             mailer,
+		pricing:            pricing,
+		orderStore:         orderStore,
+		cities:             cities,
+		paymentOptions:     paymentOptions,
+		shipmentCategories: shipmentCategories,
 	}
 }

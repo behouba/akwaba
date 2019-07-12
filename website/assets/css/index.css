@@ -444,3 +444,9 @@ select {
     word-break: break-word;
     margin-top: 8px;
 }
+
+
+.ui.search>.results{
+    width: 100% !important;
+    border-radius: 0px !important;
+}

@@ -5,22 +5,19 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
-	"github.com/behouba/akwaba"
-	"github.com/behouba/akwaba/adminapi/internal/jwt"
 	"github.com/gin-gonic/gin"
 )
 
-func getEmployee(c *gin.Context, auth *jwt.Authenticator) (emp akwaba.Employee) {
-	token := strings.Split(c.GetHeader("Authorization"), " ")[1]
-	emp, _ = auth.AuthenticateToken(token)
-	return
-}
+// func getEmployee(c *gin.Context, auth *jwt.Authenticator) (emp akwaba.Employee) {
+// 	token := strings.Split(c.GetHeader("Authorization"), " ")[1]
+// 	emp, _ = auth.AuthenticateToken(token)
+// 	return
+// }
 
-func (h *Handler) pendingOrders(c *gin.Context) {
-	emp := getEmployee(c, h.auth)
-	orders, err := h.db.PendingOrders(emp.Office.ID)
+func (h *HeadOfficeHandler) pendingOrders(c *gin.Context) {
+	// emp := getEmployee(c, h.auth)
+	orders, err := h.orderStore.Pending()
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -28,6 +25,7 @@ func (h *Handler) pendingOrders(c *gin.Context) {
 		})
 		return
 	}
+	// log.Println("orders: ", orders)
 	c.JSON(http.StatusOK, gin.H{
 		"orders": orders,
 	})
@@ -49,8 +47,8 @@ func (h *Handler) pendingOrders(c *gin.Context) {
 // 	})
 // }
 
-func (h *Handler) cancelOrder(c *gin.Context) {
-	emp := getEmployee(c, h.auth)
+func (h *HeadOfficeHandler) cancelOrder(c *gin.Context) {
+	// emp := getEmployee(c, h.auth)
 	orderID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		log.Println(err)
@@ -61,7 +59,7 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 	}
 	// assurer que n'importe commande ne soit pas annulé comme c'est le cas actuellement
 
-	err = h.db.CancelOrder(orderID, &emp)
+	err = h.orderStore.Cancel(orderID)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -77,8 +75,8 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 	})
 }
 
-func (h *Handler) confirmOrder(c *gin.Context) {
-	emp := getEmployee(c, h.auth)
+func (h *HeadOfficeHandler) confirmOrder(c *gin.Context) {
+	// emp := getEmployee(c, h.auth)
 
 	orderID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -90,7 +88,7 @@ func (h *Handler) confirmOrder(c *gin.Context) {
 	}
 	// assurer que n'importe commande ne soit pas confirmée comme c'est le cas actuellement
 
-	err = h.db.ConfirmOrder(orderID, &emp)
+	_, err = h.orderStore.Confirm(orderID)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -106,27 +104,26 @@ func (h *Handler) confirmOrder(c *gin.Context) {
 	})
 }
 
-func (h *Handler) createOrder(c *gin.Context) {
-	var order akwaba.Order
-	if err := c.ShouldBind(&order); err != nil {
-		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Impossible de traiter cette requête.",
-		})
-		return
-	}
-	log.Println(order.PaymentType.ID)
+// func (h *Handler) createOrder(c *gin.Context) {
+// 	var order akwaba.Order
+// 	if err := c.ShouldBind(&order); err != nil {
+// 		log.Println(err)
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"message": "Impossible de traiter cette requête.",
+// 		})
+// 		return
+// 	}
 
-	if err := h.db.CreateOrder(&order); err != nil {
-		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Nouvelle commande créee avec succès.",
-		"order":   order,
-	})
-	log.Println(order)
-}
+// 	if err := h.orderStore.Create(&order); err != nil {
+// 		log.Println(err)
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"message": err.Error(),
+// 		})
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"message": "Nouvelle commande créee avec succès.",
+// 		"order":   order,
+// 	})
+// 	log.Println(order)
+// }

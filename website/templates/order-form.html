@@ -126,7 +126,7 @@
                     <div class="field required">
                         <label>Nom</label>
                         <input type="text" ref="senderNameInput" name="senderName" autocomplete="disable"
-                            v-validate="{ required: true, min: 3 }" v-model="shipment.sender.contactName">
+                            v-validate="{ required: true, min: 3 }" v-model="order.sender.name">
                         <span class="error-label" v-cloak>{ errors.first('senderName') }</span>
                     </div>
                     <div class="field">
@@ -136,7 +136,7 @@
                     <div class="field required">
                         <label>Complément d'adresse (quartier, secteur, rue)</label>
                         <input type="text" ref="senderAddressInput" name="senderAddress"
-                            v-validate="{required: true, min: 3}" v-model="shipment.sender.description"
+                            v-validate="{required: true, min: 3}" v-model="order.sender.address"
                             placeholder="Ex: Williamsville, rue Champs Élysées">
                         <span class="error-label" v-cloak>{ errors.first('senderAddress') }</span>
 
@@ -144,7 +144,7 @@
                     <div class="field required">
                         <label>Téléphone</label>
                         <input type="tel" ref="senderPhoneInput" v-validate="{required: true, length: 16}"
-                            v-mask="'+225 ## ## ## ##'" name="senderPhone" v-model="shipment.sender.phone">
+                            v-mask="'+225 ## ## ## ##'" name="senderPhone" v-model="order.sender.phone">
                         <span class="error-label" class="error-label" v-cloak>{ errors.first('senderPhone') }</span>
                     </div>
 
@@ -152,7 +152,7 @@
                     <div class="field required">
                         <label>Nom</label>
                         <input type="text" ref="recipientNameInput" name="recipientName"
-                            v-validate="{ required: true, min: 3 }" v-model="shipment.recipient.contactName">
+                            v-validate="{ required: true, min: 3 }" v-model="order.recipient.name">
                         <span class="error-label" v-cloak>{ errors.first('recipientName') }</span>
 
                     </div>
@@ -163,14 +163,14 @@
                     <div class="field required">
                         <label>Complément d'adresse (quartier, secteur, rue)</label>
                         <input type="text" ref="recipientAddressInput" name="recipientAddress"
-                            v-validate="{required: true, min: 3}" v-model="shipment.recipient.description"
+                            v-validate="{required: true, min: 3}" v-model="order.recipient.address"
                             placeholder="Ex: Williamsville, rue Champs Élysées">
                         <span class="error-label" v-cloak>{errors.first('recipientAddress')}</span>
                     </div>
                     <div class="field required">
                         <label>Téléphone</label>
                         <input type="tel" ref="recipientPhoneInput" name="recipientPhone"
-                            v-model="shipment.recipient.phone" v-validate="{required: true, length: 16}"
+                            v-model="order.recipient.phone" v-validate="{required: true, length: 16}"
                             v-mask="'+225 ## ## ## ##'">
                         <span class="error-label" v-cloak>{errors.first('recipientPhone')}</span>
                     </div>
@@ -183,7 +183,7 @@
                         </div>
                         <div class="field required">
                             <label>Nature du colis</label>
-                            <input type="text" ref="natureInput" v-model="shipment.nature"
+                            <input type="text" ref="natureInput" v-model="order.nature"
                                 v-validate="{required: true, min: 3}" name="nature"
                                 placeholder="Ex: Documents, Chaussures, Sac...">
                             <span class="error-label" v-cloak>{errors.first('nature')}</span>
@@ -194,7 +194,7 @@
                         <label for="paymentType">Selectionner votre mode paiement:</label>
 
                         <div class="field">
-                            <select name="paymentOptionId" v-model="shipment.paymentOption.id">
+                            <select name="paymentOptionId" v-model="order.paymentOption.id">
                                 {{ range $key, $value := .paymentOptions }}
                                 <option value="{{$key}}">{{$value}}</option>
                                 {{ end }}
@@ -215,9 +215,12 @@
 
                 </form>
             </div>
-            <div class="ui bottom fixed menu" style="height: 65px;">
-                <div id="price">
-                    Coût de la livraison <strong>{{.cost}} FCFA</strong>
+            <div class="ui bottom fixed menu" style="height: 65px;" v-cloak>
+                <div style="width: 100%;text-align: center; margin-top: 25px;" v-if="!cost">
+                    <img src="../assets/img/dots_loader.gif">
+                </div>
+                <div v-else id="price" v-cloak>
+                    Frais de la livraison <strong>{cost} FCFA</strong>
                 </div>
             </div>
         </div>
@@ -228,7 +231,7 @@
 </body>
 
 </html>
-<!-- <script src="../assets/js/shipment.js"></script> -->
+<!-- <script src="../assets/js/order.js"></script> -->
 
 <script>
     const dictionary = {
@@ -274,46 +277,38 @@
         dictionary: dictionary,
     });
 
-    function Shipment() {
+    function Address() {
         return {
-            sender: {
-                contactName: null,
-                googlePlace: null,
-                description: null,
-                phone: null,
-            },
-            recipient: {
-                contactName: null,
-                googlePlace: null,
-                description: null,
-                phone: null,
-            },
-            nature: null,
-            category: {
-                id: null,
-                name: null,
-            },
-            paymentOption: {
-                id: 1,
-            }
+            name: null,
+            area: { id: null, name: null, cityId: null },
+            phone: null,
+            address: null,
         }
     }
+    function Order() {
+        return {
+            sender: Address(),
+            recipient: Address(),
+            category: { id: null, name: null },
+            nature: null,
+            paymentOption: { id: null, name: null },
+        }
+    }
+
     var orderApp = new Vue({
         el: "#order-app",
         data() {
             return {
-                shipment: Shipment(),
+                cost: null,
+                order: Order(),
                 loading: false,
                 error: null,
             }
         },
         methods: {
             async submitOrder() {
-                this.shipment.sender.googlePlace = this.$refs.originPlace.value;
-                this.shipment.recipient.googlePlace = this.$refs.destinationPlace.value;
-                this.shipment.category.id = Number(this.$refs.category.dataset.categoryId);
-                this.shipment.paymentOption.id = Number(this.shipment.paymentOption.id);
-                console.log(JSON.parse(JSON.stringify(this.shipment)));
+                this.order.paymentOption.id = Number(this.order.paymentOption.id);
+                console.log(JSON.parse(JSON.stringify(this.order)));
 
                 await this.$validator.validate();
                 const firstField = await Object.keys(this.errors.collect())[0];
@@ -325,15 +320,13 @@
 
                 // create array of shipments. After business customer will be able to create many shipments in
                 // one order
-                var shipments = [];
-                shipments.push(this.shipment);
                 try {
-                    let response = await axios.post("/order/create", shipments);
+                    let response = await axios.post("/order/create", this.order);
                     console.log(response);
                     this.loading = false;
                     if (response.data) {
-                        console.log(response.data.orderId);
-                        window.location.href = "/order/success?orderId=" + response.data.orderId;
+                        console.log(response.data);
+                        // window.location.href = "/order/success?orderId=" + response.data.orderId;
                     } else {
                         this.error = 'La création de commande a échoué, veuillez réessayer s\'il vous plait';
                     }
@@ -356,6 +349,20 @@
                     console.log(error)
                 }
             }
+        },
+        mounted() {
+            const urlParams = new URLSearchParams(window.location.search);
+            this.order.sender.area.name = urlParams.get('origin') || this.$refs.originPlace.value;
+            this.order.recipient.area.name = urlParams.get('destination') || this.$refs.destinationPlace.value;
+            this.order.category.id = Number(urlParams.get('categoryId') || this.$refs.category.dataset.categoryId);
+            axios.get(
+                `/pricing/compute?origin=${this.order.sender.area.name}&destination=${this.order.recipient.area.name}&categoryId=${this.order.category.id}`,
+            ).then(response => {
+                this.cost = response.data.cost;
+                console.log(response);
+            }).catch(error => {
+                alert(error);
+            })
         }
     })
 </script>
