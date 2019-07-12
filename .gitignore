@@ -1,4 +1,5 @@
 store/*
 *.pem
 prod-config.yml
-akwaba-website
+cmd/website/akwaba-website
+cmd/admin/adminapi
