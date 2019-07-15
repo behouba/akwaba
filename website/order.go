@@ -36,7 +36,7 @@ func (h *Handler) handleOrderCreation(c *gin.Context) {
 	log.Println(order)
 
 	order.CustomerID = cust.ID
-	orderID, err := h.orderStore.Save(&order)
+	err := h.orderStore.Save(&order)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -45,7 +45,7 @@ func (h *Handler) handleOrderCreation(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"orderId": orderID,
+		"orderId": order.OrderID,
 	})
 
 }

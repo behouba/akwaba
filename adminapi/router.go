@@ -5,7 +5,9 @@ package adminapi
 import (
 	"time"
 
-	"github.com/behouba/akwaba"
+	"github.com/behouba/akwaba/adminapi/headoffice"
+	"github.com/behouba/akwaba/adminapi/office"
+	"github.com/behouba/akwaba/postgres"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -18,7 +20,7 @@ const (
 	authBaseURL       = "/auth"
 	orderBaseURL      = "/order"
 	parcelBaseURL     = "/parcel"
-	userBaseURL       = "/user"
+	custBaseURL       = "/customer"
 )
 
 var corsConfig = cors.New(cors.Config{
@@ -29,60 +31,37 @@ var corsConfig = cors.New(cors.Config{
 	MaxAge:           12 * time.Hour,
 })
 
-type HeadOfficeHandler struct {
-	auth          akwaba.AdminAuthService
-	employeeStore akwaba.EmployeeStore
-	orderStore    akwaba.AdminOrderService
-}
-
-func NewHeadOfficeHandler(
-	auth akwaba.AdminAuthService, orderStore akwaba.AdminOrderService,
-	employeeStore akwaba.EmployeeStore,
-) *HeadOfficeHandler {
-	return &HeadOfficeHandler{
-		auth:          auth,
-		orderStore:    orderStore,
-		employeeStore: employeeStore,
-	}
-}
-
-type OfficeHandler struct {
-	auth          akwaba.AdminAuthService
-	employeeStore akwaba.EmployeeStore
-	orderStore    akwaba.AdminOrderService
-}
-
-func NewOfficeHandler(
-	auth akwaba.AdminAuthService, orderStore akwaba.AdminOrderService,
-	employeeStore akwaba.EmployeeStore,
-) *OfficeHandler {
-	return &OfficeHandler{
-		auth:          auth,
-		orderStore:    orderStore,
-		employeeStore: employeeStore,
-	}
-}
-
 // NewRouter create routes and return *gin.Engine
-func NewRouter(h *HeadOfficeHandler, o *OfficeHandler) *gin.Engine {
+func NewRouter(h *headoffice.Handler, o *office.Handler) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(corsConfig)
 	v := r.Group(version)
-	// v.GET("/system_data", h.systemData)
+	v.GET("/pricing", h.ComputePrice)
 	{
 		// head office api for orders management
 		head := v.Group(headOfficeBaseURL)
 		{
+			head.GET("/system_data", systemData)
 			auth := head.Group(authBaseURL)
 			{
-				auth.GET("/check", h.authMiddleware())
-				auth.POST("/login", h.login)
+				auth.GET("/check", h.AuthMiddleware())
+				auth.POST("/login", h.Login)
 			}
 			order := head.Group(orderBaseURL)
-			order.Use(h.authMiddleware())
+			order.Use(h.AuthMiddleware())
 			{
-				order.GET("/pending", h.pendingOrders)
+				order.GET("/live", h.ActiveOrders)
+				order.GET("/closed", h.ClosedOrders)
+				order.PATCH("/confirm/:id", h.ConfirmOrder)
+				order.PATCH("/cancel/:id", h.CancelOrder)
+				order.POST("/create", h.CreateOrder)
+
+			}
+			user := head.Group(custBaseURL)
+			user.Use(h.AuthMiddleware())
+			{
+				user.GET("/customers", h.Customers)
 			}
 		}
 
@@ -91,8 +70,8 @@ func NewRouter(h *HeadOfficeHandler, o *OfficeHandler) *gin.Engine {
 		{
 			auth := offices.Group(authBaseURL)
 			{
-				auth.GET("/check", o.authMiddleware())
-				auth.POST("/login", o.login)
+				auth.GET("/check", o.AuthMiddleware())
+				auth.POST("/login", o.Login)
 			}
 		}
 
@@ -119,7 +98,7 @@ func NewRouter(h *HeadOfficeHandler, o *OfficeHandler) *gin.Engine {
 		// p.PATCH("/failed_delivery", h.failedDelivery)
 		// p.GET("/track", h.trackOrder)
 		// }
-		// u := v.Group(userBaseURL)
+		// u := v.Group(custBaseURL)
 		// u.Use(h.authMiddleware())
 		// {
 		// 	u.GET("/contact", h.userContact)
@@ -128,4 +107,13 @@ func NewRouter(h *HeadOfficeHandler, o *OfficeHandler) *gin.Engine {
 		// }
 	}
 	return r
+}
+
+// Config hold configuration data for the adminapi
+type Config struct {
+	DB         *postgres.Config `yaml:"database"`
+	HSecretKey string           `yaml:"hSecretKey"`
+	OSecretKey string           `yaml:"oSecretKey"`
+	// Mail      *mail.Config     `yaml:"mail"`
+	MapAPIKey string `yaml:"mapApiKey"`
 }

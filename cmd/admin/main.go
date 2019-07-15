@@ -6,6 +6,8 @@ import (
 	"log"
 
 	"github.com/behouba/akwaba/adminapi"
+	"github.com/behouba/akwaba/adminapi/headoffice"
+	"github.com/behouba/akwaba/adminapi/office"
 	"github.com/behouba/akwaba/jwt"
 	"github.com/behouba/akwaba/postgres"
 	"gopkg.in/yaml.v2"
@@ -25,13 +27,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	headHandler := adminapi.NewHeadOfficeHandler(
+	headHandler := headoffice.NewHandler(
 		jwt.NewAdminAuthenticator(config.HSecretKey),
-		postgres.NewAdminOrderStorage(db),
+		postgres.NewAdminOrderStorage(db, config.MapAPIKey),
 		postgres.NewEmployeeStorageH(db),
+		postgres.NewAdminCustomerStorage(db),
 	)
 
-	officesHandler := adminapi.NewOfficeHandler(
+	officesHandler := office.NewHandler(
 		jwt.NewAdminAuthenticator(config.OSecretKey), nil,
 		postgres.NewEmployeeStorageO(db),
 	)

@@ -1,15 +1,16 @@
 package adminapi
 
-// import (
-// 	"net/http"
+import (
+	"net/http"
 
-// 	"github.com/gin-gonic/gin"
-// )
+	"github.com/behouba/akwaba/postgres"
+	"github.com/gin-gonic/gin"
+)
 
-// func (h *Handler) systemData(c *gin.Context) {
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"cities":             h.db.Cities,
-// 		"shipmentCategories": h.db.ShipmentCategorys,
-// 		"PaymentOptions":     h.db.PaymentOptions,
-// 	})
-// }
+func systemData(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"areas":          postgres.Areas(),
+		"categories":     postgres.ShipmentCategories(),
+		"paymentOptions": postgres.PaymentOptions(),
+	})
+}

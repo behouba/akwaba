@@ -32,8 +32,8 @@ func main() {
 
 	handler := website.NewHandler(
 		postgres.NewAuthenticator(db), postgres.NewCustomerStore(db), mail.NewCustomerMail(config.Mail),
-		postgres.NewPricingStorage(db, config.MapAPIKey), postgres.NewOrderStore(db, config.MapAPIKey), postgres.Cities(),
-		postgres.PaymentOptions(), postgres.ShipmentCategories(),
+		postgres.NewPricingStorage(db, config.MapAPIKey), postgres.NewOrderStore(db, config.MapAPIKey), postgres.CitiesMap(),
+		postgres.PaymentOptionsMap(), postgres.ShipmentCategoriesMap(),
 	)
 
 	router := website.NewRouter(handler)

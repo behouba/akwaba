@@ -18,7 +18,7 @@ const (
 // 	Confirm(orderID int) error
 // 	Cancel(orderID int) error
 // 	Get(orderID int) (Order, error)
-// 	Pending(officeID int) ([]Order, error)
+// 	ActiveOrders(officeID int) ([]Order, error)
 // }
 
 // AdminUserManager interface for admin to manage customer
@@ -61,10 +61,16 @@ type AdminAuthService interface {
 }
 
 type AdminOrderService interface {
-	Pending() (o []Order, err error)
+	ActiveOrders() (o []Order, err error)
+	ClosedOrders(date string) (o []Order, err error)
 	Cancel(orderID uint64) (err error)
 	Confirm(orderID uint64) (shipmentID uint64, err error)
 	Create(o *Order) (err error)
+	Cost(origin, destination string, categoryID uint8) (cost uint, distance float64, err error)
+}
+
+type AdminCustomerService interface {
+	Customers() []Customer
 }
 
 // Office represent office data

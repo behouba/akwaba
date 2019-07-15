@@ -33,7 +33,7 @@ type Order struct {
 type OrderService interface {
 	OrderByID(orderID uint64) (order Order, err error)
 	CustomerOrders(userID uint) (orders []Order, err error)
-	Save(order *Order) (orderID uint64, err error)
+	Save(order *Order) (err error)
 	Cancel(orderID uint64) (err error)
 }
 

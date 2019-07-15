@@ -13,10 +13,15 @@ import (
 const dbURIPattern = "host=%s port=%d user=%s password=%s dbname=%s sslmode=disable connect_timeout=100"
 
 var (
-	cities             akwaba.KeyVal
-	paymentOptions     akwaba.KeyVal
-	shipmentCategories akwaba.KeyVal
-	orderStates        akwaba.KeyVal
+	citiesMap             akwaba.KeyVal
+	cities                []akwaba.City
+	paymentOptionsMap     akwaba.KeyVal
+	paymentOptions        []akwaba.PaymentOption
+	shipmentCategoriesMap akwaba.KeyVal
+	shipmentCategories    []akwaba.ShipmentCategory
+	orderStatesMap        akwaba.KeyVal
+	orderStates           []akwaba.OrderState
+	areas                 []akwaba.Area
 )
 
 type Config struct {
@@ -45,27 +50,31 @@ func Open(c *Config) (db *sqlx.DB, err error) {
 	db.SetMaxOpenConns(5)
 	db.SetConnMaxLifetime(time.Minute * 1)
 
-	cities, err = queryCities(db)
+	citiesMap, cities, err = queryCities(db)
 	if err != nil {
 		return
 	}
-	shipmentCategories, err = queryShipmentCategorys(db)
+	shipmentCategoriesMap, shipmentCategories, err = queryShipmentCategorys(db)
 	if err != nil {
 		return
 	}
-	paymentOptions, err = queryPaymentOptions(db)
+	paymentOptionsMap, paymentOptions, err = queryPaymentOptions(db)
 	if err != nil {
 		return
 	}
-	orderStates, err = queryOrderStates(db)
+	orderStatesMap, orderStates, err = queryOrderStates(db)
+	if err != nil {
+		return
+	}
+	areas, err = queryAreas(db)
 	if err != nil {
 		return
 	}
 	return
 }
 
-func queryCities(db *sqlx.DB) (cities akwaba.KeyVal, err error) {
-	cities = make(akwaba.KeyVal)
+func queryCities(db *sqlx.DB) (citiesMap akwaba.KeyVal, citiesSlice []akwaba.City, err error) {
+	citiesMap = make(akwaba.KeyVal)
 	rows, err := db.Query(
 		`SELECT city_id, name from cities ORDER BY name`,
 	)
@@ -78,14 +87,14 @@ func queryCities(db *sqlx.DB) (cities akwaba.KeyVal, err error) {
 		if err != nil {
 			return
 		}
-		cities[c.ID] = c.Name
+		citiesMap[c.ID] = c.Name
+		citiesSlice = append(citiesSlice, c)
 	}
-	log.Println(cities)
 	return
 }
 
-func queryShipmentCategorys(db *sqlx.DB) (cat akwaba.KeyVal, err error) {
-	cat = make(akwaba.KeyVal)
+func queryShipmentCategorys(db *sqlx.DB) (catMap akwaba.KeyVal, cats []akwaba.ShipmentCategory, err error) {
+	catMap = make(akwaba.KeyVal)
 	rows, err := db.Query(
 		`SELECT shipment_category_id, name, min_cost, max_cost from shipment_categories order by shipment_category_id`,
 	)
@@ -98,13 +107,14 @@ func queryShipmentCategorys(db *sqlx.DB) (cat akwaba.KeyVal, err error) {
 		if err != nil {
 			return
 		}
-		cat[c.ID] = c.Name
+		cats = append(cats, c)
+		catMap[c.ID] = c.Name
 	}
 	return
 }
 
-func queryPaymentOptions(db *sqlx.DB) (po akwaba.KeyVal, err error) {
-	po = make(akwaba.KeyVal)
+func queryPaymentOptions(db *sqlx.DB) (poMap akwaba.KeyVal, po []akwaba.PaymentOption, err error) {
+	poMap = make(akwaba.KeyVal)
 	rows, err := db.Query(
 		`SELECT payment_option_id, name from payment_options order by payment_option_id`,
 	)
@@ -117,13 +127,14 @@ func queryPaymentOptions(db *sqlx.DB) (po akwaba.KeyVal, err error) {
 		if err != nil {
 			return
 		}
-		po[p.ID] = p.Name
+		po = append(po, p)
+		poMap[p.ID] = p.Name
 	}
 	return
 }
 
-func queryOrderStates(db *sqlx.DB) (states akwaba.KeyVal, err error) {
-	states = make(akwaba.KeyVal)
+func queryOrderStates(db *sqlx.DB) (statesMap akwaba.KeyVal, states []akwaba.OrderState, err error) {
+	statesMap = make(akwaba.KeyVal)
 	rows, err := db.Query(
 		`SELECT order_state_id, name from order_states order by order_state_id`,
 	)
@@ -136,23 +147,58 @@ func queryOrderStates(db *sqlx.DB) (states akwaba.KeyVal, err error) {
 		if err != nil {
 			return
 		}
-		states[o.ID] = o.Name
+		states = append(states, o)
+		statesMap[o.ID] = o.Name
 	}
 	return
 }
 
-func Cities() akwaba.KeyVal {
-	return cities
+func queryAreas(db *sqlx.DB) (areas []akwaba.Area, err error) {
+	rows, err := db.Query("SELECT area_id, name, city_id FROM areas")
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var a akwaba.Area
+		err = rows.Scan(&a.ID, &a.Name, &a.CityID)
+		if err != nil {
+			return
+		}
+		areas = append(areas, a)
+	}
+	return
 }
 
-func PaymentOptions() akwaba.KeyVal {
+func CitiesMap() akwaba.KeyVal {
+	return citiesMap
+}
+
+func PaymentOptionsMap() akwaba.KeyVal {
+	return paymentOptionsMap
+}
+
+func ShipmentCategoriesMap() akwaba.KeyVal {
+	return shipmentCategoriesMap
+}
+func OrderStatesMap() akwaba.KeyVal {
+	return orderStatesMap
+}
+
+func Cities() []akwaba.City {
+	return cities
+}
+func OrderStates() []akwaba.OrderState {
+	return orderStates
+}
+
+func PaymentOptions() []akwaba.PaymentOption {
 	return paymentOptions
 }
 
-func ShipmentCategories() akwaba.KeyVal {
+func ShipmentCategories() []akwaba.ShipmentCategory {
 	return shipmentCategories
 }
 
-func OrderStates() akwaba.KeyVal {
-	return orderStates
+func Areas() []akwaba.Area {
+	return areas
 }

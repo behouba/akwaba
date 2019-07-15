@@ -166,7 +166,7 @@
                                 <div class="order-summary-item">
                                     <div class="order-summary-item-title">Coût de la livraison</div>
                                     <div class="order-summary-item-text">
-                                        {pricing.cost} FCFA
+                                        {pricing.cost.toLocaleString()} FCFA
                                     </div>
                                 </div>
                                 <div class="order-summary-item">
@@ -193,7 +193,7 @@
                     <div v-if="hasSummary && !loading" v-cloak id="price">
                         <a style="color: #B02025"
                             :href="`/order/form?origin=${origin}&destination=${destination}&categoryId=${categoryId}`">
-                            Coût de la livraison <strong>{pricing.cost} FCFA</strong></a>
+                            Coût de la livraison <strong>{pricing.cost.toLocaleString()} FCFA</strong></a>
                     </div>
                     <div v-else style="width: 100%;text-align: center; margin-top: 25px;" v-cloak>
                         <div v-if="loading">

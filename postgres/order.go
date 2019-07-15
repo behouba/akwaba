@@ -14,8 +14,7 @@ type OrderStore struct {
 
 func NewOrderStore(db *sqlx.DB, mapApiKey string) *OrderStore {
 	o := OrderStore{db: db}
-	o.PricingStorage.db = db
-	o.PricingStorage.apiKey = mapApiKey
+	o.PricingStorage.db, o.PricingStorage.apiKey = db, mapApiKey
 	return &o
 }
 
@@ -65,7 +64,7 @@ func (o *OrderStore) CustomerOrders(customerID uint) (orders []akwaba.Order, err
 }
 
 // Save order
-func (s *OrderStore) Save(o *akwaba.Order) (orderID uint64, err error) {
+func (s *OrderStore) Save(o *akwaba.Order) (err error) {
 	err = s.setAreaID(o.Sender.Area.Name, &o.Sender.Area.ID)
 	if err != nil {
 		return
@@ -89,7 +88,7 @@ func (s *OrderStore) Save(o *akwaba.Order) (orderID uint64, err error) {
 		o.CustomerID, o.Sender.Name, o.Sender.Phone, o.Sender.Area.ID, o.Sender.Address,
 		o.Recipient.Name, o.Recipient.Phone, o.Recipient.Area.ID, o.Recipient.Address,
 		o.Category.ID, o.Nature, o.PaymentOption.ID, o.Cost, o.Distance,
-	).Scan(&orderID)
+	).Scan(&o.OrderID)
 	if err != nil {
 		return
 	}
