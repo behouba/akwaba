@@ -6,46 +6,23 @@ import (
 	"time"
 )
 
-// Tracking events type
-var (
-// EventPickedUp               = Event{ID: 1, Title: "Colis récupéré par le coursier"}
-// EventArrivedAtOriginOffice  = Event{ID: 2, Title: "Arrivé à l'agence de la zone d'expédition"}
-// EventLeftOriginOffice       = Event{ID: 3, Title: "Départ de l'agence de zone d'expédition"}
-// EventArrivedAtTransitOffice = Event{ID: 4, Title: "Arrivé dans une agence de transit"}
-// EventLeftTransitOffice      = Event{ID: 5, Title: "Départ de l'agence de transit"}
-// EventArrivedAtDestination   = Event{ID: 6, Title: "Arrivé à l'agence de la zone de destination"}
-// EventDelivered              = Event{ID: 7, Title: "Le colis a été livré"}
-// EventFailedDelivery         = Event{ID: 8, Title: "La livraison a échoué"}
-// EventParcelReturned         = Event{ID: 9, Title: "Colis retourné"}
-)
-
 // Event represent most commom a tracking event
 type Event struct {
-	ID     int8       `json:"id"`
-	Title  string     `json:"title"`
-	Time   CustomTime `json:"time"`
-	Office Office     `json:"office"`
+	Title string     `json:"title"`
+	Time  *time.Time `json:"time"`
+	City  string     `json:"city"`
+	Area  string     `json:"area"`
 }
-
-const (
-	trackIDSalt    = "akwabaexpress"
-	trackIDCharSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-)
 
 // Tracking represent current state with all data about tracking historique of an order
 type Tracking struct {
-	TrackID  string  `json:"trackId"`
-	Sender   Address `json:"sender"`
-	Receiver Address `json:"receiver"`
-	Weight   float64 `json:"weight"`
-	Nature   string  `json:"nature"`
-	History  []Event `json:"history"`
+	Shipment Shipment `json:"shipment"`
+	Events   []Event  `json:"events"`
 }
 
-// CustomTime hold event time and french formatted time string
-type CustomTime struct {
-	Time      time.Time `json:"time"`
-	Formatted string    `json:"formatted"`
+// Tracker interface define shipment tracking method Track
+type Tracker interface {
+	Track(shipmentID uint64) (tracking Tracking, err error)
 }
 
 // FormatTimeFR method set Formatted field of EventTime datatype
@@ -53,7 +30,7 @@ type CustomTime struct {
 func (s *Shipment) FormatTimeFR() (formatted string) {
 	timeString := strings.Join(
 		strings.Split(
-			fmt.Sprintf(s.TimeAccepted.Format("15:04:05")), ":",
+			fmt.Sprintf(s.TimeCreated.Format("15:04:05")), ":",
 		)[:2], ":",
 	)
 	// var month string
@@ -85,8 +62,8 @@ func (s *Shipment) FormatTimeFR() (formatted string) {
 	// }
 	formatted = fmt.Sprintf(
 		"%d %s, %d à %s",
-		s.TimeAccepted.Day(),
-		s.TimeAccepted.Month(), s.TimeAccepted.Year(),
+		s.TimeCreated.Day(),
+		s.TimeCreated.Month(), s.TimeCreated.Year(),
 		timeString,
 	)
 	return

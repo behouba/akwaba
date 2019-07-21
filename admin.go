@@ -7,37 +7,6 @@ const (
 	CourierPositionID           uint8 = 3
 )
 
-// AdminParcelManager interface for admin parcel
-// type AdminParcelManager interface {
-// 	Track(orderID, officeID int) ([]Event, error)
-// }
-
-// AdminOrderManager interface for admin orders operation on database
-// type AdminOrderManager interface {
-// 	Save(order *Order) (int, error)
-// 	Confirm(orderID int) error
-// 	Cancel(orderID int) error
-// 	Get(orderID int) (Order, error)
-// 	ActiveOrders(officeID int) ([]Order, error)
-// }
-
-// AdminUserManager interface for admin to manage customer
-// type AdminUserManager interface {
-// 	GetUserByPhone(phone string) ([]Customer, error)
-// 	GetUserByName(name string) ([]Customer, error)
-// 	GetAddresses(userID int, addrType string) ([]Address, error)
-// 	SaveAddress(addr *Address) (int, error)
-// 	SaveUser(user *Customer) (int, error)
-// 	FreezeUser(userID int) error
-// 	UnFreezeUser(userID int) error
-// }
-
-// AdminAuthenticator interface for admin login operations
-// type AdminAuthenticator interface {
-// 	NewToken(emp *Employee) (string, error)
-// 	AuthenticateToken(token string) (Employee, error)
-// }
-
 // Employee represent an employee with it identifiers
 type Employee struct {
 	ID         uint   `json:"id"`
@@ -51,30 +20,14 @@ type Employee struct {
 	PositionID uint8  `json:"positionId"`
 }
 
-type EmployeeStore interface {
+type EmployeeAuthentifier interface {
 	Authenticate(e *Employee) (empl Employee, err error)
-}
-
-type AdminAuthService interface {
-	NewToken(emp *Employee) (token string, err error)
-	AuthenticateToken(token string) (emp Employee, err error)
-}
-
-type AdminOrderService interface {
-	ActiveOrders() (o []Order, err error)
-	ClosedOrders(date string) (o []Order, err error)
-	Cancel(orderID uint64) (err error)
-	Confirm(orderID uint64) (shipmentID uint64, err error)
-	Create(o *Order) (err error)
-	Cost(origin, destination string, categoryID uint8) (cost uint, distance float64, err error)
-}
-
-type AdminCustomerService interface {
-	Customers() []Customer
 }
 
 // Office represent office data
 type Office struct {
-	ID   uint8  `json:"id"`
+	ID   uint   `json:"id"`
 	Name string `json:"name"`
+	City City   `json:"city"`
+	Area Area   `json:"area"`
 }

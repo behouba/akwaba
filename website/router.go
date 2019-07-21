@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	templatesPath = "./website/templates/*"
-	assetsPath    = "./website/assets"
+	templatesPath = "./templates/*"
+	assetsPath    = "./assets"
 )
 
 // Handler represents the website  handler methods set
@@ -19,6 +19,7 @@ type Handler struct {
 	mailer             akwaba.CustomerMailer
 	pricing            akwaba.PricingService
 	orderStore         akwaba.OrderService
+	tracker            akwaba.Tracker
 	cities             akwaba.KeyVal
 	paymentOptions     akwaba.KeyVal
 	shipmentCategories akwaba.KeyVal
@@ -31,6 +32,8 @@ func NewRouter(h *Handler) *gin.Engine {
 	r.Static("/assets", assetsPath)
 	store := cookie.NewStore([]byte("akwaba"))
 	r.Use(sessions.Sessions("akwaba-auth", store))
+
+	gin.SetMode(gin.ReleaseMode)
 
 	auth := r.Group("/auth")
 	auth.Use(alreadyAuthenticated)
@@ -48,14 +51,10 @@ func NewRouter(h *Handler) *gin.Engine {
 	order := r.Group("/order")
 	{
 		order.GET("/pricing", h.orderPricing)
-		order.GET("/form", h.orderForm)
-		order.POST("/create", h.handleOrderCreation)
-		// // order.GET("/confirm", h.confirmOrder)
-		// // order.POST("/confirm", h.handleConfirmOrder)
-		order.GET("/receipt/:id", h.serveOrderReceipt)
-		// order.PATCH("/cancel/:id", authRequired, h.cancelOrder)
-		// order.GET("/track", h.trackOrder)
-		order.GET("/success", h.orderSuccess)
+		order.GET("/form", authRequired, h.orderForm)
+		order.POST("/create", authRequired, h.handleOrderCreation)
+		order.GET("/info/:id", authRequired, h.orderInfo)
+		order.GET("/success", authRequired, h.orderSuccess)
 	}
 
 	profile := r.Group("/profile")
@@ -66,7 +65,6 @@ func NewRouter(h *Handler) *gin.Engine {
 		profile.GET("/orders", h.orders)
 		profile.GET("/all-orders", h.ordersJSON)
 		profile.POST("/update", h.updateProfile)
-
 	}
 
 	pricing := r.Group("/pricing")
@@ -78,11 +76,10 @@ func NewRouter(h *Handler) *gin.Engine {
 	{
 		search.GET("/area", h.searchArea)
 	}
-	// contact := r.Group("/contact")
-	// {
-	// 	contact.GET("/business", h.businessContact)
-	// 	contact.POST("/info", h.handleContact)
-	// }
+	shipment := r.Group("/shipment")
+	{
+		shipment.GET("/tracking", h.trackShipment)
+	}
 
 	r.GET("/auth/logout", h.logout)
 
@@ -92,6 +89,7 @@ func NewRouter(h *Handler) *gin.Engine {
 	r.GET("/about", h.about)
 	r.GET("/general-conditions", h.conditions)
 	r.GET("/privacy-policy", h.privacyPolicy)
+
 	r.NoRoute(func(c *gin.Context) {
 		c.HTML(404, "404", nil)
 	})
@@ -111,6 +109,7 @@ func NewRouter(h *Handler) *gin.Engine {
 func NewHandler(
 	auth akwaba.CustomerAuthentifier, customerStore akwaba.CustomerStorage,
 	mailer akwaba.CustomerMailer, pricing akwaba.PricingService, orderStore akwaba.OrderService,
+	tracker akwaba.Tracker,
 	cities akwaba.KeyVal, paymentOptions akwaba.KeyVal, shipmentCategories akwaba.KeyVal,
 ) *Handler {
 	// db, err := postgres.Open(c.DB)
@@ -125,6 +124,7 @@ func NewHandler(
 		mailer:             mailer,
 		pricing:            pricing,
 		orderStore:         orderStore,
+		tracker:            tracker,
 		cities:             cities,
 		paymentOptions:     paymentOptions,
 		shipmentCategories: shipmentCategories,

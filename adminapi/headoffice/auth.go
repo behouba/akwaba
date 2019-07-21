@@ -19,7 +19,7 @@ func (h *Handler) Login(c *gin.Context) {
 		})
 		return
 	}
-	employee, err := h.employeeStore.Authenticate(&e)
+	employee, err := h.EmployeeAuthentifier.Authenticate(&e)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusUnauthorized, gin.H{

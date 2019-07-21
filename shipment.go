@@ -4,17 +4,15 @@ import "time"
 
 // Shipment state ids
 const (
-	ShipmentPendingPickupID         uint8 = 1  // "PENDING_PICKUP"
-	ShipmentPickedUpID              uint8 = 2  // "PICKED_UP"
-	ShipmentPickupFailedID          uint8 = 3  // "PICKED_UP_FAILED"
-	ShipmentLeftOriginID            uint8 = 4  // "LEFT_ORIGIN_PLACE"
-	ShipmentArrivedAtTransitPlaceID uint8 = 5  // "ARRIVED_AT_TRANSIT_PLACE"
-	ShipmentLeftTransitPlaceID      uint8 = 6  // "LEFT_TRANSIT_PLACE"
-	ShipmentArrivedAtDeliveryID     uint8 = 7  // "ARRIVED_AT_DELIVERY_PLACE"
-	ShipmentDeliveredID             uint8 = 8  // "DELIVERED"
-	ShipmentDeliveryFailedID        uint8 = 9  // "DELIVERY_FAILED"
-	ShipmentReturnedID              uint8 = 10 // "RETURNED"
-	ShipmentExceptionalFailureID    uint8 = 11 // "EXCEPTIONAL_FAILURE"
+	ShipmentPendingPickupID      uint8 = 1 // "En attente de ramassage"
+	ShipmentPickedUpID           uint8 = 2 // "Ramassé"
+	ShipmentPickupFailedID       uint8 = 3 // "Échec de ramassage"
+	ShipmentLeftOfficeID         uint8 = 4 // "Arrivé à l'agence locale de distribution"
+	ShipmentArrivedAtOfficeID    uint8 = 5 // "Depart de l'agence locale de distribution"
+	ShipmentDeliveredID          uint8 = 6 // "Livré"
+	ShipmentDeliveryFailedID     uint8 = 7 // "Échec de livraison"
+	ShipmentReturnedID           uint8 = 8 // "Retourné"
+	ShipmentExceptionalFailureID uint8 = 9 // "Échec d'acheminement"
 )
 
 // Shipment represent parcel in delivery
@@ -23,7 +21,7 @@ type Shipment struct {
 	CustomerID    uint             `json:"customerId"`
 	Sender        Address          `json:"sender"`
 	Recipient     Address          `json:"recipient"`
-	TimeAccepted  time.Time        `json:"timeAccepted"`
+	TimeCreated   time.Time        `json:"timeCreated"`
 	TimeDelivered time.Time        `json:"timeDelivered"`
 	OrderID       uint64           `json:"orderId"`
 	Category      ShipmentCategory `json:"category"`
@@ -49,7 +47,7 @@ type ShipmentState struct {
 	Name string `json:"name"`
 }
 
-// Address of pickup or delivery
+// Address of pickups or delivery
 type Address struct {
 	Name    string `json:"name"`
 	Area    Area   `json:"area"`
@@ -68,4 +66,16 @@ type Area struct {
 type PricingService interface {
 	FindArea(query string) (areas []Area)
 	Cost(from, to string, categoryID uint8) (cost uint, distance float64, err error)
+}
+
+type ShipmentManager interface {
+	Pickups(office *Office) (shipments []Shipment, err error)
+	PickedUp(office *Office, shipmentID uint64, weight float64) (err error)
+	UpdateState(shipmentID uint64, stateID uint8, areaID uint) (err error)
+	Stock(office *Office) (shipments []Shipment, err error)
+	CheckIn(office *Office, shipmentID uint64) (err error)
+	CheckOut(office *Office, shipmentID uint64) (err error)
+	Deliveries(office *Office) (shipments []Shipment, err error)
+	Delivered(office *Office, shipmentID uint64) (err error)
+	DeliveryFailed(office *Office, shipmentID uint64) (err error)
 }

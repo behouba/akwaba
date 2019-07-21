@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	baseURL             = "http://localhost:8080" // "https://www.akwabaexpress.ci"
+	baseURL             = "http://test.akwabaexpress.ci" // "http://localhost:8080" // "https://www.akwabaexpress.ci"
 	copyright           = "Akwaba Express © 2019. Tout droit réservé."
 	companyName         = "Akwaba Express"
 	resetPasswordSubjet = "Récupération de mot de passe"
 	welcomeSubjet       = "Confirmation d'inscription"
-	logoURL             = "http://localhost:8080/assets/img/logo_red.png"
+	logoURL             = "http://localhost:8080/assets/img/logo-100.png"
 )
 
 // CustomerMail implement the CustomerMailer interface

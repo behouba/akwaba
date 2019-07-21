@@ -1,0 +1,41 @@
+{{define "order-created"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+    <link rel="stylesheet" href="../assets/css/blank.css">
+    <title>Commande Akwaba Express effectuée</title>
+</head>
+
+
+<body>
+    <div class="ui center aligned">
+        <div class="blank">
+            <div class="page-header">
+                <a href="/" class="header_logo"></a>
+                </a>
+            </div>
+            <h3 class="ui red image header">
+                Nous avons reçu votre votre commande
+            </h3>
+            <img src="../assets/img/support.png">
+
+            <p class="center">Notre service client vous contactera dans quelques instants afin de finaliser votre
+                commande.</p>
+            <p class="center">Merci de faire confiance à Akwaba Express.</p>
+
+            <div style="margin: 15px 0px;">
+                <a class="ui tiny button red" href="/profile/orders/{{.orderId}}">Voir la commande</a>
+            </div>
+
+        </div>
+    </div>
+    <div id="editor"></div>
+</body>
+
+</html>
+{{end}}

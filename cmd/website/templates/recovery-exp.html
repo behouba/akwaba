@@ -1,0 +1,35 @@
+{{define "recovery-exp"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+    <link rel="stylesheet" href="../assets/css/blank.css">
+    <title>Réinitialisation du mot de passe</title>
+</head>
+
+<body>
+    <div>
+        <div class="blank center">
+            <div style="margin-top: 100px;">
+                <a href="/">
+                    <img src="../assets/img/logo-100.png" class="image logo">
+                </a>
+            </div>
+            <div style="margin-top: 30px;">
+                <img src="../assets/img/bad-review.png" alt="">
+            </div>
+            <p style="font-size: 18px;" class="center">{{ .error }}</p>
+            <div style="margin-top: 20px">
+                <a href="/auth/recovery" class="red-link">Mot de passe oublié?</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+</html>
+{{end}}

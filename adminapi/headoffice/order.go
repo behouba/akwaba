@@ -59,16 +59,19 @@ func (h *Handler) CancelOrder(c *gin.Context) {
 		})
 		return
 	}
-	// assurer que n'importe commande ne soit pas annulé comme c'est le cas actuellement
-
 	err = h.orderStore.Cancel(orderID)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf(
-				`Désolé, une erreur est survenue lors de l'annulation de la commande %d`,
-				orderID,
-			),
+			"message": err.Error(),
+		})
+		return
+	}
+	err = h.orderStore.UpdateState(orderID, akwaba.OrderStateCanceledID)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
 		})
 		return
 	}
@@ -88,9 +91,26 @@ func (h *Handler) ConfirmOrder(c *gin.Context) {
 		})
 		return
 	}
+
+	_, err = h.orderStore.CreateShipment(orderID)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 	// assurer que n'importe quelle commande ne soit pas confirmée comme c'est le cas actuellement
 
 	_, err = h.orderStore.Confirm(orderID)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	err = h.orderStore.UpdateState(orderID, akwaba.OrderInProcessing)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -112,8 +132,16 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		})
 		return
 	}
-
-	if err := h.orderStore.Create(&order); err != nil {
+	err := h.orderStore.Save(&order)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	err = h.orderStore.UpdateState(order.OrderID, akwaba.OrderStatePendingID)
+	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),

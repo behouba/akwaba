@@ -20,7 +20,7 @@ import (
 func (h *Handler) ordersJSON(c *gin.Context) {
 	user := sessionUser(c)
 
-	orders, err := h.orderStore.CustomerOrders(user.ID)
+	orders, err := h.orderStore.OfCustomer(user.ID)
 	if err != nil {
 		log.Println(err)
 	}
@@ -32,16 +32,18 @@ func (h *Handler) ordersJSON(c *gin.Context) {
 func (h *Handler) updateProfile(c *gin.Context) {
 	user := sessionUser(c)
 	var data akwaba.Customer
-	if data.ID != user.ID {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "You are not allowed to update with profile.",
-		})
-	}
+
 	if err := c.ShouldBindJSON(&data); err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"user":    sessionUser(c),
 			"message": err.Error(),
+		})
+		return
+	}
+	if data.ID != user.ID {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "You are not allowed to update with profile.",
 		})
 		return
 	}

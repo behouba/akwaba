@@ -1,5 +1,7 @@
 store/*
 *.pem
-prod-config.yml
-cmd/website/akwaba-website
+prod-*.yml
+deploy*
+.ssh
+cmd/website/website
 cmd/admin/adminapi

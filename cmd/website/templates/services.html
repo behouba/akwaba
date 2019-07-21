@@ -1,0 +1,244 @@
+{{ define "services"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+
+    <title>NOS SERVICES</title>
+</head>
+
+<body>
+
+
+
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .user.ID}}
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item active" href="/services">Nos services</a>
+        <a class="red item" href="/order/pricing">Commande</a>
+        <a class="red item" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/about">À propos</a>
+    </div>
+
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans-100.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans-100.png">
+                    </a>
+                    <a class="red item active" href="/services">Nos services</a>
+                    <a class="red item" href="/order/pricing">Commande</a>
+                    <a class="red item" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .user.ID}}
+                        <div class="ui dropdown item">
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div>
+
+            <div id="services-head">
+                <div class="ui container">
+                    <div class="ui container">
+                        <p class="big-text">Akwaba Express, entreprise spécialisée et hautement qualifiée pour les
+                            services
+                            de
+                            livraisons vous
+                            offre une gamme variée de prestations selon vos besoins.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="ui container">
+                <h1 class="ui horizontal divider section-title">NOS SERVICES</h1>
+                <div class="service-row">
+                    <div class="ui two column divided very relaxed stackable grid container section-m">
+                        <div class="row">
+                            <div class="column">
+                                <div class="service-icon">
+                                    <img src="../assets/img/calculator.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
+                                    CALCULER LE COÛT D’UNE LIVRAISON
+                                </h2>
+                                <p> Nous vous permettons de connaître à l’avance le coût d’une livraison avec à votre
+                                    disposition la calculatrice en ligne d'Akwaba Express. La calculatrice vous donnera
+                                    le
+                                    montant d’une livraison.
+                                    Nous rappelons que ceci est une estimation et pourrait changer en fonction de la
+                                    véracité des informations renseignées sur le formulaire.
+                                </p>
+                                <p>Cliquez <a href="/order/pricing">ici</a> pour y accéder.</p>
+                            </div>
+                            <div class="column">
+                                <div class="service-icon">
+                                    <img src="../assets/img/website.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
+                                    COMMANDE DE LIVRAISON EN LIGNE
+                                </h2>
+                                <p>Akwaba Express a mis en place un service de création de commande en ligne. Vous
+                                    pouvez
+                                    donc
+                                    enregistrer vos commandes en ligne sans avoir à vous déplacer vers une agence
+                                    agréée. Un
+                                    coursier
+                                    passera à l'endroit souhaité dans les instants qui suivent pour le ramassage et
+                                    procéder à
+                                    la
+                                    livraison dans un bref délai (3H30 maximum).
+                                </p>
+                                <p>Passez votre commande en ligne <a href="/order/pricing">ici</a>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui divider"></div>
+                <div class="service-row">
+                    <div class="ui two column divided very relaxed stackable grid container section-m">
+                        <div class="row">
+                            <div class="column">
+                                <div class="service-icon">
+                                    <img src="../assets/img/track.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
+                                    SUIVI DE COLIS EN LIGNE
+                                </h2>
+                                <p>Vous pouvez suivre l’état de votre colis en ligne en inscrivant à l’onglet réservé
+                                    pour
+                                    la
+                                    session,
+                                    le numéro de suivi de votre colis déjà ramassé. Vous pourrez y voir en temps réel si
+                                    votre
+                                    livraison
+                                    est soit en cours, livré, reporté ou annulé.</p>
+                                <p>Pour suivre votre colis, entrez le numéro de suivi <a href="/tracking">ici</a></p>
+                            </div>
+                            <div class="column" id="fast-shipping">
+                                <div class="service-icon">
+                                    <img src="../assets/img/clock.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
+                                    LIVRAISONS D’EXTRÊME URGENCE
+                                </h2>
+                                <p>Akwaba Express vous permet de vous sortir des situations d’extrêmes urgences pour
+                                    faire
+                                    livrer vos colis partout à Abidjan en un clic à des prix hautement étudiés et
+                                    accessibles à tous. Ce service est permis aux entreprises et particuliers (pas de
+                                    restriction). Lorsque vous faîtes appel à Akwaba Express extrême urgence, nous vous
+                                    garantissons la priorité sur votre colis et de le faire livrer en un temps record
+                                    quelque soit le lieu de destination.
+                                </p>
+                                <p>
+                                    Contactez nous pour bénéficier du service
+                                    d’extrême urgence.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui divider"></div>
+                <div class="service-row">
+                    <div class="ui two column divided very relaxed stackable grid container section-m">
+                        <div class="row">
+                            <div class="column" id="for-business">
+                                <div class="service-icon">
+                                    <img src="../assets/img/handshake.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
+                                    SOLUTIONS POUR ENTREPRISES
+                                </h2>
+                                <p>Besoin de forfait ou de partenariat pour votre entreprise ? Vous êtes au bon endroit
+                                    !
+                                    Akwaba Express offre aux entreprises des solutions adaptées à vos besoins, des
+                                    services
+                                    de sous-traitances voire des partenariats.
+                                    Vous êtes une entreprise intéressée par nos services et vous souhaitez coopérer avec
+                                    nous, nous vous prions de nous contacter. Des professionnels vous contacteront dans
+                                    un bref
+                                    délai
+                                    pour des échanges
+                                    plus avancées. Akwaba Express s’engage à garder confidentiel toutes les informations
+                                    renseignées sur le présent site.</p>
+                            </div>
+                            <div class="column" id="management">
+                                <div class="service-icon">
+                                    <img src="../assets/img/calendar.png" alt="">
+                                </div>
+                                <h2 class="ui header centered aligned">
+                                    GESTION DES LIVRAISONS
+                                </h2>
+                                <p>Akwaba Express offre la possibilité à sa clientèle de gérer à sa guise une ou
+                                    plusieurs
+                                    commandes déjà effectuées. En effet, le client pourrait modifier les conditions de
+                                    livraisons en temps et en destination ou même le colis à faire livrer. Il est à
+                                    noter
+                                    que des frais supplémentaires pourraient s’ajouter à ces différentes opérations
+                                    (annulation après ramassage, report de la livraison, changement du lieu de
+                                    destination
+                                    ou du colis à faire livrer, etc.).
+                                    Toutes ces opérations sont dans le but de garantir à la clientèle de Akwaba Express
+                                    une
+                                    flexibilité dans la gestion du mode de livraison, laissant ainsi le libre choix au
+                                    client de disposer à sa guise de son colis.
+                                    Vous pouvez gérer vos livraison en nous contactant. </p>
+                                <p>
+                                    Contactez nous <a href="/about#contact-form">ici</a> afin de gérer vos livraisons.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ template "footer" .}}
+    </div>
+</body>
+
+</html>
+{{ end }}

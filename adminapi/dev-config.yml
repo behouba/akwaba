@@ -1,8 +1,8 @@
 database:
-  host: "35.181.50.39"
+  host: "localhost"
   port: 5432
   user: "behouba"
-  password: "akwabaexpress"
+  password: "mana"
   dbName: "akwaba_express"
 
 mail:

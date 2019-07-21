@@ -6,9 +6,9 @@ GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 
 # Website entry directory
-W_ENTRY_DIR=/Users/a1/Documents/code/akwaba/cmd/website
+W_ENTRY_DIR=./cmd/website
 # binary names
-W_BINARY=akwaba-website
+W_BINARY=website
 
 build-website:
 	$(GOBUILD) -o $(W_ENTRY_DIR)/$(W_BINARY) $(W_ENTRY_DIR)/main.go

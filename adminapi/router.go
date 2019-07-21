@@ -5,10 +5,10 @@ package adminapi
 import (
 	"time"
 
+	"github.com/behouba/akwaba"
 	"github.com/behouba/akwaba/adminapi/headoffice"
 	"github.com/behouba/akwaba/adminapi/office"
 	"github.com/behouba/akwaba/postgres"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -16,15 +16,15 @@ import (
 const (
 	version           = "/v0"
 	headOfficeBaseURL = "/head-office"
-	officesBaseURL    = "/offices"
+	officeBaseURL     = "/office"
 	authBaseURL       = "/auth"
-	orderBaseURL      = "/order"
-	parcelBaseURL     = "/parcel"
+	ordersBaseURL     = "/orders"
+	shipmentsBaseURL  = "/shipments"
 	custBaseURL       = "/customer"
 )
 
 var corsConfig = cors.New(cors.Config{
-	AllowOrigins:     []string{"http://localhost:8081", "http://localhost:8080"},
+	AllowOrigins:     []string{"*"},
 	AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
 	AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 	AllowCredentials: true,
@@ -32,7 +32,7 @@ var corsConfig = cors.New(cors.Config{
 })
 
 // NewRouter create routes and return *gin.Engine
-func NewRouter(h *headoffice.Handler, o *office.Handler) *gin.Engine {
+func NewRouter(h *headoffice.Handler, o *office.Handler, g *Handler) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(corsConfig)
@@ -42,13 +42,14 @@ func NewRouter(h *headoffice.Handler, o *office.Handler) *gin.Engine {
 		// head office api for orders management
 		head := v.Group(headOfficeBaseURL)
 		{
-			head.GET("/system_data", systemData)
+			head.GET("/tracking", g.trackOrder)
+			head.GET("/system_data", g.systemData)
 			auth := head.Group(authBaseURL)
 			{
 				auth.GET("/check", h.AuthMiddleware())
 				auth.POST("/login", h.Login)
 			}
-			order := head.Group(orderBaseURL)
+			order := head.Group(ordersBaseURL)
 			order.Use(h.AuthMiddleware())
 			{
 				order.GET("/live", h.ActiveOrders)
@@ -65,48 +66,44 @@ func NewRouter(h *headoffice.Handler, o *office.Handler) *gin.Engine {
 			}
 		}
 
-		// offices api to manage shipments at localy
-		offices := v.Group(officesBaseURL)
+		// offices api to manage shipments localy
+		office := v.Group(officeBaseURL)
 		{
-			auth := offices.Group(authBaseURL)
+			office.GET("/system_data", g.systemData)
+			office.GET("/tracking", g.trackOrder)
+			auth := office.Group(authBaseURL)
 			{
 				auth.GET("/check", o.AuthMiddleware())
 				auth.POST("/login", o.Login)
 			}
+			p := office.Group(shipmentsBaseURL)
+			p.Use(o.AuthMiddleware())
+			{
+				p.GET("/pickups", o.PickUps)
+				p.GET("/stock", o.Stock)
+				p.GET("/deliveries", o.Deliveries)
+
+				p.PATCH("/picked_up", o.PickedUp)
+				p.PATCH("/check_in", o.CheckIn)
+				p.PATCH("/check_out", o.CheckOut)
+				p.PATCH("/delivered", o.Delivered)
+				p.PATCH("/failed_delivery", o.FailedDelivery)
+			}
 		}
-
-		// o := v.Group(orderBaseURL)
-		// o.Use(h.authMiddleware())
-		// {
-		// 	o.GET("/pending", h.pendingOrders)
-		// 	// o.GET("/to_pick_up", h.ordersToPickUp)
-		// 	o.PATCH("/cancel/:id", h.cancelOrder)
-		// 	o.PATCH("/confirm/:id", h.confirmOrder)
-		// 	o.POST("/create", h.createOrder)
-		// }
-
-		// p := v.Group(parcelBaseURL)
-		// p.Use(h.authMiddleware())
-		// {
-		// p.GET("/pick_up", h.parcelsToPickUp)
-		// p.PATCH("/collected", h.collected)
-		// p.GET("/office_stock", h.officeParcels)
-		// p.PATCH("/left_office", h.parcelOut)
-		// p.PATCH("/enter_office", h.parcelIn)
-		// p.GET("/to_deliver", h.parcelsToDeliver)
-		// p.PATCH("/delivered", h.parcelDelivered)
-		// p.PATCH("/failed_delivery", h.failedDelivery)
-		// p.GET("/track", h.trackOrder)
-		// }
-		// u := v.Group(custBaseURL)
-		// u.Use(h.authMiddleware())
-		// {
-		// 	u.GET("/contact", h.userContact)
-		// 	u.POST("/lock", h.lockContact)
-		// 	u.POST("/unlock", h.unlockContact)
-		// }
 	}
 	return r
+}
+
+type Handler struct {
+	tracker akwaba.Tracker
+	sysData akwaba.SystemData
+}
+
+func NewHandler(tracker akwaba.Tracker, sysData akwaba.SystemData) *Handler {
+	return &Handler{
+		tracker: tracker,
+		sysData: sysData,
+	}
 }
 
 // Config hold configuration data for the adminapi

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -29,19 +28,26 @@ func main() {
 	}
 	headHandler := headoffice.NewHandler(
 		jwt.NewAdminAuthenticator(config.HSecretKey),
-		postgres.NewAdminOrderStorage(db, config.MapAPIKey),
-		postgres.NewEmployeeStorageH(db),
-		postgres.NewAdminCustomerStorage(db),
+		postgres.NewOrdersManagementStore(db, config.MapAPIKey),
+		postgres.NewHeadManagerStorage(db),
+		postgres.NewCustomerStorage(db),
 	)
 
 	officesHandler := office.NewHandler(
 		jwt.NewAdminAuthenticator(config.OSecretKey), nil,
-		postgres.NewEmployeeStorageO(db),
+		postgres.NewOfficeEmployeeStorage(db),
+		postgres.NewShipmentStorage(db),
 	)
 	if err != nil {
-		fmt.Println(err)
-		panic(err)
+		log.Fatal(err)
 	}
-	r := adminapi.NewRouter(headHandler, officesHandler)
+	globalHandler := adminapi.NewHandler(
+		postgres.NewTrackingStore(db),
+		postgres.NewSystemData(),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	r := adminapi.NewRouter(headHandler, officesHandler, globalHandler)
 	r.Run(":8084")
 }

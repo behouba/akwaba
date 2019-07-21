@@ -1,0 +1,211 @@
+{{ define "user-orders"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head" .}}
+    <title>COMMANDES</title>
+    <script src="../assets/js/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<style>
+    .description p {
+        line-height: 1.2 !important;
+    }
+
+    .positive-status {
+        color: lightgreen;
+    }
+</style>
+
+<body>
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .user.ID}}
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item active" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item" href="/order/pricing">Commande</a>
+        <a class="red item" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/about">À propos</a>
+    </div>
+
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans-100.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item active" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans-100.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item" href="/order/pricing">Commande</a>
+                    <a class="red item" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .user.ID}}
+                        <div class="ui dropdown item">
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!--Home page content-->
+        <div class="ui container full-height" id="user-orders">
+            <div class="ae-column stackable">
+                <h2 style="margin-top:45px;">MES COMMANDES</h2>
+                <div class="ui divider"></div>
+                <h3>En cours</h3>
+                <div style="margin-top: 50px" class="center" v-if="loading" v-clock>
+                    <img src="../assets/img/dots_loader.gif">
+                </div>
+
+                <div v-else-if="orders.length > 0 " v-clock>
+                    <div class="ui card fluid" v-for="(o, index) in orders" :key="o.id">
+                        <div class="content">
+                            <h3>Nº: {o.orderId}</h3>
+                            <div class="description">
+                                <p>{ o.nature }</p>
+                                <p>Crée le: { formatDate(o.timeCreated) }</p>
+                                <p>{ o.state.name }</p>
+                            </div>
+                        </div>
+                        <div class="extra content" style="text-align: right">
+                            <!-- <a v-if="o.state.id != 5" class="ui tiny basic button" v-bind:data-index="index">
+                                <i class="search icon"></i>
+                                Suivre
+                            </a> -->
+                            <a class="ui tiny button" href="#">
+                                <i class="info icon"></i>
+                                Details
+                            </a>
+                            <div v-if="o.state.id == 1" class="ui negative tiny button"
+                                v-on:click="showCancelModal(o.orderId)">
+                                <i class="trash alternate outline icon"></i>
+                                Annuler
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="no-orders" v-else v-cloak>
+                    <span>
+                        Vous n'avez aucune commande active
+                    </span>
+                </div>
+                <div class="ui modal mini" id="cancelModal">
+                    <i class="close icon"></i>
+                    <div class="header">
+                        ANNULATION DE COMMANDE
+                    </div>
+                    <div class="content">
+                        <h3> Êtes-vous certain de vouloir annuler votre commande ?
+                        </h3>
+                    </div>
+                    <div class="actions">
+                        <div class="ui deny mini button">
+                            NON
+                        </div>
+                        <div class="ui negative mini button" v-on:click="cancelOrder">
+                            OUI
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--Footer-->
+        {{ template "footer" .}}
+    </div>
+</body>
+<script>
+    // axios.defaults.timeout = 60000;
+
+
+    var ordersApp = new Vue({
+        el: '#user-orders',
+        delimiters: ['{', '}'],
+        data: {
+            orders: [],
+            loading: true,
+            selectedOrderId: 0,
+        },
+        methods: {
+            formatDate(dateString) {
+                var d = new Date(dateString)
+                return d.toLocaleDateString('fr');
+            },
+            fetchActiveOrders: function () {
+                axios.get("/profile/all-orders")
+                    .then(res => {
+                        this.loading = false;
+                        this.orders = res.data.orders || [];
+                        console.log(res);
+                    }).catch(err => {
+                        this.loading = false;
+                        console.log(err);
+                    });
+            },
+            showCancelModal: function (id) {
+                this.selectedOrderId = id;
+                console.log(id);
+                $('#cancelModal').modal('show');
+            },
+            cancelOrder: async function () {
+                if (!this.selectedOrderId) {
+                    return
+                }
+
+                try {
+                    var response = await axios.patch(`/order/cancel/${this.selectedOrderId}`)
+                    console.log(response.status);
+                    if (response.status === 200) {
+                        this.fetchActiveOrders();
+                    }
+                } catch (error) {
+                    alert(error);
+                }
+            },
+        },
+        created: function () {
+            this.fetchActiveOrders();
+        }
+    })
+</script>
+
+</html>
+{{ end }}

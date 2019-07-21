@@ -96,7 +96,10 @@ func queryCities(db *sqlx.DB) (citiesMap akwaba.KeyVal, citiesSlice []akwaba.Cit
 func queryShipmentCategorys(db *sqlx.DB) (catMap akwaba.KeyVal, cats []akwaba.ShipmentCategory, err error) {
 	catMap = make(akwaba.KeyVal)
 	rows, err := db.Query(
-		`SELECT shipment_category_id, name, min_cost, max_cost from shipment_categories order by shipment_category_id`,
+		`SELECT 
+		shipment_category_id, name, min_cost, max_cost 
+		FROM shipment_categories 
+		order by shipment_category_id`,
 	)
 	if err != nil {
 		return
@@ -116,7 +119,10 @@ func queryShipmentCategorys(db *sqlx.DB) (catMap akwaba.KeyVal, cats []akwaba.Sh
 func queryPaymentOptions(db *sqlx.DB) (poMap akwaba.KeyVal, po []akwaba.PaymentOption, err error) {
 	poMap = make(akwaba.KeyVal)
 	rows, err := db.Query(
-		`SELECT payment_option_id, name from payment_options order by payment_option_id`,
+		`SELECT 
+		payment_option_id, name 
+		FROM payment_options 
+		ORDER BY payment_option_id`,
 	)
 	if err != nil {
 		return
@@ -136,7 +142,9 @@ func queryPaymentOptions(db *sqlx.DB) (poMap akwaba.KeyVal, po []akwaba.PaymentO
 func queryOrderStates(db *sqlx.DB) (statesMap akwaba.KeyVal, states []akwaba.OrderState, err error) {
 	statesMap = make(akwaba.KeyVal)
 	rows, err := db.Query(
-		`SELECT order_state_id, name from order_states order by order_state_id`,
+		`SELECT 
+		order_state_id, name 
+		FROM order_states ORDER BY  order_state_id`,
 	)
 	if err != nil {
 		return
@@ -191,14 +199,21 @@ func OrderStates() []akwaba.OrderState {
 	return orderStates
 }
 
-func PaymentOptions() []akwaba.PaymentOption {
+type SytemDataStore struct {
+}
+
+func NewSystemData() *SytemDataStore {
+	return &SytemDataStore{}
+}
+
+func (s *SytemDataStore) PaymentOptions() []akwaba.PaymentOption {
 	return paymentOptions
 }
 
-func ShipmentCategories() []akwaba.ShipmentCategory {
+func (s *SytemDataStore) ShipmentCategories() []akwaba.ShipmentCategory {
 	return shipmentCategories
 }
 
-func Areas() []akwaba.Area {
+func (s *SytemDataStore) Areas() []akwaba.Area {
 	return areas
 }

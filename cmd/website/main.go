@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/behouba/akwaba/mail"
@@ -13,9 +12,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const prodConfigFilePath = "prod-config.yml"
+const devConfigFilePath = "/Users/a1/Documents/code/akwaba/website/dev-config.yml"
+
 func main() {
 	var config website.Config
-	bs, err := ioutil.ReadFile("/Users/a1/Documents/code/akwaba/website/dev-config.yml")
+	bs, err := ioutil.ReadFile(prodConfigFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,8 +25,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// gin.SetMode(gin.ReleaseMode)
-
 	db, err := postgres.Open(config.DB)
 	if err != nil {
 		log.Fatal(err)
@@ -32,14 +32,15 @@ func main() {
 
 	handler := website.NewHandler(
 		postgres.NewAuthenticator(db), postgres.NewCustomerStore(db), mail.NewCustomerMail(config.Mail),
-		postgres.NewPricingStorage(db, config.MapAPIKey), postgres.NewOrderStore(db, config.MapAPIKey), postgres.CitiesMap(),
+		postgres.NewPricingStorage(db, config.MapAPIKey), postgres.NewOrderStore(db, config.MapAPIKey),
+		postgres.NewTrackingStore(db), postgres.CitiesMap(),
 		postgres.PaymentOptionsMap(), postgres.ShipmentCategoriesMap(),
 	)
 
 	router := website.NewRouter(handler)
 
 	s := &http.Server{
-		Addr:           getPort(),
+		Addr:           config.Server.Port,
 		Handler:        router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
@@ -49,15 +50,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func getPort() (port string) {
-	if len(os.Args) == 1 {
-		return ":8081"
-	}
-	env := os.Args[1]
-	if env == "prod" {
-		return ":80"
-	}
-	return ":8080"
 }

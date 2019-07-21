@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/behouba/akwaba"
@@ -18,7 +20,7 @@ func NewOrderStore(db *sqlx.DB, mapApiKey string) *OrderStore {
 	return &o
 }
 
-func (o *OrderStore) CustomerOrders(customerID uint) (orders []akwaba.Order, err error) {
+func (o *OrderStore) OfCustomer(customerID uint) (orders []akwaba.Order, err error) {
 	rows, err := o.db.Query(
 		`SELECT
 		o.order_id, o.time_created, o.sender_name, o.sender_phone, 
@@ -63,8 +65,30 @@ func (o *OrderStore) CustomerOrders(customerID uint) (orders []akwaba.Order, err
 	return
 }
 
+func (s *OrderStore) isAllowed(customerID uint) (err error) {
+	var n uint8
+	s.db.QueryRow(
+		`SELECT COUNT(*) FROM orders WHERE customer_id=$1 AND order_state_id=$2`,
+		customerID, akwaba.OrderStatePendingID,
+	).Scan(&n)
+	if n > 4 {
+		return errors.New(
+			fmt.Sprintf(
+				"Vous avez %d commades en attente de confirmation",
+				n,
+			),
+		)
+	}
+	return
+}
+
 // Save order
 func (s *OrderStore) Save(o *akwaba.Order) (err error) {
+	err = s.isAllowed(o.CustomerID)
+	if err != nil {
+		return
+	}
+	const orderState = akwaba.OrderStatePendingID
 	err = s.setAreaID(o.Sender.Area.Name, &o.Sender.Area.ID)
 	if err != nil {
 		return
@@ -77,18 +101,30 @@ func (s *OrderStore) Save(o *akwaba.Order) (err error) {
 	if err != nil {
 		return
 	}
+
 	err = s.db.QueryRow(
 		`INSERT
 		INTO orders 
 		(customer_id, sender_name, sender_phone, 
 		sender_area_id, sender_address, recipient_name, 
 		recipient_phone, recipient_area_id, recipient_address, 
-		shipment_category_id, nature, payment_option_id, cost, distance)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING order_id`,
+		shipment_category_id, nature, payment_option_id, cost, distance, order_state_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING order_id`,
 		o.CustomerID, o.Sender.Name, o.Sender.Phone, o.Sender.Area.ID, o.Sender.Address,
 		o.Recipient.Name, o.Recipient.Phone, o.Recipient.Area.ID, o.Recipient.Address,
-		o.Category.ID, o.Nature, o.PaymentOption.ID, o.Cost, o.Distance,
+		o.Category.ID, o.Nature, o.PaymentOption.ID, o.Cost, o.Distance, orderState,
 	).Scan(&o.OrderID)
+	if err != nil {
+		return
+	}
+
+	_, err = s.db.Exec(
+		`INSERT INTO orders_history 
+		(order_id, order_state_id)
+		VALUES ($1, $2)`,
+		o.OrderID,
+		orderState,
+	)
 	if err != nil {
 		return
 	}
@@ -102,7 +138,7 @@ func (s *OrderStore) setAreaID(name string, id *uint) (err error) {
 	).Scan(id)
 }
 
-func (o *OrderStore) OrderByID(orderID uint64) (order akwaba.Order, err error) {
+func (o *OrderStore) ByID(orderID uint64) (order akwaba.Order, err error) {
 	// var shipments json.RawMessage
 	// o.db.QueryRow(
 	// 	`SELECT
@@ -121,10 +157,6 @@ func (o *OrderStore) OrderByID(orderID uint64) (order akwaba.Order, err error) {
 	// if err != nil {
 	// 	return
 	// }
-	return
-}
-
-func (o *OrderStore) Confirm(orderID uint64) (err error) {
 	return
 }
 

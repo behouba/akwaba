@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"math"
 
 	"github.com/behouba/akwaba"
 	"github.com/jmoiron/sqlx"
@@ -45,7 +46,8 @@ func (c *PricingStorage) Cost(from, to string, categoryId uint8) (cost uint, dis
 		cost = uint(minCost)
 		return
 	}
-	cost = uint((distance * maxCost / 100) + minCost)
+	rawCost := uint((distance * maxCost / 100) + minCost)
+	cost = roundCost(rawCost)
 	return
 }
 
@@ -120,6 +122,13 @@ func (c *PricingStorage) findQueryEveryWhere(query string) (areas []akwaba.Area)
 	return
 }
 
-func roundCost(cost uint) (roundedCost uint) {
-	return
+func roundCost(cost uint) uint {
+	var unit uint = 50
+	if cost%unit == 0 {
+		return cost
+	}
+	if cost%unit > (unit / 2) {
+		return unit * uint(math.Ceil(float64(cost/unit)))
+	}
+	return unit * uint(math.Floor(float64(cost/unit)))
 }

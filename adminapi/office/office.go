@@ -5,18 +5,19 @@ import (
 )
 
 type Handler struct {
-	auth          akwaba.AdminAuthService
-	employeeStore akwaba.EmployeeStore
-	orderStore    akwaba.AdminOrderService
+	auth                 akwaba.TokenAuthService
+	EmployeeAuthentifier akwaba.EmployeeAuthentifier
+	shipmentStore        akwaba.ShipmentManager
 }
 
 func NewHandler(
-	auth akwaba.AdminAuthService, orderStore akwaba.AdminOrderService,
-	employeeStore akwaba.EmployeeStore,
+	auth akwaba.TokenAuthService, orderStore akwaba.OrderManager,
+	EmployeeAuthentifier akwaba.EmployeeAuthentifier,
+	shipmentStore akwaba.ShipmentManager,
 ) *Handler {
 	return &Handler{
-		auth:          auth,
-		orderStore:    orderStore,
-		employeeStore: employeeStore,
+		auth:                 auth,
+		EmployeeAuthentifier: EmployeeAuthentifier,
+		shipmentStore:        shipmentStore,
 	}
 }

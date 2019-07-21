@@ -1,0 +1,239 @@
+{{define "tracking"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {{ template "common-head"  .}}
+    <title>SUIVI DE COLIS</title>
+    <script src="../assets/js/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+
+<body>
+
+    <!-- Sidebar for mobile de vices -->
+    <div class="ui vertical inverted right sidebar menu">
+        {{if .user.ID}}
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item" href="/profile/orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Reglages</a>
+        <a class="red item" href="/auth/logout">Deconnexion</a>
+
+        {{else}}
+        <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
+        {{end}}
+        <hr>
+        <a class="red item" href="/services">Nos services</a>
+        <a class="red item" href="/order/pricing">Commande</a>
+        <a class="red item active" href="/tracking">Suivi de colis</a>
+        <a class="red item" href="/about">À propos</a>
+    </div>
+
+    <div class="pusher">
+        <header>
+            <!-- Mobile header -->
+            <div id="mobile-header" class="ui red inverted secondary menu">
+                <div class="ui container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans-100.png">
+                    </a>
+                    <div class="right red menu">
+                        <a class="item" onclick="showSideBar()">
+                            <i class="bars icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!--Desktop header-->
+            <div id="desktop-header" class="ui large menu inverted">
+                <div class="ui primary container">
+                    <a class="red item" href="/">
+                        <img class="ui image logo" src="../assets/img/logo_trans-100.png">
+                    </a>
+                    <a class="red item" href="/services">Nos services</a>
+                    <a class="red item" href="/order/pricing">Commande</a>
+                    <a class="red item active" href="/tracking">Suivi de colis</a>
+                    <a class="red item" href="/about">À propos</a>
+                    <div class="right menu">
+                        {{if .user.ID}}
+                        <div class="ui dropdown item">
+                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <a class="black item" href="/profile/orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Reglages</a>
+                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="item">
+                            <a class="ui primary button" href="/auth/login">Connexion</a>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="ui container" id="tracking-app">
+            <div id="tracking-input">
+                <div class="center">
+                    <img src="../assets/img/track.png" style="width: 160px;" alt="">
+                </div>
+                <h2 class="ui header">SUIVI DE COLIS</h2>
+                <div>
+                    <p class="center">
+                        Suivez vos colis en indiquant le numéro de suivi ci-dessous.
+                    </p>
+                </div>
+                <div style="margin-top: 20px;">
+                    <form autocomplete="off" @submit="checkFormAndSubmit">
+                        <div v-bind:class="{error: error.hasError, loading: loading}" class="ui icon input large"
+                            style="width: 100%">
+                            <input type="text" id="trackingInput" v-model="shipmentId"
+                                placeholder="Entrez le numéro de suivi du colis">
+                            <i class="red search icon link" v-on:click="checkFormAndSubmit"></i>
+                        </div>
+                        <div id="error-msg" class="ui negative message" v-if="error.hasError" v-clock>
+                            <div class="header">
+                                {error.message}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+            <div id="tracking-wrapper">
+                <div id="tracking-result" v-if="tracking" v-clock>
+                    <div class="tracking-item">
+                        <div class="ui card fluid" style="border-radius: 0px">
+                            <div class="content track-head" v-on:click="showFullTracking($event)">
+                                <div style="margin: 5px 0px">
+                                    <span class="track-header">{tracking.shipment.nature}</span>
+                                </div>
+                                <div class="event-content">
+                                    <p>{tracking.shipment.id}</p>
+                                    <!-- <p>{tracking.events[tracking.events.length - 1].status}</p> -->
+                                </div>
+                            </div>
+                            <div class="ui card fluid details" v-clock style="border-radius: 0px">
+                                <div class="content">
+                                    <div class="ui small feed">
+                                        <div class="event" v-for="t in tracking.events">
+                                            <div class="content">
+                                                <div class="event-title">
+                                                    <span>{t.title}</span>
+                                                </div>
+                                                <div class="event-content">
+                                                    <span>{formatDate(t.time)}, </span>
+                                                    <span>{t.city}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content">
+                                    <div class="track-summary">
+                                        <div>
+                                            <span>Poids: </span>
+                                            <span>{tracking.shipment.weight} kg</span>
+                                        </div>
+                                        <div>
+                                            <span>Expediteur: </span>
+                                            <span>{tracking.shipment.sender.name}</span>
+                                        </div>
+                                        <div>
+                                            <span>Destinataire: </span>
+                                            <span>{tracking.shipment.recipient.name}</span>
+                                        </div>
+                                        <div>
+                                            <span>Destination: </span>
+                                            <span>{tracking.shipment.recipient.area.name}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="extra content">
+                                    <a style="color:#B02025">Imprimer</a>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{if not .user.ID }}
+            <div class="center">
+                <p class="center">Inscrivez-vous pour enregistrer les numéros de suivi de vos colis et recevoir des
+                    notifications.
+                </p>
+                <a href="/auth/registration" class="ui button red">Inscription</a>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+    <!--Footer-->
+    {{ template "footer" . }}
+    </div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#tracking-app',
+        delimiters: ['{', '}'],
+        data: {
+            tracking: null,
+            loading: false,
+            shipmentId: null,
+            error: {
+                hasError: false,
+                message: '',
+            },
+        },
+        methods: {
+            checkFormAndSubmit: function (e) {
+                e.preventDefault();
+                this.fetchTracking();
+            },
+            formatDate(date) {
+                var d = new Date(date)
+                return d.toLocaleString('fr');
+            },
+            fetchTracking: async function () {
+                if (!this.shipmentId) {
+                    this.error.hasError = false;
+                    return
+                }
+                this.loading = true;
+                this.error.hasError = false;
+                this.error.message = ''
+                try {
+                    var response = await axios.get(`/shipment/tracking?id=${this.shipmentId}`)
+                    this.tracking = response.data.tracking || null;
+
+                    $(".details").slideToggle(300);
+                    $('html, body').animate({ scrollTop: $("#tracking-wrapper").offset().top }, 'slow');
+                } catch (error) {
+                    console.log(error)
+                    this.error.hasError = true;
+                    if (error.response) {
+                        this.error.message = error.response.data.message || error;
+                    }
+                }
+                this.loading = false;
+            },
+            showFullTracking: function (e) {
+                $(".details").slideToggle(300);
+            },
+        },
+        created: function () {
+            $('.ui.radio.checkbox').checkbox();
+            $('.ui.dropdown').dropdown();
+            const urlParams = new URLSearchParams(window.location.search);
+            this.shipmentId = urlParams.get('id');
+            this.fetchTracking();
+        },
+    });
+
+</script>
+
+</html>
+{{end}}

@@ -63,11 +63,11 @@ func (h *Handler) orderSuccess(c *gin.Context) {
 	})
 }
 
-func (h *Handler) serveOrderReceipt(c *gin.Context) {
+func (h *Handler) orderInfo(c *gin.Context) {
 	// var shipment []akwaba.Shipment
 	orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	order, err := h.orderStore.OrderByID(orderID)
+	order, err := h.orderStore.ByID(orderID)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusOK, gin.H{
@@ -83,7 +83,7 @@ func (h *Handler) serveOrderReceipt(c *gin.Context) {
 	// c.JSON(http.StatusOK, gin.H{
 	// 	"order": order,
 	// })
-	c.HTML(http.StatusOK, "order-invoice", gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"order": order,
 	})
 }

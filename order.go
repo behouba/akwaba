@@ -31,10 +31,40 @@ type Order struct {
 }
 
 type OrderService interface {
-	OrderByID(orderID uint64) (order Order, err error)
-	CustomerOrders(userID uint) (orders []Order, err error)
-	Save(order *Order) (err error)
+	OrderPicker
+	OrderSaver
+}
+
+type StateUpdater interface {
+	UpdateState(ID uint64, stateID uint8) error
+}
+
+type OrderPicker interface {
+	ByID(orderID uint64) (order Order, err error)
+	OfCustomer(customerID uint) (orders []Order, err error)
+}
+
+type OrderSaver interface {
+	Save(o *Order) (err error)
+}
+
+type OrdersGatherer interface {
+	ActiveOrders() (o []Order, err error)
+	ClosedOrders(date string) (o []Order, err error)
+}
+
+type OrderManager interface {
+	Confirm(orderID uint64) (shipmentID uint64, err error)
 	Cancel(orderID uint64) (err error)
+	CreateShipment(orderID uint64) (shipmentID uint64, err error)
+	Cost(origin, destination string, categoryID uint8) (cost uint, distance float64, err error)
+	OrdersGatherer
+	OrderSaver
+	UpdateState(orderID uint64, stateID uint8) error
+}
+
+type CustomerPicker interface {
+	Customers() []Customer
 }
 
 // OrderState data type represent order state id and corresponding label

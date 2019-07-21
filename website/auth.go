@@ -151,7 +151,9 @@ func (h *Handler) handleNewPasswordRequest(c *gin.Context) {
 func authRequired(c *gin.Context) {
 	user := sessionUser(c)
 	if user.ID == 0 {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.Redirect(http.StatusTemporaryRedirect, "/auth/login"+"?redirect="+c.Request.URL.String())
+		c.Abort()
+		return
 	} else {
 		c.Next()
 	}
