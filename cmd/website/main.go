@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/behouba/akwaba/mail"
@@ -12,12 +13,16 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const prodConfigFilePath = "prod-config.yml"
-const devConfigFilePath = "/Users/a1/Documents/code/akwaba/website/dev-config.yml"
+var configFile = "prod-config.yml"
 
 func main() {
 	var config website.Config
-	bs, err := ioutil.ReadFile(prodConfigFilePath)
+
+	if len(os.Args) > 1 {
+		configFile = os.Args[1]
+	}
+
+	bs, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +45,7 @@ func main() {
 	router := website.NewRouter(handler)
 
 	s := &http.Server{
-		Addr:           config.Server.Port,
+		Addr:           config.Port,
 		Handler:        router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

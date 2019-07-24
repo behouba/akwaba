@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/behouba/akwaba/adminapi"
 	"github.com/behouba/akwaba/adminapi/headoffice"
@@ -12,9 +13,16 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var configFile = "prod-config.yml"
+
 func main() {
 	var config adminapi.Config
-	bs, err := ioutil.ReadFile("/Users/a1/Documents/code/akwaba/adminapi/dev-config.yml")
+
+	if len(os.Args) > 1 {
+		configFile = os.Args[1]
+	}
+
+	bs, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,5 +57,5 @@ func main() {
 		log.Fatal(err)
 	}
 	r := adminapi.NewRouter(headHandler, officesHandler, globalHandler)
-	r.Run(":8084")
+	r.Run(config.Port)
 }

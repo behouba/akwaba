@@ -16,8 +16,20 @@
         line-height: 1.2 !important;
     }
 
-    .positive-status {
-        color: lightgreen;
+    .order-card .full-info {
+        display: none;
+    }
+
+    .order-card .truncate {
+        max-width: 600%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .load-more-div {
+        margin: 15px auto;
+        text-align: center;
     }
 </style>
 
@@ -26,9 +38,9 @@
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
         <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
-        <a class="red item active" href="/profile/orders">Mes commandes</a>
-        <a class="red item" href="/profile/settings">Reglages</a>
-        <a class="red item" href="/auth/logout">Deconnexion</a>
+        <a class="red item active" href="/profile/my_orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Réglages</a>
+        <a class="red item" href="/auth/logout">Déconnexion</a>
 
         {{else}}
         <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
@@ -41,78 +53,68 @@
     </div>
 
     <div class="pusher">
-        <header>
-            <!-- Mobile header -->
-            <div id="mobile-header" class="ui red inverted secondary menu">
-                <div class="ui container">
-                    <a class="red item" href="/">
-                        <img class="ui image logo" src="../assets/img/logo_trans-100.png">
-                    </a>
-                    <div class="right red menu">
-                        <a class="item" onclick="showSideBar()">
-                            <i class="bars icon"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!--Desktop header-->
-            <div id="desktop-header" class="ui large menu inverted">
-                <div class="ui primary container">
-                    <a class="red item active" href="/">
-                        <img class="ui image logo" src="../assets/img/logo_trans-100.png">
-                    </a>
-                    <a class="red item" href="/services">Nos services</a>
-                    <a class="red item" href="/order/pricing">Commande</a>
-                    <a class="red item" href="/tracking">Suivi de colis</a>
-                    <a class="red item" href="/about">À propos</a>
-                    <div class="right menu">
-                        {{if .user.ID}}
-                        <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
-                            <div class="menu">
-                                <a class="black item" href="/profile/orders">Mes commandes</a>
-                                <a class="black item" href="/profile/settings">Reglages</a>
-                                <a class="black item" href="/auth/logout">Deconnexion</a>
-                            </div>
-                        </div>
-                        {{else}}
-                        <div class="item">
-                            <a class="ui primary button" href="/auth/login">Connexion</a>
-                        </div>
-                        {{end}}
-                    </div>
-                </div>
-            </div>
-        </header>
+        {{ template "default-navbar" .}}
 
         <!--Home page content-->
         <div class="ui container full-height" id="user-orders">
             <div class="ae-column stackable">
                 <h2 style="margin-top:45px;">MES COMMANDES</h2>
                 <div class="ui divider"></div>
-                <h3>En cours</h3>
-                <div style="margin-top: 50px" class="center" v-if="loading" v-clock>
+                <div style="margin-top: 50px" class="center" v-if="loading && orders.length == 0" v-clock>
                     <img src="../assets/img/dots_loader.gif">
                 </div>
 
-                <div v-else-if="orders.length > 0 " v-clock>
-                    <div class="ui card fluid" v-for="(o, index) in orders" :key="o.id">
+                <div v-else-if="orders.length > 0" v-clock>
+                    <div class="ui card fluid order-card" v-for="(o, index) in orders" :key="o.id">
                         <div class="content">
-                            <h3>Nº: {o.orderId}</h3>
-                            <div class="description">
-                                <p>{ o.nature }</p>
-                                <p>Crée le: { formatDate(o.timeCreated) }</p>
-                                <p>{ o.state.name }</p>
+                            <div class="right floated meta">{ o.timeCreated }</div>
+                            <div class="header truncate">
+                                Livraison à {o.recipient.area.name}
                             </div>
+                            <!-- <h3>Nº: {o.orderId}</h3> -->
+                            <div class="description">
+                                <div>
+                                    {o.state.name}
+                                </div>
+                                <!-- <p>{ formatDate(o.timeCreated) }</p> -->
+                                <!-- <p>{ o.nature }</p> -->
+                                <!-- <p>{ o.state.name }</p> -->
+                                <div style="margin-top: 8px;">
+                                    <a @click="showFullInfo">
+                                        Afficher
+                                    </a>
+                                </div>
+                                <div class="full-info">
+                                    <div class="ui divider"></div>
+                                    <p>Nº de commande: {o.orderId}</p>
+                                    <p>Nº du colis: {o.shipmentId || 'INDISPONIBLE'}</p>
+                                    <p>Trajet: {o.sender.area.name} - {o.recipient.area.name} ({o.distance} km) </p>
+
+                                    <div class="ui dividing header">EXPÉDITEUR</div>
+                                    <p>Nom: {o.sender.name}</p>
+                                    <p>Commune: {o.sender.area.name}</p>
+                                    <p>Adresse: {o.sender.address}</p>
+                                    <p>Téléphone: {o.sender.phone}</p>
+                                    <div class="ui dividing header">DESTINATAIRE</div>
+                                    <p>Nom: {o.recipient.name}</p>
+                                    <p>Commune: {o.recipient.area.name}</p>
+                                    <p>Adresse: {o.recipient.address}</p>
+                                    <p>Téléphone: {o.recipient.phone}</p>
+                                    <div class="ui dividing header">COLIS</div>
+                                    <p>Nature: {o.nature}</p>
+                                    <p>Catégorie: {o.category.name}</p>
+                                    <p>Poids: {o.weight || 'INDISPONIBLE'}</p>
+                                    <div class="ui dividing header">PAIEMENT ({o.paymentOption.name})</div>
+                                    <p>Frais de livraison: {o.cost} FCFA</p>
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="extra content" style="text-align: right">
-                            <!-- <a v-if="o.state.id != 5" class="ui tiny basic button" v-bind:data-index="index">
+                        <div v-if="o.state.id !== 4" class="extra content" style="text-align: right">
+                            <a v-if="o.state.id == 2 || o.state.id == 3" :href="`/tracking?id=${o.orderId}`"
+                                class="ui tiny basic button" v-bind:data-index="index">
                                 <i class="search icon"></i>
                                 Suivre
-                            </a> -->
-                            <a class="ui tiny button" href="#">
-                                <i class="info icon"></i>
-                                Details
                             </a>
                             <div v-if="o.state.id == 1" class="ui negative tiny button"
                                 v-on:click="showCancelModal(o.orderId)">
@@ -122,18 +124,23 @@
                         </div>
                     </div>
                 </div>
+                <div v-else-if="error" class="center" v-cloak>
+                    <p class="center">Echec de connexion.</p>
+                    <a @click="fetchOrders">
+                        réessayer
+                    </a>
+                </div>
                 <div class="no-orders" v-else v-cloak>
                     <span>
                         Vous n'avez aucune commande active
                     </span>
                 </div>
                 <div class="ui modal mini" id="cancelModal">
-                    <i class="close icon"></i>
-                    <div class="header">
+                    <div class="header center">
                         ANNULATION DE COMMANDE
                     </div>
                     <div class="content">
-                        <h3> Êtes-vous certain de vouloir annuler votre commande ?
+                        <h3 class="center"> Êtes-vous certain de vouloir annuler votre commande ?
                         </h3>
                     </div>
                     <div class="actions">
@@ -145,6 +152,12 @@
                         </div>
                     </div>
                 </div>
+                <div v-if="showLoadMore" v-cloak class="load-more-div">
+                    <button class="ui button small" @click="fetchOrders"
+                        v-bind:class="{disabled: loading, loading: loading}">
+                        Afficher plus
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -152,60 +165,7 @@
         {{ template "footer" .}}
     </div>
 </body>
-<script>
-    // axios.defaults.timeout = 60000;
-
-
-    var ordersApp = new Vue({
-        el: '#user-orders',
-        delimiters: ['{', '}'],
-        data: {
-            orders: [],
-            loading: true,
-            selectedOrderId: 0,
-        },
-        methods: {
-            formatDate(dateString) {
-                var d = new Date(dateString)
-                return d.toLocaleDateString('fr');
-            },
-            fetchActiveOrders: function () {
-                axios.get("/profile/all-orders")
-                    .then(res => {
-                        this.loading = false;
-                        this.orders = res.data.orders || [];
-                        console.log(res);
-                    }).catch(err => {
-                        this.loading = false;
-                        console.log(err);
-                    });
-            },
-            showCancelModal: function (id) {
-                this.selectedOrderId = id;
-                console.log(id);
-                $('#cancelModal').modal('show');
-            },
-            cancelOrder: async function () {
-                if (!this.selectedOrderId) {
-                    return
-                }
-
-                try {
-                    var response = await axios.patch(`/order/cancel/${this.selectedOrderId}`)
-                    console.log(response.status);
-                    if (response.status === 200) {
-                        this.fetchActiveOrders();
-                    }
-                } catch (error) {
-                    alert(error);
-                }
-            },
-        },
-        created: function () {
-            this.fetchActiveOrders();
-        }
-    })
-</script>
+<script src="../assets/js/user_orders.js"></script>
 
 </html>
 {{ end }}

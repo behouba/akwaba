@@ -187,7 +187,11 @@
         margin: 1em 0em;
     }
 
-    .service-row a {
+     a {
+        text-decoration: none;
+        cursor: pointer;
+    }
+    a, a:hover {
         color: #B02025;
     }
 
@@ -340,6 +344,7 @@ select {
     }
 
     .section-title {
+        margin-top: 60px;
         font-size: 2rem !important;
     }
 
@@ -402,7 +407,10 @@ select {
     .field{
         margin-top: 22px !important;
     }
-
+    .section-title {
+        margin-top: 50px;
+        font-size: 1.5rem !important;
+    }
     .search-input {
         width: 100%;
     }

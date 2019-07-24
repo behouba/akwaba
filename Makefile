@@ -5,6 +5,8 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 
+# "/Users/a1/Documents/code/akwaba/website/dev-config.yml"
+
 # Website entry directory
 W_ENTRY_DIR=./cmd/website
 # binary names
@@ -14,7 +16,7 @@ build-website:
 	$(GOBUILD) -o $(W_ENTRY_DIR)/$(W_BINARY) $(W_ENTRY_DIR)/main.go
 
 run-website: build-website
-	$(W_ENTRY_DIR)/$(W_BINARY)
+	cd $(W_ENTRY_DIR) && ./$(W_BINARY) /Users/a1/Documents/code/akwaba/website/dev-config.yml
 
 clean:
 	rm -f $(W_ENTRY_DIR)/$(W_BINARY)
@@ -28,4 +30,4 @@ build-website-linux:
 build-adminapi:
 	$(GOBUILD) -o ./cmd/admin/adminapi ./cmd/admin/main.go
 run-adminapi: build-adminapi
-	./cmd/admin/adminapi
+	./cmd/admin/adminapi /Users/a1/Documents/code/akwaba/adminapi/dev-config.yml

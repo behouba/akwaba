@@ -7,11 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
-    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.54.0/mapbox-gl.css' rel='stylesheet' />
     <title>QUI SOMMES NOUS ?</title>
 </head>
+
 
 <body>
     <!-- Sidebar for mobile de vices -->
@@ -20,9 +18,9 @@
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
         <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
-        <a class="red item" href="/profile/orders">Mes commandes</a>
-        <a class="red item" href="/profile/settings">Reglages</a>
-        <a class="red item" href="/auth/logout">Deconnexion</a>
+        <a class="red item" href="/profile/my_orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Réglages</a>
+        <a class="red item" href="/auth/logout">Déconnexion</a>
 
         {{else}}
         <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
@@ -64,9 +62,9 @@
                         <div class="ui dropdown item">
                             <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item" href="/profile/orders">Mes commandes</a>
-                                <a class="black item" href="/profile/settings">Reglages</a>
-                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                                <a class="black item" href="/profile/my_orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Réglages</a>
+                                <a class="black item" href="/auth/logout">Déconnexion</a>
                             </div>
                         </div>
                         {{else}}
@@ -78,7 +76,7 @@
                 </div>
             </div>
         </header>
-        <div class="ui text container">
+        <div class="ui container" style="margin-top: 30px">
             <h1 class="ui horizontal divider section-title">QUI SOMMES NOUS ?</h1>
             <div>
                 <p>
@@ -104,70 +102,49 @@
 
             <div id='map'></div>
             <div style="margin-top: 30px">
-                <h4 class="ui dividing header">TROUVEZ L'AGENCE LA PLUS PROCHE DE CHEZ VOUS </h4>
-                <div class="ui grid stackable" style="margin-top: 20px;">
-                    <div class="eight wide column">
+                <h3 class="ui dividing header center">TROUVEZ L'AGENCE LA PLUS PROCHE DE CHEZ VOUS </h3>
+                <div class="ui grid stackable center" style="margin-top: 20px;">
+                    <div class="four wide column">
                         <h3 class="ui header">
-                            <i class="map marker alternate icon"></i>
-                            <div class="content">
-                                Agence d’Adjamé Williamsville (siège social)
-                                <div class="sub header">Tél: +225 35 64 63 34</div>
-                            </div>
+                            Adjamé Williamsville
                         </h3>
+                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
                     </div>
-                    <div class="eight wide column">
+                    <div class="four wide column">
                         <h3 class="ui header">
-                            <i class="map marker alternate icon"></i>
-                            <div class="content">
-                                Agence d’Abobo
-                                <div class="sub header">Tél: +225 35 64 63 34</div>
-                            </div>
+                            Adjamé Saint Michel
                         </h3>
+                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
                     </div>
-                    <div class="eight wide column">
+                    <div class="four wide column">
                         <h3 class="ui header">
-                            <i class="map marker alternate icon"></i>
-                            <div class="content">
-                                Agence d’Adjamé Saint Michel
-                                <div class="sub header">Tél: +225 35 64 63 34</div>
-                            </div>
+                            Abobo
                         </h3>
+                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
                     </div>
-                    <div class="eight wide column">
+                    <div class="four wide column">
                         <h3 class="ui header">
-                            <i class="map marker alternate icon"></i>
-                            <div class="content">
-                                Agence de Cocody Faya
-                                <div class="sub header">Tél: +225 35 64 63 34</div>
-                            </div>
+                            Cocody
                         </h3>
+                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
                     </div>
-                    <div class="eight wide column">
+                    <div class="four wide column">
                         <h3 class="ui header">
-                            <i class="map marker alternate icon"></i>
-                            <div class="content">
-                                Agence de Koumassi
-                                <div class="sub header">Tél: +225 35 64 63 34</div>
-                            </div>
+                            Koumassi
                         </h3>
+                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
                     </div>
-                    <div class="eight wide column">
+                    <div class="four wide column">
                         <h3 class="ui header">
-                            <i class="map marker alternate icon"></i>
-                            <div class="content">
-                                Agence de Yopougon
-                                <div class="sub header">Tél: +225 35 64 63 34</div>
-                            </div>
+                            Yopougon
                         </h3>
+                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
                     </div>
-                    <div class="eight wide column">
+                    <div class="four wide column">
                         <h3 class="ui header">
-                            <i class="map marker alternate icon"></i>
-                            <div class="content">
-                                Agence de Port-Bouët
-                                <div class="sub header">Tél: +225 35 64 63 34</div>
-                            </div>
+                            Port-Bouët
                         </h3>
+                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
                     </div>
                 </div>
             </div>
@@ -177,42 +154,24 @@
     </div>
 </body>
 <script>
-    mapboxgl.accessToken = 'pk.eyJ1IjoiYmVob3ViYSIsImEiOiJjanU0MTIzOXQwcW91NDFvNXlvZWl4dW14In0.kyNIuwfn3oV0wihAwPBgpA';
-    var map = new mapboxgl.Map({
-        container: 'map', // container id
-        style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
-        center: [-4.024429, 5.345317],
-        zoom: 11, // starting zoom
-    });
-    var adjameDallas = new mapboxgl.Marker()
-        .setLngLat([-4.024868, 5.335219])
-        .addTo(map);
-    var aboboGare = new mapboxgl.Marker()
-        .setLngLat([-4.024353, 5.421043])
-        .addTo(map);
-    var adjameWilly = new mapboxgl.Marker()
-        .setLngLat([-4.022073, 5.371246])
-        .addTo(map);
-    var cocodyAngre = new mapboxgl.Marker()
-        .setLngLat([-3.983412, 5.394719])
-        .addTo(map);
+    function initMap() {
+        var myLatLng = { lat: 5.345317, lng: -4.024429 };
 
-    var cocodyRti = new mapboxgl.Marker()
-        .setLngLat([-4.002949, 5.342152])
-        .addTo(map);
-    var marcory = new mapboxgl.Marker()
-        .setLngLat([-3.971517, 5.298594])
-        .addTo(map);
-    var treichville = new mapboxgl.Marker()
-        .setLngLat([-4.005960, 5.291583])
-        .addTo(map);
-    var yopougon1 = new mapboxgl.Marker()
-        .setLngLat([-4.070927, 5.317396])
-        .addTo(map);
-    var yopougon2 = new mapboxgl.Marker()
-        .setLngLat([-4.096257, 5.356710])
-        .addTo(map);
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 11,
+            center: myLatLng
+        });
+
+        var marker = new google.maps.Marker({
+            position: { lat: 5.363538, lng: -4.018281 },
+            map: map,
+            title: 'Akwaba Express',
+        });
+    }
 </script>
+
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAI1zZziSSz60c-2tYf2HteTS77X71kWI4&callback=initMap"></script>
 
 </html>
 {{ end }}

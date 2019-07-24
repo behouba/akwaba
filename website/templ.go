@@ -9,7 +9,12 @@ import (
 )
 
 func (h *Handler) login(c *gin.Context) {
-	c.HTML(http.StatusOK, "login", gin.H{})
+	_, isRedirect := c.GetQuery("redirect")
+
+	log.Println(isRedirect)
+	c.HTML(http.StatusOK, "login", gin.H{
+		"isRedirect": isRedirect,
+	})
 }
 func (h *Handler) home(c *gin.Context) {
 
@@ -91,7 +96,7 @@ func (h *Handler) settings(c *gin.Context) {
 	})
 }
 
-func (h *Handler) orders(c *gin.Context) {
+func (h *Handler) customerOrders(c *gin.Context) {
 	user := sessionUser(c)
 	c.HTML(http.StatusOK, "user-orders", gin.H{
 		"user": user,

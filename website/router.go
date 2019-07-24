@@ -10,6 +10,8 @@ import (
 const (
 	templatesPath = "./templates/*"
 	assetsPath    = "./assets"
+	// templatesPath = "./cmd/website/templates/*"
+	// assetsPath    = "./cmd/website/assets"
 )
 
 // Handler represents the website  handler methods set
@@ -19,7 +21,7 @@ type Handler struct {
 	mailer             akwaba.CustomerMailer
 	pricing            akwaba.PricingService
 	orderStore         akwaba.OrderService
-	tracker            akwaba.Tracker
+	tracker            akwaba.ParcelTracker
 	cities             akwaba.KeyVal
 	paymentOptions     akwaba.KeyVal
 	shipmentCategories akwaba.KeyVal
@@ -44,8 +46,8 @@ func NewRouter(h *Handler) *gin.Engine {
 		auth.POST("/registration", h.handleRegistration)
 		auth.GET("/recovery", h.recovery)
 		auth.POST("/recovery", h.handleRecovery)
-		auth.GET("/new-password-request", h.newPasswordRequest)
-		auth.POST("/new-password-request", h.handleNewPasswordRequest)
+		auth.GET("/password_request", h.newPasswordRequest)
+		auth.POST("/password_request", h.handleNewPasswordRequest)
 	}
 
 	order := r.Group("/order")
@@ -53,8 +55,10 @@ func NewRouter(h *Handler) *gin.Engine {
 		order.GET("/pricing", h.orderPricing)
 		order.GET("/form", authRequired, h.orderForm)
 		order.POST("/create", authRequired, h.handleOrderCreation)
-		order.GET("/info/:id", authRequired, h.orderInfo)
+		// order.GET("/info/:id", authRequired, h.orderInfo)
 		order.GET("/success", authRequired, h.orderSuccess)
+		order.PATCH("/cancel/:orderId", authRequired, h.cancelOrder)
+		order.GET("/state/:orderId", authRequired, h.orderState)
 	}
 
 	profile := r.Group("/profile")
@@ -62,8 +66,8 @@ func NewRouter(h *Handler) *gin.Engine {
 	{
 		profile.GET("/settings", h.settings)
 		profile.GET("/data", h.profileData)
+		profile.GET("/my_orders", h.customerOrders)
 		profile.GET("/orders", h.orders)
-		profile.GET("/all-orders", h.ordersJSON)
 		profile.POST("/update", h.updateProfile)
 	}
 
@@ -109,7 +113,7 @@ func NewRouter(h *Handler) *gin.Engine {
 func NewHandler(
 	auth akwaba.CustomerAuthentifier, customerStore akwaba.CustomerStorage,
 	mailer akwaba.CustomerMailer, pricing akwaba.PricingService, orderStore akwaba.OrderService,
-	tracker akwaba.Tracker,
+	tracker akwaba.ParcelTracker,
 	cities akwaba.KeyVal, paymentOptions akwaba.KeyVal, shipmentCategories akwaba.KeyVal,
 ) *Handler {
 	// db, err := postgres.Open(c.DB)

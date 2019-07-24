@@ -30,38 +30,41 @@
             </P>
         </div>
         <div class="id-container">
+            <p class="center">
+                Si vous êtes déjà inscrit, <a href="/auth/login" class="red-link">Connectez-vous</a>
+            </p>
             <div class="ui divider"></div>
 
             <form class="ui form" @submit.prevent="sendRegistration">
                 <div class="ui stacked ">
                     <div class="field">
                         <label for="name">Nom et prénom</label>
-                        <input type="text" name="name" autocomplete="disable" v-validate="{required: true, min: 3}"
+                        <input type="text" name="name" autocomplete="off" v-validate="{required: true, min: 3}"
                             v-model="user.FullName">
                         <span class="error-label" v-cloak>{ errors.first('name') }</span>
                     </div>
                     <div class="field">
                         <label for="email">E-mail</label>
                         <input type="text" name="email" v-model="user.email" v-validate="{required: true, email: true}"
-                            data-vv-as="email" autocomplete="disable">
+                            data-vv-as="email" autocomplete="off">
                         <span class="error-label" v-cloak>{ errors.first('email') }</span>
                     </div>
                     <div class="field">
                         <label for="phone">Numéro de mobile</label>
                         <input type="tel" name="phone" v-model="user.phone" v-validate="{required: true, length: 16}"
-                            v-mask="'+225 ## ## ## ##'" autocomplete="disable">
+                            v-mask="'+225 ## ## ## ##'" autocomplete="off">
                         <span class="error-label" v-cloak>{ errors.first('phone') }</span>
                     </div>
                     <div class="field">
                         <label for="password">Mot de passe</label>
                         <input type="password" name="password" v-validate="{required: true, min: 4}"
-                            v-model="user.password" autocomplete="disable">
+                            v-model="user.password" autocomplete="off">
                         <span class="error-label" v-cloak>{ errors.first('password') }</span>
                     </div>
                     <div class="field">
                         <label for="password2">Répétez le mot de passe</label>
                         <input type="password" name="password2" v-validate="{is: user.password}"
-                            v-model="confirmPassword" autocomplete="disable">
+                            v-model="confirmPassword" autocomplete="off">
                         <span class="error-label" v-cloak>{ errors.first('password2') }</span>
                     </div>
                     <div v-if="error" class="center" style="margin: 10px 0px;" v-cloak>
@@ -71,6 +74,7 @@
                         <button class="ui primary button submit"
                             v-bind:class="{loading: loading, disabled: loading}">Inscritpion</button>
                     </div>
+                    <div class="ui divider"></div>
                     <div style="margin-top: 10px;" class="muted-txt">
                         En vous inscrivant, vous acceptez les <a href="/general-conditions" class="red-link">conditions
                             d' utilisation</a> et <a href="/privacy-policy" class="red-link">la politique de
@@ -81,108 +85,12 @@
                 </div>
 
             </form>
-            <div class="ui divider">
-
-            </div>
-            <div class="muted-txt">
-                Si vous êtes déjà inscrit, <a href="/auth/login" class="red-link">Connectez-vous</a>
-            </div>
         </div>
     </div>
 </body>
 <script src="../assets/js/semantic.min.js"></script>
 
-<script>
-    // axios.defaults.timeout = 60000;
-    const dictionary = {
-        en: {
-            custom: {
-                name: {
-                    required: 'Veuillez saisir votre nom et prénom.',
-                    min: 'Votre nom et prénom ne peuvent pas être trop courts',
-                },
-                phone: {
-                    required: 'Veuillez saisir un numéro de mobile valide',
-                    length: 'Veuillez saisir un numéro de mobile valide',
-                },
-                email: {
-                    required: 'Veuillez saisir une adresse e-mail valide',
-                    email: 'Veuillez saisir une adresse e-mail valide',
-                },
-                password: {
-                    required: 'Votre mot de passe doit contenir au moins 4 caractères',
-                    min: 'Votre mot de passe doit contenir au moins 4 caractères'
-                },
-                password2: {
-                    is: 'Les mots de passe saisis ne sont pas identiques.',
-                }
-            }
-        }
-    }
-
-    Vue.options.delimiters = ['{', '}'];
-    Vue.use(VueTheMask)
-    Vue.use(VeeValidate, {
-        mode: 'lazy',
-        events: 'blur',
-        dictionary: dictionary,
-    });
-    // action="/auth/registration" method="POST"
-
-    function User() {
-        return {
-            fullName: null,
-            email: null,
-            phone: null,
-            password: null,
-        }
-    }
-    var registrationApp = new Vue({
-        el: "#registration-app",
-        data() {
-            return {
-                user: User(),
-                confirmPassword: null,
-                loading: false,
-                error: null,
-            }
-        },
-        methods: {
-            sendRegistration: async function () {
-                const isValid = await this.$validator.validate();
-
-                if (!isValid) {
-                    return
-                }
-
-                this.loading = true;
-                try {
-                    let response = await axios.post("/auth/registration", this.user);
-                    console.log(response);
-                    const splitedURL = window.location.href.split('redirect=')
-                    window.location.href = splitedURL.length > 1 ? splitedURL[1] : '/';
-                } catch (error) {
-                    console.log(error.response)
-                    if (error.response) {
-                        var status = error.response.status;
-                        if (status === 401) {
-                            this.error = error.response.data.message;
-                            return
-                        }
-                        this.user = error.response.data.user;
-                        console.log(error.response);
-                    } else if (error.request) {
-                        console.log(error.request);
-                    } else {
-                        // Something happened in setting up the request and triggered an Error
-                        console.log('Error', error.message);
-                    }
-                }
-                this.loading = false;
-            }
-        },
-    })
-</script>
+<script src="../assets/js/registration.js"></script>
 
 </html>
 

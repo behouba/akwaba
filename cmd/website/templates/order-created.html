@@ -8,33 +8,38 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
     <link rel="stylesheet" href="../assets/css/blank.css">
-    <title>Commande Akwaba Express effectuée</title>
+    <title>Commande réçu</title>
 </head>
 
 
 <body>
     <div class="ui center aligned">
-        <div class="blank">
-            <div class="page-header">
+        <div class="ui text container" style="margin-top: 100px;">
+            <!-- <div class="page-header">
                 <a href="/" class="header_logo"></a>
                 </a>
+            </div> -->
+            <div>
+                <img src="../assets/img/check.png" alt="">
             </div>
-            <h3 class="ui red image header">
-                Nous avons reçu votre votre commande
-            </h3>
-            <img src="../assets/img/support.png">
-
+            <h1 class="ui red image header">
+                Nous avons reçu votre commande
+            </h1>
+            <div>
+                <h4 class="ui red">COMMANDE № {{ .orderId }}</h4>
+            </div>
             <p class="center">Notre service client vous contactera dans quelques instants afin de finaliser votre
                 commande.</p>
             <p class="center">Merci de faire confiance à Akwaba Express.</p>
 
             <div style="margin: 15px 0px;">
-                <a class="ui tiny button red" href="/profile/orders/{{.orderId}}">Voir la commande</a>
+                <a class="ui tiny button red" href="/profile/my_orders">Voir mes commande</a>
             </div>
-
+            <div style="margin: 15px 0px;">
+                <a href="/">Retour à la page d'accueil </a>
+            </div>
         </div>
     </div>
-    <div id="editor"></div>
 </body>
 
 </html>

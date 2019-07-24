@@ -58,25 +58,9 @@ func NewOrdersManagementStore(db *sqlx.DB, mapApiKey string) *OrdersManagementSt
 
 func (a *OrdersManagementStore) ActiveOrders() (orders []akwaba.Order, err error) {
 	rows, err := a.db.Query(
-		`SELECT 
-		o.order_id, o.customer_id, o.time_created, o.sender_name, o.sender_phone, 
-		o.sender_area_id, a1.name, o.sender_address, o.recipient_name, 
-		o.recipient_phone, o.recipient_area_id, a2.name, o.recipient_address,
-		o.shipment_category_id, sc.name, o.nature, o.payment_option_id, po.name, o.cost, o.distance, 
-		ost.name, ost.order_state_id
-		FROM orders AS o
-		LEFT JOIN shipment_categories AS sc
-		ON sc.shipment_category_id = o.shipment_category_id
-		LEFT JOIN payment_options AS po
-		ON po.payment_option_id = o.payment_option_id
-		LEFT JOIN areas as a1
-		ON a1.area_id = o.sender_area_id
-		LEFT JOIN areas as a2
-		ON a2.area_id = o.recipient_area_id
- 		LEFT JOIN order_states AS ost
- 		ON ost.order_state_id = o.order_state_id
-		WHERE o.order_state_id=$1 OR o.order_state_id=$2 
-		ORDER BY o.time_created DESC`,
+		`select * from full_orders
+		WHERE order_state_id=$1 OR order_state_id=$2 
+		ORDER BY time_created DESC`,
 		akwaba.OrderStatePendingID, akwaba.OrderInProcessing,
 	)
 	if err != nil {
@@ -85,13 +69,12 @@ func (a *OrdersManagementStore) ActiveOrders() (orders []akwaba.Order, err error
 	for rows.Next() {
 		var o akwaba.Order
 		err = rows.Scan(
-			&o.OrderID, &o.CustomerID, &o.TimeCreated, &o.Sender.Name, &o.Sender.Phone,
-			&o.Sender.Area.ID, &o.Sender.Area.Name,
-			&o.Sender.Address, &o.Recipient.Name,
-			&o.Recipient.Phone, &o.Recipient.Area.ID, &o.Recipient.Area.Name,
-			&o.Recipient.Address, &o.Category.ID, &o.Category.Name,
+			&o.OrderID, &o.ShipmentID, &o.CustomerID, &o.TimeCreated, &o.TimeClosed,
+			&o.Sender.Name, &o.Sender.Phone, &o.Sender.Area.ID, &o.Sender.Area.Name,
+			&o.Sender.Address, &o.Recipient.Name, &o.Recipient.Phone, &o.Recipient.Area.ID,
+			&o.Recipient.Area.Name, &o.Recipient.Address, &o.Category.ID, &o.Category.Name,
 			&o.Nature, &o.PaymentOption.ID, &o.PaymentOption.Name, &o.Cost, &o.Distance,
-			&o.State.Name, &o.State.ID,
+			&o.State.ID, &o.State.Name,
 		)
 		if err != nil {
 			log.Println(err)
@@ -104,24 +87,8 @@ func (a *OrdersManagementStore) ActiveOrders() (orders []akwaba.Order, err error
 
 func (a *OrdersManagementStore) ClosedOrders(date string) (orders []akwaba.Order, err error) {
 	rows, err := a.db.Query(
-		`SELECT
-		o.order_id, o.customer_id, o.time_created, o.time_closed, o.sender_name, o.sender_phone, 
-		o.sender_area_id, a1.name, o.sender_address, o.recipient_name, 
-		o.recipient_phone, o.recipient_area_id, a2.name, o.recipient_address,
-		o.shipment_category_id, sc.name, o.nature, o.payment_option_id, po.name, o.cost, o.distance,
-		ost.order_state_id, ost.name
-		FROM orders AS o
-		LEFT JOIN order_states AS ost
-		ON o.order_state_id = ost.order_state_id
-		LEFT JOIN shipment_categories AS sc
-		ON sc.shipment_category_id = o.shipment_category_id
-		LEFT JOIN payment_options AS po
-		ON po.payment_option_id = o.payment_option_id
-		LEFT JOIN areas as a1
-		ON a1.area_id = o.sender_area_id
-		LEFT JOIN areas as a2
-		ON a2.area_id = o.recipient_area_id
-		WHERE o.time_closed::date = date($1) ORDER BY o.time_created DESC`,
+		`select * from closed_orders
+		WHERE time_closed::date = date($1) ORDER BY time_created DESC`,
 		date,
 	)
 	if err != nil {

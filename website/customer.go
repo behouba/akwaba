@@ -3,6 +3,7 @@ package website
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/behouba/akwaba"
 	"github.com/gin-gonic/gin"
@@ -17,10 +18,11 @@ import (
 // 	log.Println(name, phone, email, message)
 // }
 
-func (h *Handler) ordersJSON(c *gin.Context) {
+func (h *Handler) orders(c *gin.Context) {
+	offset, _ := strconv.ParseUint(c.Query("offset"), 10, 64)
 	user := sessionUser(c)
 
-	orders, err := h.orderStore.OfCustomer(user.ID)
+	orders, err := h.orderStore.Orders(user.ID, offset)
 	if err != nil {
 		log.Println(err)
 	}

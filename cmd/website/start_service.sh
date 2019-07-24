@@ -8,3 +8,8 @@ tar -zxvf $ASSETS_OUT
 tar -zxvf $TEMPLATES_OUT
 
 rm $ASSETS_OUT $TEMPLATES_OUT
+
+sudo su
+systemctl restart website
+
+exit

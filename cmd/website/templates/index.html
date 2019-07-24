@@ -16,9 +16,9 @@
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
         <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
-        <a class="red item" href="/profile/orders">Mes commandes</a>
-        <a class="red item" href="/profile/settings">Reglages</a>
-        <a class="red item" href="/auth/logout">Deconnexion</a>
+        <a class="red item" href="/profile/my_orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Réglages</a>
+        <a class="red item" href="/auth/logout">Déconnexion</a>
 
         {{else}}
         <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
@@ -33,8 +33,7 @@
     <div class="pusher">
         <header>
             <div class="center" style="padding: 5px 10px !important;">
-                <h4>Vous pouvez appeler le <span style="color: #B02025 !important; -webkit-text-fill-color: #B02025">20
-                        37 01 74</span> pour commander
+                <h4>Vous pouvez appeler le <a href="tel:20370174">20 37 01 74</a> pour commander
                     votre
                     livraison!</h4>
             </div>
@@ -66,9 +65,9 @@
                         <div class="ui dropdown item">
                             <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item" href="/profile/orders">Mes commandes</a>
-                                <a class="black item" href="/profile/settings">Reglages</a>
-                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                                <a class="black item" href="/profile/my_orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Réglages</a>
+                                <a class="black item" href="/auth/logout">Déconnexion</a>
                             </div>
                         </div>
                         {{else}}

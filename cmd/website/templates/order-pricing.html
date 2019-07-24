@@ -48,9 +48,9 @@
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
         <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
-        <a class="red item" href="/profile/orders">Mes commandes</a>
-        <a class="red item" href="/profile/settings">Reglages</a>
-        <a class="red item" href="/auth/logout">Deconnexion</a>
+        <a class="red item" href="/profile/my_orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Réglages</a>
+        <a class="red item" href="/auth/logout">Déconnexion</a>
 
         {{else}}
         <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
@@ -92,9 +92,9 @@
                         <div class="ui dropdown item">
                             <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item" href="/profile/orders">Mes commandes</a>
-                                <a class="black item" href="/profile/settings">Reglages</a>
-                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                                <a class="black item" href="/profile/my_orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Réglages</a>
+                                <a class="black item" href="/auth/logout">Déconnexion</a>
                             </div>
                         </div>
                         {{else}}
@@ -115,12 +115,12 @@
                     <!-- <img src="../assets/img/distance.png" style="width: 150px;" alt=""> -->
                     <h2 class="ui header">Calculer le tarif et les délais d'envoi de votre colis</h2>
                     <div class="ui divider"></div>
-                    <p>Indiquez le lieu de depart, la destination ainsi que la catégorie du colis afin de calculer le
+                    <p>Indiquez le lieu de départ, la destination ainsi que la catégorie du colis afin de calculer le
                         coût de votre livraison.</p>
                 </div>
                 <form class="ui form">
                     <div class="field">
-                        <label>Depart</label>
+                        <label>Départ</label>
                         <div class="ui search" id="origin">
                             <div class="ui left icon input">
                                 <input class="prompt" type="text" ref="origin" style="border-radius: 0px;"
@@ -140,7 +140,7 @@
                         </div>
                     </div>
                     <div class="field">
-                        <label>Selectionnez un catégorie</label>
+                        <label>Sélectionnez une catégorie</label>
                         <select name="shipmentCategory" v-on:change="calculateCost" v-model="categoryId">
                             <option value=""></option>
                             {{range $key, $value := .shipmentCategories}}
@@ -150,7 +150,7 @@
                     </div>
                 </form>
                 <div style="min-height: 200px;" id="order-summary">
-                    <div class="order-summary-card" v-if="hasSummary" v-cloak>
+                    <div class="order-summary-card" v-if="pricing && !hasError && !loading" v-cloak>
                         <div>
                             <div class="order-summary">
                                 <div class="order-summary-item">
@@ -186,9 +186,15 @@
                             <img src="../assets/img/dots_loader.gif">
                         </div>
                     </div>
+                    <div v-else-if="hasError" style="margin-top: 100px;text-align: center">
+                        Echec de connexion.
+                        <a style="cursor: pointer" @click="calculateCost">
+                            Réessayer
+                        </a>
+                    </div>
                 </div>
                 <div class="ui bottom fixed menu" style="height: 65px;">
-                    <div v-if="hasSummary && !loading" v-cloak id="price">
+                    <div v-if="pricing && !hasError && !loading" v-cloak id="price">
                         <a style="color: #B02025"
                             :href="`/order/form?origin=${origin}&destination=${destination}&categoryId=${categoryId}`">
                             Coût de la livraison <strong>{pricing.cost.toLocaleString()} FCFA</strong></a>
@@ -197,8 +203,14 @@
                         <div v-if="loading">
                             <img src="../assets/img/dots_loader.gif">
                         </div>
+                        <div v-else-if="hasError">
+                            Echec de connexion.
+                            <a style="cursor: pointer" @click="calculateCost">
+                                Réessayer
+                            </a>
+                        </div>
                         <div v-else>
-                            Selectionnez vos adresses dans la liste d'adresses suggérée
+                            Sélectionnez vos adresses dans la liste d'adresses suggérée
                         </div>
                     </div>
                 </div>
@@ -212,7 +224,4 @@
 
 </html>
 <script src="../assets/js/order_pricing.js"></script>
-<!-- <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI&libraries=places&callback=initMap"></script> -->
-
 {{end}}

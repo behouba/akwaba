@@ -1,9 +1,13 @@
 package akwaba
 
 import (
+	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 // Order states
@@ -17,6 +21,7 @@ const (
 // Order struct represent order that will be created by users
 type Order struct {
 	OrderID       uint64           `json:"orderId"`
+	ShipmentID    NullInt64        `json:"shipmentId"`
 	CustomerID    uint             `json:"customerId"`
 	Sender        Address          `json:"sender"`
 	Recipient     Address          `json:"recipient"`
@@ -24,15 +29,42 @@ type Order struct {
 	PaymentOption PaymentOption    `json:"paymentOption"`
 	State         OrderState       `json:"state"`
 	TimeCreated   time.Time        `json:"timeCreated"`
-	TimeClosed    time.Time        `json:"timeClosed"`
+	TimeClosed    NullTime         `json:"timeClosed"`
 	Nature        string           `json:"nature"`
 	Cost          uint             `json:"cost"`
 	Distance      float64          `json:"distance"`
 }
 
+// NullInt64 is an alias for sql.NullInt64 data type
+type NullInt64 struct {
+	sql.NullInt64
+}
+
+// MarshalJSON for NullInt64
+func (ni *NullInt64) MarshalJSON() ([]byte, error) {
+	if !ni.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(ni.Int64)
+}
+
+// NullTime is an alias for mysql.NullTime data type
+type NullTime struct {
+	pq.NullTime
+}
+
+// MarshalJSON for NullTime
+func (nt *NullTime) MarshalJSON() ([]byte, error) {
+	if !nt.Valid {
+		return []byte("null"), nil
+	}
+	val := fmt.Sprintf("\"%s\"", nt.Time.Format(time.RFC3339))
+	return []byte(val), nil
+}
+
 type OrderService interface {
 	OrderPicker
-	OrderSaver
+	OrderSaverCanceler
 }
 
 type StateUpdater interface {
@@ -40,12 +72,13 @@ type StateUpdater interface {
 }
 
 type OrderPicker interface {
-	ByID(orderID uint64) (order Order, err error)
-	OfCustomer(customerID uint) (orders []Order, err error)
+	Orders(customerID uint, offset uint64) (orders []Order, err error)
+	Order(orderID uint64, customerID uint) (order Order, err error)
 }
 
-type OrderSaver interface {
+type OrderSaverCanceler interface {
 	Save(o *Order) (err error)
+	Cancel(id uint64) (err error)
 }
 
 type OrdersGatherer interface {
@@ -55,11 +88,10 @@ type OrdersGatherer interface {
 
 type OrderManager interface {
 	Confirm(orderID uint64) (shipmentID uint64, err error)
-	Cancel(orderID uint64) (err error)
 	CreateShipment(orderID uint64) (shipmentID uint64, err error)
 	Cost(origin, destination string, categoryID uint8) (cost uint, distance float64, err error)
 	OrdersGatherer
-	OrderSaver
+	OrderSaverCanceler
 	UpdateState(orderID uint64, stateID uint8) error
 }
 

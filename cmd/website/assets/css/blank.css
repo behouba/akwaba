@@ -1,3 +1,7 @@
+html, body {
+    height: auto;
+}
+
 body{
     font-family: Roboto,sans-serif;
 }
@@ -17,8 +21,11 @@ body{
 }
 
 .id-container {
-    width: 372px;
-    margin: 0 auto;
+    width: 400px;
+    margin-top: 0px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-bottom: 30px;
 }
 a, a:hover {
     color: #B02025;

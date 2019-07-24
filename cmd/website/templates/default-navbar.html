@@ -1,0 +1,46 @@
+{{ define "default-navbar"}}
+<header>
+    <!-- Mobile header -->
+    <div id="mobile-header" class="ui red inverted secondary menu">
+        <div class="ui container">
+            <a class="red item" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans-100.png">
+            </a>
+            <div class="right red menu">
+                <a class="item" onclick="showSideBar()">
+                    <i class="bars icon"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!--Desktop header-->
+    <div id="desktop-header" class="ui large menu inverted">
+        <div class="ui primary container">
+            <a class="red item active" href="/">
+                <img class="ui image logo" src="../assets/img/logo_trans-100.png">
+            </a>
+            <a class="red item" href="/services">Nos services</a>
+            <a class="red item" href="/order/pricing">Commande</a>
+            <a class="red item" href="/tracking">Suivi de colis</a>
+
+            <a class="red item" href="/about">À propos</a>
+            <div class="right menu">
+                {{if .user.ID}}
+                <div class="ui dropdown item">
+                    <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <a class="black item" href="/profile/my_orders">Mes commandes</a>
+                        <a class="black item" href="/profile/settings">Réglages</a>
+                        <a class="black item" href="/auth/logout">Déconnexion</a>
+                    </div>
+                </div>
+                {{else}}
+                <div class="item">
+                    <a class="ui primary button" href="/auth/login">Connexion</a>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</header>
+{{end}}

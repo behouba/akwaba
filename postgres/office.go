@@ -12,7 +12,7 @@ import (
 
 /* offices database interractions */
 
-//EmployeeStorageO Employee storage for offices
+//OfficeEmployeeStorage Employee storage for offices
 type OfficeEmployeeStorage struct {
 	db *sqlx.DB
 }
@@ -60,12 +60,7 @@ func NewShipmentStorage(db *sqlx.DB) *ShipmentStorage {
 
 func (s *ShipmentStorage) Pickups(office *akwaba.Office) (shipments []akwaba.Shipment, err error) {
 	rows, err := s.db.Query(
-		`SELECT 
-			shipment_id, order_id, customer_id, sender_name, sender_phone, sender_area_id,
-			sender_area, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_area,
-			recipient_address, time_created, shipment_category_id, shipment_category, cost, shipment_state_id,
-			shipment_state, weight, payment_option_id, payment_option, distance, nature
-		FROM shipments_master 
+		`SELECT * FROM full_shipments 
 		WHERE pickup_office_id=$1 AND shipment_state_id=$2;`,
 		office.ID, akwaba.ShipmentPendingPickupID,
 	)
@@ -118,12 +113,7 @@ func (s *ShipmentStorage) UpdateState(shipmentID uint64, stateID uint8, areaID u
 
 func (s *ShipmentStorage) Stock(office *akwaba.Office) (shipments []akwaba.Shipment, err error) {
 	rows, err := s.db.Query(
-		`SELECT 
-			shipment_id, order_id, customer_id, sender_name, sender_phone, sender_area_id,
-			sender_area, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_area,
-			recipient_address, time_created, shipment_category_id, shipment_category, cost, shipment_state_id,
-			shipment_state, weight, payment_option_id, payment_option, distance, nature
-		FROM shipments_master 
+		`SELECT * FROM full_shipments 
 		WHERE current_office_id=$1`,
 		office.ID,
 	)
@@ -200,7 +190,7 @@ func (s *ShipmentStorage) CheckOut(office *akwaba.Office, shipmentID uint64) (er
 	err = s.db.QueryRow(
 		`SELECT 
 		shipment_state_id, current_office_id, delivery_office_id
-		FROM shipments_master 
+		FROM full_shipments 
 		WHERE shipment_id=$1 AND current_office_id=$2`,
 		shipmentID, office.ID,
 	).Scan(&currentStateID, &currentOfficeID, &deliveryOfficeID)
@@ -243,7 +233,7 @@ func (s *ShipmentStorage) Deliveries(office *akwaba.Office) (shipments []akwaba.
 		sender_area, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_area,
 		recipient_address, time_created, shipment_category_id, shipment_category, cost, shipment_state_id,
 		shipment_state, weight, payment_option_id, payment_option, distance, nature
-	FROM shipments_master 
+	FROM full_shipments 
 	WHERE delivery_office_id=$1 AND current_office_id=$2;`,
 		office.ID, office.ID,
 	)
@@ -276,7 +266,7 @@ func (s *ShipmentStorage) Delivered(office *akwaba.Office, shipmentID uint64) (e
 	err = s.db.QueryRow(
 		`SELECT 
 		order_id, shipment_state_id, current_office_id, delivery_office_id
-		FROM shipments_master 
+		FROM full_shipments 
 		WHERE shipment_id=$1 AND current_office_id=$2`,
 		shipmentID, office.ID,
 	).Scan(&orderID, &currentStateID, &currentOfficeID, &deliveryOfficeID)
@@ -323,7 +313,7 @@ func (s *ShipmentStorage) DeliveryFailed(office *akwaba.Office, shipmentID uint6
 	err = s.db.QueryRow(
 		`SELECT 
 		shipment_state_id, current_office_id, delivery_office_id
-		FROM shipments_master 
+		FROM full_shipments 
 		WHERE shipment_id=$1 AND current_office_id=$2`,
 		shipmentID, office.ID,
 	).Scan(&currentStateID, &currentOfficeID, &deliveryOfficeID)

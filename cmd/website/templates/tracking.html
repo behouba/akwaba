@@ -18,9 +18,9 @@
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
         <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
-        <a class="red item" href="/profile/orders">Mes commandes</a>
-        <a class="red item" href="/profile/settings">Reglages</a>
-        <a class="red item" href="/auth/logout">Deconnexion</a>
+        <a class="red item" href="/profile/my_orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Réglages</a>
+        <a class="red item" href="/auth/logout">Déconnexion</a>
 
         {{else}}
         <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
@@ -62,9 +62,9 @@
                         <div class="ui dropdown item">
                             <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item" href="/profile/orders">Mes commandes</a>
-                                <a class="black item" href="/profile/settings">Reglages</a>
-                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                                <a class="black item" href="/profile/my_orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Réglages</a>
+                                <a class="black item" href="/auth/logout">Déconnexion</a>
                             </div>
                         </div>
                         {{else}}
@@ -175,65 +175,7 @@
     {{ template "footer" . }}
     </div>
 </body>
-<script>
-    var app = new Vue({
-        el: '#tracking-app',
-        delimiters: ['{', '}'],
-        data: {
-            tracking: null,
-            loading: false,
-            shipmentId: null,
-            error: {
-                hasError: false,
-                message: '',
-            },
-        },
-        methods: {
-            checkFormAndSubmit: function (e) {
-                e.preventDefault();
-                this.fetchTracking();
-            },
-            formatDate(date) {
-                var d = new Date(date)
-                return d.toLocaleString('fr');
-            },
-            fetchTracking: async function () {
-                if (!this.shipmentId) {
-                    this.error.hasError = false;
-                    return
-                }
-                this.loading = true;
-                this.error.hasError = false;
-                this.error.message = ''
-                try {
-                    var response = await axios.get(`/shipment/tracking?id=${this.shipmentId}`)
-                    this.tracking = response.data.tracking || null;
-
-                    $(".details").slideToggle(300);
-                    $('html, body').animate({ scrollTop: $("#tracking-wrapper").offset().top }, 'slow');
-                } catch (error) {
-                    console.log(error)
-                    this.error.hasError = true;
-                    if (error.response) {
-                        this.error.message = error.response.data.message || error;
-                    }
-                }
-                this.loading = false;
-            },
-            showFullTracking: function (e) {
-                $(".details").slideToggle(300);
-            },
-        },
-        created: function () {
-            $('.ui.radio.checkbox').checkbox();
-            $('.ui.dropdown').dropdown();
-            const urlParams = new URLSearchParams(window.location.search);
-            this.shipmentId = urlParams.get('id');
-            this.fetchTracking();
-        },
-    });
-
-</script>
+<script src="../assets/js/tracking.js"></script>
 
 </html>
 {{end}}

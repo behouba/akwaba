@@ -41,7 +41,7 @@ func (c *CustomerMail) generateResetPasswordHTML(fullName, token string) (emailB
 			Actions: []hermes.Action{
 				{
 					Instructions: "Cliquez sur le bouton ci-dessous pour réinitialiser votre mot de passe:",
-					Button:       akwabaButton("Réinitialiser", fmt.Sprintf("%s/auth/new-password-request?token=%s", baseURL, token)),
+					Button:       akwabaButton("Réinitialiser", fmt.Sprintf("%s/auth/password_request?token=%s", baseURL, token)),
 				},
 			},
 			Outros: []string{

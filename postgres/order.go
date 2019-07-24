@@ -20,40 +20,30 @@ func NewOrderStore(db *sqlx.DB, mapApiKey string) *OrderStore {
 	return &o
 }
 
-func (o *OrderStore) OfCustomer(customerID uint) (orders []akwaba.Order, err error) {
+// o.order_id, s.shipment_id,o.customer_id, o.time_created,o.time_closed,o.sender_name,
+// o.sender_phone,o.sender_area_id,sender_area,o.sender_address,o.recipient_name,
+// o.recipient_phone,o.recipient_area_id,recipient_area,o.recipient_address,
+// o.shipment_category_id, shipment_category, o.nature, o.payment_option_id,
+// payment_option, o.cost,o.distance,ost.order_state_id,order_state
+
+func (o *OrderStore) Orders(customerID uint, offset uint64) (orders []akwaba.Order, err error) {
 	rows, err := o.db.Query(
-		`SELECT
-		o.order_id, o.time_created, o.sender_name, o.sender_phone, 
-		o.sender_area_id, a1.name, o.sender_address, o.recipient_name, 
-		o.recipient_phone, o.recipient_area_id, a2.name, o.recipient_address,
-		o.shipment_category_id, sc.name, o.nature, o.payment_option_id, po.name,
-		ost.order_state_id, ost.name
-		FROM orders AS o
-		LEFT JOIN order_states AS ost
-		ON o.order_state_id = ost.order_state_id
-		LEFT JOIN shipment_categories AS sc
-		ON sc.shipment_category_id = o.shipment_category_id
-		LEFT JOIN payment_options AS po
-		ON po.payment_option_id = o.payment_option_id
-		LEFT JOIN areas as a1
-		ON a1.area_id = o.sender_area_id
-		LEFT JOIN areas as a2
-		ON a2.area_id = o.recipient_area_id
-		WHERE customer_id=$1 ORDER BY o.time_created DESC`,
-		customerID,
+		`select * from full_orders
+		WHERE customer_id=$1 ORDER BY time_created DESC LIMIT 50 OFFSET $2`,
+		customerID, offset,
 	)
 	if err != nil {
 		return
 	}
+
 	for rows.Next() {
 		var o akwaba.Order
 		err = rows.Scan(
-			&o.OrderID, &o.TimeCreated, &o.Sender.Name, &o.Sender.Phone,
-			&o.Sender.Area.ID, &o.Sender.Area.Name,
-			&o.Sender.Address, &o.Recipient.Name,
-			&o.Recipient.Phone, &o.Recipient.Area.ID, &o.Recipient.Area.Name,
-			&o.Recipient.Address, &o.Category.ID, &o.Category.Name,
-			&o.Nature, &o.PaymentOption.ID, &o.PaymentOption.Name,
+			&o.OrderID, &o.ShipmentID, &o.CustomerID, &o.TimeCreated, &o.TimeClosed,
+			&o.Sender.Name, &o.Sender.Phone, &o.Sender.Area.ID, &o.Sender.Area.Name,
+			&o.Sender.Address, &o.Recipient.Name, &o.Recipient.Phone, &o.Recipient.Area.ID,
+			&o.Recipient.Area.Name, &o.Recipient.Address, &o.Category.ID, &o.Category.Name,
+			&o.Nature, &o.PaymentOption.ID, &o.PaymentOption.Name, &o.Cost, &o.Distance,
 			&o.State.ID, &o.State.Name,
 		)
 		if err != nil {
@@ -138,53 +128,37 @@ func (s *OrderStore) setAreaID(name string, id *uint) (err error) {
 	).Scan(id)
 }
 
-func (o *OrderStore) ByID(orderID uint64) (order akwaba.Order, err error) {
-	// var shipments json.RawMessage
-	// o.db.QueryRow(
-	// 	`SELECT
-	// 	o.order_id, o.customer_id, o.time_created, o.order_state_id, ost.name, shipments
-	// 	FROM orders AS o
-	// 	INNER JOIN order_states AS ost
-	// 	ON o.order_state_id = ost.order_state_id
-	// 	WHERE o.order_id=$1`,
-	// 	orderID,
-	// ).Scan(
-	// 	&order.OrderID, &order.CustomerID, &order.TimeCreated,
-	// 	&order.State.ID, &order.State.Name, &shipments,
-	// )
-	// // log.Println(string(shipments))
-	// err = json.Unmarshal(shipments, &order.Shipments)
-	// if err != nil {
-	// 	return
-	// }
+func (s *OrderStore) Order(orderID uint64, customerID uint) (o akwaba.Order, err error) {
+	err = s.db.QueryRow(
+		`select * from full_orders
+		WHERE order_id=$1 AND customer_id=$2 ORDER BY time_created DESC`,
+		orderID, customerID,
+	).Scan(
+		&o.OrderID, &o.ShipmentID, &o.CustomerID, &o.TimeCreated, &o.TimeClosed,
+		&o.Sender.Name, &o.Sender.Phone, &o.Sender.Area.ID, &o.Sender.Area.Name,
+		&o.Sender.Address, &o.Recipient.Name, &o.Recipient.Phone, &o.Recipient.Area.ID,
+		&o.Recipient.Area.Name, &o.Recipient.Address, &o.Category.ID, &o.Category.Name,
+		&o.Nature, &o.PaymentOption.ID, &o.PaymentOption.Name, &o.Cost, &o.Distance,
+		&o.State.ID, &o.State.Name,
+	)
+	if err != nil {
+		return
+	}
 	return
 }
 
 func (o *OrderStore) Cancel(orderID uint64) (err error) {
+	_, err = o.db.Exec(
+		`UPDATE orders 
+		SET order_state_id=$1 
+		WHERE order_id=$2 AND order_state_id=$3`,
+		akwaba.OrderStateCanceledID, orderID, akwaba.OrderStatePendingID,
+	)
+	if err != nil {
+		return
+	}
 	return
 }
-
-// CompleteOrder function complete order information
-// func (d *OrderStore) CompleteOrder(order *akwaba.Order) (err error) {
-// 	order.Sender.City.Name, err = d.cityNameByID(order.Sender.City.ID)
-// 	if err != nil {
-// 		return
-// 	}
-// 	order.Receiver.City.Name, err = d.cityNameByID(order.Receiver.City.ID)
-// 	if err != nil {
-// 		return
-// 	}
-// 	order.ComputeCost()
-// 	order.ShipmentCategory.Name, err = d.intervalNameByID(order.ShipmentCategory.ID)
-// 	if err != nil {
-// 		return
-// 	}
-// 	order.PaymentType.Name, err = d.paymentTypeNameByID(order.PaymentType.ID)
-// 	if err != nil {
-// 		return
-// 	}
-// 	return
-// }
 
 // Track method take an order id and return current trace data of order with error
 func (d *OrderStore) Track(userID, orderID int) (oTrace akwaba.Order, err error) {

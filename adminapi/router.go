@@ -95,11 +95,11 @@ func NewRouter(h *headoffice.Handler, o *office.Handler, g *Handler) *gin.Engine
 }
 
 type Handler struct {
-	tracker akwaba.Tracker
+	tracker akwaba.ParcelTracker
 	sysData akwaba.SystemData
 }
 
-func NewHandler(tracker akwaba.Tracker, sysData akwaba.SystemData) *Handler {
+func NewHandler(tracker akwaba.ParcelTracker, sysData akwaba.SystemData) *Handler {
 	return &Handler{
 		tracker: tracker,
 		sysData: sysData,
@@ -108,6 +108,7 @@ func NewHandler(tracker akwaba.Tracker, sysData akwaba.SystemData) *Handler {
 
 // Config hold configuration data for the adminapi
 type Config struct {
+	Port       string           `yaml:"port"`
 	DB         *postgres.Config `yaml:"database"`
 	HSecretKey string           `yaml:"hSecretKey"`
 	OSecretKey string           `yaml:"oSecretKey"`

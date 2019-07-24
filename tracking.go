@@ -20,9 +20,10 @@ type Tracking struct {
 	Events   []Event  `json:"events"`
 }
 
-// Tracker interface define shipment tracking method Track
-type Tracker interface {
-	Track(shipmentID uint64) (tracking Tracking, err error)
+// ParcelTracker interface define shipment tracking method Track
+type ParcelTracker interface {
+	TrackByShipmentID(shipmentID uint64) (tracking Tracking, err error)
+	TrackByOrderID(orderID uint64) (tracking Tracking, err error)
 }
 
 // FormatTimeFR method set Formatted field of EventTime datatype

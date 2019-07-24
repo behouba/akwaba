@@ -20,11 +20,7 @@ var pricingApp = new Vue({
         loading: false,
         origAutocomplete: null,
         destAutocomplete: null,
-    },
-    computed: {
-        hasSummary() {
-            return (this.pricing != null);
-        }
+        hasError: false,
     },
     methods: {
         async calculateCost() {
@@ -41,9 +37,11 @@ var pricingApp = new Vue({
                     `/pricing/compute?origin=${this.origin}&destination=${this.destination}&categoryId=${this.categoryId}`,
                 )
                 this.pricing = response.data;
+                this.hasError = false
                 console.log(response)
                 $('html, body').animate({ scrollTop: $("#order-summary").offset().top }, 'slow');
             } catch (error) {
+                this.hasError = true;
                 console.log(error)
             }
             this.loading = false;
@@ -90,15 +88,3 @@ var pricingApp = new Vue({
         })
     }
 });
-
-
-
-// var cityBounds = new google.maps.LatLngBounds(
-//     new google.maps.LatLng(5.232202, -4.136919),
-//     new google.maps.LatLng(5.501554, -3.816256),
-// );
-// const options = {
-//     bounds: cityBounds,
-//     strictBounds: true,
-//     componentRestrictions: { country: 'civ' },
-// }

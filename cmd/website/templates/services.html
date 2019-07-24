@@ -19,9 +19,9 @@
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
         <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
-        <a class="red item" href="/profile/orders">Mes commandes</a>
-        <a class="red item" href="/profile/settings">Reglages</a>
-        <a class="red item" href="/auth/logout">Deconnexion</a>
+        <a class="red item" href="/profile/my_orders">Mes commandes</a>
+        <a class="red item" href="/profile/settings">Réglages</a>
+        <a class="red item" href="/auth/logout">Déconnexion</a>
 
         {{else}}
         <a class="red item" href="/auth/login" style="margin-top: 10px">Connexion</a>
@@ -63,9 +63,9 @@
                         <div class="ui dropdown item">
                             <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
-                                <a class="black item" href="/profile/orders">Mes commandes</a>
-                                <a class="black item" href="/profile/settings">Reglages</a>
-                                <a class="black item" href="/auth/logout">Deconnexion</a>
+                                <a class="black item" href="/profile/my_orders">Mes commandes</a>
+                                <a class="black item" href="/profile/settings">Réglages</a>
+                                <a class="black item" href="/auth/logout">Déconnexion</a>
                             </div>
                         </div>
                         {{else}}
@@ -131,7 +131,7 @@
                                     passera à l'endroit souhaité dans les instants qui suivent pour le ramassage et
                                     procéder à
                                     la
-                                    livraison dans un bref délai (3H30 maximum).
+                                    livraison dans un bref délai (5 heures maximum).
                                 </p>
                                 <p>Passez votre commande en ligne <a href="/order/pricing">ici</a>.</p>
                             </div>
@@ -149,14 +149,11 @@
                                 <h2 class="ui header centered aligned">
                                     SUIVI DE COLIS EN LIGNE
                                 </h2>
-                                <p>Vous pouvez suivre l’état de votre colis en ligne en inscrivant à l’onglet réservé
-                                    pour
-                                    la
-                                    session,
-                                    le numéro de suivi de votre colis déjà ramassé. Vous pourrez y voir en temps réel si
-                                    votre
-                                    livraison
-                                    est soit en cours, livré, reporté ou annulé.</p>
+                                <p>Vous pouvez suivre l’état d’avancement votre colis en ligne en inscrivant à l’onglet
+                                    réservé pour la session, le numéro de suivi de votre colis déjà ramassé. Vous
+                                    pourrez y voir en temps réel si votre livraison est soit en cours, livrée, reportée
+                                    ou annulée.
+                                    Pour suivre votre colis, entrez le numéro de suivi ici.</p>
                                 <p>Pour suivre votre colis, entrez le numéro de suivi <a href="/tracking">ici</a></p>
                             </div>
                             <div class="column" id="fast-shipping">
@@ -167,12 +164,12 @@
                                     LIVRAISONS D’EXTRÊME URGENCE
                                 </h2>
                                 <p>Akwaba Express vous permet de vous sortir des situations d’extrêmes urgences pour
-                                    faire
-                                    livrer vos colis partout à Abidjan en un clic à des prix hautement étudiés et
+                                    faire livrer vos colis partout à Abidjan en un clic à des prix hautement étudiés et
                                     accessibles à tous. Ce service est permis aux entreprises et particuliers (pas de
                                     restriction). Lorsque vous faîtes appel à Akwaba Express extrême urgence, nous vous
                                     garantissons la priorité sur votre colis et de le faire livrer en un temps record
                                     quelque soit le lieu de destination.
+                                    Contactez-nous afin de bénéficier du service d’extrême urgence.
                                 </p>
                                 <p>
                                     Contactez nous pour bénéficier du service
@@ -194,17 +191,11 @@
                                     SOLUTIONS POUR ENTREPRISES
                                 </h2>
                                 <p>Besoin de forfait ou de partenariat pour votre entreprise ? Vous êtes au bon endroit
-                                    !
-                                    Akwaba Express offre aux entreprises des solutions adaptées à vos besoins, des
-                                    services
-                                    de sous-traitances voire des partenariats.
-                                    Vous êtes une entreprise intéressée par nos services et vous souhaitez coopérer avec
-                                    nous, nous vous prions de nous contacter. Des professionnels vous contacteront dans
-                                    un bref
-                                    délai
-                                    pour des échanges
-                                    plus avancées. Akwaba Express s’engage à garder confidentiel toutes les informations
-                                    renseignées sur le présent site.</p>
+                                    ! Akwaba Express offre aux entreprises des solutions adaptées à vos besoins, des
+                                    services de sous-traitance voire des partenariats. Vous êtes une entreprise
+                                    intéressée par nos services et vous souhaitez coopérer avec nous, nous vous prions
+                                    de prendre un rendez-vous. Des professionnels vous contacteront dans un bref délai
+                                    pour des échanges plus avancées.</p>
                             </div>
                             <div class="column" id="management">
                                 <div class="service-icon">
@@ -227,9 +218,6 @@
                                     flexibilité dans la gestion du mode de livraison, laissant ainsi le libre choix au
                                     client de disposer à sa guise de son colis.
                                     Vous pouvez gérer vos livraison en nous contactant. </p>
-                                <p>
-                                    Contactez nous <a href="/about#contact-form">ici</a> afin de gérer vos livraisons.
-                                </p>
                             </div>
                         </div>
                     </div>
