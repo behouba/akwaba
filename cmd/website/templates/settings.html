@@ -25,7 +25,7 @@
         <div class="">
             <div class="ui container full-height" id="setting-app">
                 <div id="settings">
-                    <h1 class="center">DONNÉES DU COMPTE</h1>
+                    <h2 class="center">DONNÉES DU COMPTE</h2>
                     <div class="ui divider"></div>
                     <div class="ui negative message" v-if="error" v-cloak>
                         <p>
@@ -42,15 +42,22 @@
                     </div>
                     <form class="ui form" autocomplete="disabled" v-else @submit.prevent="submitUpdate" v-cloak>
                         <div class="field">
-                            <label for="name">Nom et prénom</label>
-                            <input type="text" name="name" autocomplete="disable" v-validate="{required: true, min: 3}"
-                                v-model="user.fullName">
-                            <span class="error-label" v-cloak>{ errors.first('name') }</span>
+                            <label for="lastName">Nom</label>
+                            <input type="text" name="lastName" autocomplete="off" v-validate="{required: true, min: 3}"
+                                v-model="user.lastName">
+                            <span class="error-label" v-cloak>{ errors.first('lastName') }</span>
+                        </div>
+                        <div class="field">
+                            <label for="firstName">Prénom</label>
+                            <input type="text" name="firstName" autocomplete="off" v-validate="{required: true, min: 3}"
+                                v-model="user.firstName">
+                            <span class="error-label" v-cloak>{ errors.first('fistName') }</span>
                         </div>
                         <div class="field">
                             <label for="email">E-mail</label>
                             <input type="text" name="email" v-model="user.email"
-                                v-validate="{required: true, email: true}" data-vv-as="email" autocomplete="disable">
+                                v-validate="{required: true, email: true}" disabled data-vv-as="email"
+                                autocomplete="disable">
                             <span class="error-label" v-cloak>{ errors.first('email') }</span>
                         </div>
                         <div class="field">
@@ -61,19 +68,18 @@
                             <span class="error-label" v-cloak>{ errors.first('phone') }</span>
                         </div>
                         <div class="field">
-                            <label>Adresse</label>
-                            <input type="text" name="address" v-model="user.address">
+                            <label>Mot de passe</label>
+                            <input type="password" disabled autocomplete="off" name="address" value="1234567">
+                            <div style="margin-top: 3px">
+                                <a href="/profile/update-password">Modifier votre mot de passe</a>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label for="password">Mot de passe requis pour les modificaiton</label>
-                            <input type="password" autocomplete="disabled" name="password"
-                                v-validate="{required: true, min: 4}" v-model="user.password" autocomplete="disable">
-                            <span class="error-label" v-cloak>{ errors.first('password') }</span>
-                        </div>
+
                         <div class="center">
-                            <button v-bind:class="{loading: loading, disabled: loading}" class="ui button primary"
-                                type="submit">Modifier</button>
+                            <button v-bind:class="{loading: loading, disabled: loading}" class="ui button primary fluid"
+                                type="submit">Enregistrer les modifications</button>
                         </div>
+
                     </form>
 
                 </div>

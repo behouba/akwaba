@@ -22,7 +22,7 @@ func NewOfficeEmployeeStorage(db *sqlx.DB) *OfficeEmployeeStorage {
 }
 
 // Authenticate offices employees
-func (es *OfficeEmployeeStorage) Authenticate(emp *akwaba.Employee) (employee akwaba.Employee, err error) {
+func (es *OfficeEmployeeStorage) Authenticate(emp *akwaba.Employee, ip string) (employee akwaba.Employee, err error) {
 	var passwordHash string
 	err = es.db.QueryRow(
 		`SELECT 
@@ -47,6 +47,7 @@ func (es *OfficeEmployeeStorage) Authenticate(emp *akwaba.Employee) (employee ak
 	if err != nil {
 		return
 	}
+	recordLogin(es.db, emp.ID, ip)
 	return
 }
 
@@ -59,8 +60,18 @@ func NewShipmentStorage(db *sqlx.DB) *ShipmentStorage {
 }
 
 func (s *ShipmentStorage) Pickups(office *akwaba.Office) (shipments []akwaba.Shipment, err error) {
+	// 	shipment_id, order_id, user_id, sender_name, sender_phone, sender_area_id,  sender_area,
+	// sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_area, recipient_address,
+	// time_created, time_delivered, shipment_category_id, shipment_category, cost, shipment_state_id, shipment_state,
+	// weight, payment_option_id, distance, nature, current_office_id, pickup_office_id, delivery_office_id,
 	rows, err := s.db.Query(
-		`SELECT * FROM full_shipments 
+		`SELECT 
+			shipment_id, order_id, user_id, sender_name, sender_phone, sender_area_id,
+			sender_area, sender_address, recipient_name, recipient_phone, recipient_area_id, 
+			recipient_area, recipient_address, time_created, shipment_category_id, 
+			shipment_category, cost, shipment_state_id, shipment_state, payment_option_id, 
+			payment_option, distance, nature
+		 FROM full_shipments 
 		WHERE pickup_office_id=$1 AND shipment_state_id=$2;`,
 		office.ID, akwaba.ShipmentPendingPickupID,
 	)
@@ -72,11 +83,11 @@ func (s *ShipmentStorage) Pickups(office *akwaba.Office) (shipments []akwaba.Shi
 		// scan order
 
 		err = rows.Scan(
-			&s.ID, &s.OrderID, &s.CustomerID, &s.Sender.Name, &s.Sender.Phone,
+			&s.ID, &s.OrderID, &s.UserID, &s.Sender.Name, &s.Sender.Phone,
 			&s.Sender.Area.ID, &s.Sender.Area.Name, &s.Sender.Address, &s.Recipient.Name,
 			&s.Recipient.Phone, &s.Recipient.Area.ID, &s.Recipient.Area.Name, &s.Recipient.Address,
 			&s.TimeCreated, &s.Category.ID, &s.Category.Name, &s.Cost, &s.State.ID, &s.State.Name,
-			&s.Weight, &s.PaymentOption.ID, &s.PaymentOption.Name, &s.Distance, &s.Nature,
+			&s.PaymentOption.ID, &s.PaymentOption.Name, &s.Distance, &s.Nature,
 		)
 		if err != nil {
 			return
@@ -99,7 +110,6 @@ func (s *ShipmentStorage) PickedUp(office *akwaba.Office, shipmentID uint64, wei
 }
 
 func (s *ShipmentStorage) UpdateState(shipmentID uint64, stateID uint8, areaID uint) (err error) {
-
 	// set delivery time if updating state to shipment delivered state
 	_, err = s.db.Exec(
 		`INSERT INTO shipments_history (shipment_id, shipment_state_id, area_id) VALUES ($1, $2, $3)`,
@@ -113,7 +123,13 @@ func (s *ShipmentStorage) UpdateState(shipmentID uint64, stateID uint8, areaID u
 
 func (s *ShipmentStorage) Stock(office *akwaba.Office) (shipments []akwaba.Shipment, err error) {
 	rows, err := s.db.Query(
-		`SELECT * FROM full_shipments 
+		`SELECT 
+			shipment_id, order_id, user_id, sender_name, sender_phone, sender_area_id,
+			sender_area, sender_address, recipient_name, recipient_phone, recipient_area_id, 
+			recipient_area, recipient_address, time_created, shipment_category_id, 
+			shipment_category, cost, shipment_state_id, shipment_state, weight, payment_option_id, 
+			payment_option, distance, nature
+		 FROM full_shipments 
 		WHERE current_office_id=$1`,
 		office.ID,
 	)
@@ -125,7 +141,7 @@ func (s *ShipmentStorage) Stock(office *akwaba.Office) (shipments []akwaba.Shipm
 		// scan order
 
 		err = rows.Scan(
-			&s.ID, &s.OrderID, &s.CustomerID, &s.Sender.Name, &s.Sender.Phone,
+			&s.ID, &s.OrderID, &s.UserID, &s.Sender.Name, &s.Sender.Phone,
 			&s.Sender.Area.ID, &s.Sender.Area.Name, &s.Sender.Address, &s.Recipient.Name,
 			&s.Recipient.Phone, &s.Recipient.Area.ID, &s.Recipient.Area.Name, &s.Recipient.Address,
 			&s.TimeCreated, &s.Category.ID, &s.Category.Name, &s.Cost, &s.State.ID, &s.State.Name,
@@ -229,7 +245,7 @@ func (s *ShipmentStorage) CheckOut(office *akwaba.Office, shipmentID uint64) (er
 func (s *ShipmentStorage) Deliveries(office *akwaba.Office) (shipments []akwaba.Shipment, err error) {
 	rows, err := s.db.Query(
 		`SELECT 
-		shipment_id, order_id, customer_id, sender_name, sender_phone, sender_area_id,
+		shipment_id, order_id, user_id, sender_name, sender_phone, sender_area_id,
 		sender_area, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_area,
 		recipient_address, time_created, shipment_category_id, shipment_category, cost, shipment_state_id,
 		shipment_state, weight, payment_option_id, payment_option, distance, nature
@@ -245,7 +261,7 @@ func (s *ShipmentStorage) Deliveries(office *akwaba.Office) (shipments []akwaba.
 		// scan order
 
 		err = rows.Scan(
-			&s.ID, &s.OrderID, &s.CustomerID, &s.Sender.Name, &s.Sender.Phone,
+			&s.ID, &s.OrderID, &s.UserID, &s.Sender.Name, &s.Sender.Phone,
 			&s.Sender.Area.ID, &s.Sender.Area.Name, &s.Sender.Address, &s.Recipient.Name,
 			&s.Recipient.Phone, &s.Recipient.Area.ID, &s.Recipient.Area.Name, &s.Recipient.Address,
 			&s.TimeCreated, &s.Category.ID, &s.Category.Name, &s.Cost, &s.State.ID, &s.State.Name,

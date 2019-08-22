@@ -9,25 +9,42 @@ GOGET=$(GOCMD) get
 
 # Website entry directory
 W_ENTRY_DIR=./cmd/website
+# adminapi entry directory
+A_ENTRY_DIR=./cmd/adminapi
+# notifier entry directory
+N_ENTRY_DIR=./cmd/mailer
+# mobileapi entrey directory
+M_ENTRY_DIR=./cmd/mobileapi
+
 # binary names
 W_BINARY=website
+A_BINARY=adminapi
+N_BINARY=mailer
+M_BINARY=mobileapi
+
+# configuration files
+CONFIG_FILE=dev-config.yml
 
 build-website:
 	$(GOBUILD) -o $(W_ENTRY_DIR)/$(W_BINARY) $(W_ENTRY_DIR)/main.go
 
 run-website: build-website
-	cd $(W_ENTRY_DIR) && ./$(W_BINARY) /Users/a1/Documents/code/akwaba/website/dev-config.yml
-
-clean:
-	rm -f $(W_ENTRY_DIR)/$(W_BINARY)
-
-
-build-website-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(W_ENTRY_DIR)/$(W_BINARY) $(W_ENTRY_DIR)/main.go
-
+	cd $(W_ENTRY_DIR) && ./$(W_BINARY) $(CONFIG_FILE)
 
 
 build-adminapi:
-	$(GOBUILD) -o ./cmd/admin/adminapi ./cmd/admin/main.go
+	$(GOBUILD) -o $(A_ENTRY_DIR)/$(A_BINARY) $(A_ENTRY_DIR)/main.go
 run-adminapi: build-adminapi
-	./cmd/admin/adminapi /Users/a1/Documents/code/akwaba/adminapi/dev-config.yml
+	cd $(A_ENTRY_DIR) && ./$(A_BINARY) $(CONFIG_FILE)
+
+build-mailer:
+	$(GOBUILD) -o $(N_ENTRY_DIR)/$(N_BINARY) $(N_ENTRY_DIR)/main.go
+run-mailer: build-mailer
+	cd $(N_ENTRY_DIR) && ./$(N_BINARY) $(CONFIG_FILE)
+
+
+build-mobileapi:
+	$(GOBUILD) -o $(M_ENTRY_DIR)/$(M_BINARY) $(M_ENTRY_DIR)/main.go
+run-mobileapi: build-mobileapi
+	cd $(M_ENTRY_DIR) && ./$(M_BINARY) $(CONFIG_FILE)
+

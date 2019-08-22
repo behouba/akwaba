@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <div id="recovery-app">
+    <div id="recovery-app" style="margin-top: 100px;">
         <div class="page-header">
             <a href="/" class="header_logo"></a>
             </a>
@@ -24,23 +24,23 @@
             <h2 class="ui center">
                 Récupération du mot de passe
             </h2>
-            <form class="ui form center" id="recovery-form" @submit.prevent="sendEmailForRecovery">
-                <div class="ui positive message" v-if="done">Un e-mail a été envoyé à {displayEmail} avec un lien
+            <form class="ui form" id="recovery-form" @submit.prevent="sendEmailForRecovery">
+                <div class="ui positive message" v-cloak v-if="done">Un e-mail a été envoyé à {displayEmail} avec un
+                    lien
                     pour
                     créer
                     un nouveau
                     mot
                     de passe.</div>
-                <div class="ui negative message" v-else-if="!done && error">{error}</div>
+                <div class="ui negative message" v-cloak v-else-if="!done && error">{error}</div>
                 <div class="ui stacked">
                     <div class="field">
-                        <label for="email">Entrez votre adresse e-mail</label>
-                        <input type="text" name="email" v-model="email" v-validate="{required: true, email: true}"
-                            data-vv-as="email" autocomplete="disable">
+                        <input type="text" placeholder="Entrez votre adresse e-mail" name="email" v-model="email"
+                            v-validate="{required: true, email: true}" data-vv-as="email" autocomplete="disable">
                         <span class="error-label" v-cloak>{ errors.first('email') }</span>
                     </div>
-                    <div class="center" style="margin-top: 30px; margin-bottom: 10px;">
-                        <button class="ui primary submit button"
+                    <div class="center" style="margin-bottom: 10px;">
+                        <button class="ui fluid primary submit button"
                             v-bind:class="{loading: loading, disabled: loading || done}">Envoyer</button>
                     </div>
                     <div class="center">

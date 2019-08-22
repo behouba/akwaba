@@ -20,7 +20,7 @@ func (h *Handler) Login(c *gin.Context) {
 		})
 		return
 	}
-	employee, err := h.EmployeeAuthentifier.Authenticate(&e)
+	employee, err := h.employeeAuthentifier.Authenticate(&e, c.ClientIP())
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -54,7 +54,7 @@ func (h *Handler) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		token := auth[1]
-		emp, err := h.auth.AuthenticateToken(token)
+		emp, err := h.auth.Authenticate(token)
 		log.Println(emp)
 		if err != nil {
 			log.Println(err)

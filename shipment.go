@@ -17,20 +17,14 @@ const (
 
 // Shipment represent parcel in delivery
 type Shipment struct {
-	ID            uint64           `json:"id"`
-	CustomerID    uint             `json:"customerId"`
-	Sender        Address          `json:"sender"`
-	Recipient     Address          `json:"recipient"`
-	TimeCreated   time.Time        `json:"timeCreated"`
-	TimeDelivered time.Time        `json:"timeDelivered"`
-	OrderID       uint64           `json:"orderId"`
-	Category      ShipmentCategory `json:"category"`
-	Cost          uint             `json:"cost"`
-	State         ShipmentState    `json:"state"`
-	PaymentOption PaymentOption    `json:"paymentOption"`
-	Distance      float64          `json:"distance"`
-	Weight        float64          `json:"weight"`
-	Nature        string           `json:"nature"`
+	ID            uint64        `json:"id"`
+	UserID        uint          `json:"userId"`
+	OrderID       uint64        `json:"orderId"`
+	Weight        float64       `json:"weight"`
+	State         ShipmentState `json:"state"`
+	TimeCreated   time.Time     `json:"timeCreated"`
+	TimeDelivered NullTime      `json:"timeDelivered"`
+	OrderData
 }
 
 // ShipmentCategory represent shipment category
@@ -60,12 +54,6 @@ type Area struct {
 	ID     uint   `json:"id"`
 	Name   string `json:"name"`
 	CityID uint   `json:"cityId"`
-}
-
-// PricingService interface for shipment cost calculation
-type PricingService interface {
-	FindArea(query string) (areas []Area)
-	Cost(from, to string, categoryID uint8) (cost uint, distance float64, err error)
 }
 
 type ShipmentManager interface {

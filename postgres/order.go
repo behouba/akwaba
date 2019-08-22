@@ -20,17 +20,17 @@ func NewOrderStore(db *sqlx.DB, mapApiKey string) *OrderStore {
 	return &o
 }
 
-// o.order_id, s.shipment_id,o.customer_id, o.time_created,o.time_closed,o.sender_name,
+// o.order_id, s.shipment_id,o.user_id, o.time_created,o.time_closed,o.sender_name,
 // o.sender_phone,o.sender_area_id,sender_area,o.sender_address,o.recipient_name,
 // o.recipient_phone,o.recipient_area_id,recipient_area,o.recipient_address,
 // o.shipment_category_id, shipment_category, o.nature, o.payment_option_id,
 // payment_option, o.cost,o.distance,ost.order_state_id,order_state
 
-func (o *OrderStore) Orders(customerID uint, offset uint64) (orders []akwaba.Order, err error) {
+func (o *OrderStore) Orders(userID uint, offset uint64) (orders []akwaba.Order, err error) {
 	rows, err := o.db.Query(
 		`select * from full_orders
-		WHERE customer_id=$1 ORDER BY time_created DESC LIMIT 50 OFFSET $2`,
-		customerID, offset,
+		WHERE user_id=$1 ORDER BY time_created DESC LIMIT 50 OFFSET $2`,
+		userID, offset,
 	)
 	if err != nil {
 		return
@@ -39,7 +39,7 @@ func (o *OrderStore) Orders(customerID uint, offset uint64) (orders []akwaba.Ord
 	for rows.Next() {
 		var o akwaba.Order
 		err = rows.Scan(
-			&o.OrderID, &o.ShipmentID, &o.CustomerID, &o.TimeCreated, &o.TimeClosed,
+			&o.ID, &o.ShipmentID, &o.UserID, &o.TimeCreated, &o.TimeClosed,
 			&o.Sender.Name, &o.Sender.Phone, &o.Sender.Area.ID, &o.Sender.Area.Name,
 			&o.Sender.Address, &o.Recipient.Name, &o.Recipient.Phone, &o.Recipient.Area.ID,
 			&o.Recipient.Area.Name, &o.Recipient.Address, &o.Category.ID, &o.Category.Name,
@@ -55,11 +55,11 @@ func (o *OrderStore) Orders(customerID uint, offset uint64) (orders []akwaba.Ord
 	return
 }
 
-func (s *OrderStore) isAllowed(customerID uint) (err error) {
+func (s *OrderStore) isAllowed(userID uint) (err error) {
 	var n uint8
 	s.db.QueryRow(
-		`SELECT COUNT(*) FROM orders WHERE customer_id=$1 AND order_state_id=$2`,
-		customerID, akwaba.OrderStatePendingID,
+		`SELECT COUNT(*) FROM orders WHERE user_id=$1 AND order_state_id=$2`,
+		userID, akwaba.OrderStatePendingID,
 	).Scan(&n)
 	if n > 4 {
 		return errors.New(
@@ -74,7 +74,7 @@ func (s *OrderStore) isAllowed(customerID uint) (err error) {
 
 // Save order
 func (s *OrderStore) Save(o *akwaba.Order) (err error) {
-	err = s.isAllowed(o.CustomerID)
+	err = s.isAllowed(o.UserID)
 	if err != nil {
 		return
 	}
@@ -95,15 +95,15 @@ func (s *OrderStore) Save(o *akwaba.Order) (err error) {
 	err = s.db.QueryRow(
 		`INSERT
 		INTO orders 
-		(customer_id, sender_name, sender_phone, 
+		(user_id, sender_name, sender_phone, 
 		sender_area_id, sender_address, recipient_name, 
 		recipient_phone, recipient_area_id, recipient_address, 
 		shipment_category_id, nature, payment_option_id, cost, distance, order_state_id)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING order_id`,
-		o.CustomerID, o.Sender.Name, o.Sender.Phone, o.Sender.Area.ID, o.Sender.Address,
+		o.UserID, o.Sender.Name, o.Sender.Phone, o.Sender.Area.ID, o.Sender.Address,
 		o.Recipient.Name, o.Recipient.Phone, o.Recipient.Area.ID, o.Recipient.Address,
 		o.Category.ID, o.Nature, o.PaymentOption.ID, o.Cost, o.Distance, orderState,
-	).Scan(&o.OrderID)
+	).Scan(&o.ID)
 	if err != nil {
 		return
 	}
@@ -112,7 +112,7 @@ func (s *OrderStore) Save(o *akwaba.Order) (err error) {
 		`INSERT INTO orders_history 
 		(order_id, order_state_id)
 		VALUES ($1, $2)`,
-		o.OrderID,
+		o.ID,
 		orderState,
 	)
 	if err != nil {
@@ -128,13 +128,13 @@ func (s *OrderStore) setAreaID(name string, id *uint) (err error) {
 	).Scan(id)
 }
 
-func (s *OrderStore) Order(orderID uint64, customerID uint) (o akwaba.Order, err error) {
+func (s *OrderStore) Order(orderID uint64, userID uint) (o akwaba.Order, err error) {
 	err = s.db.QueryRow(
 		`select * from full_orders
-		WHERE order_id=$1 AND customer_id=$2 ORDER BY time_created DESC`,
-		orderID, customerID,
+		WHERE order_id=$1 AND user_id=$2 ORDER BY time_created DESC`,
+		orderID, userID,
 	).Scan(
-		&o.OrderID, &o.ShipmentID, &o.CustomerID, &o.TimeCreated, &o.TimeClosed,
+		&o.ID, &o.ShipmentID, &o.UserID, &o.TimeCreated, &o.TimeClosed,
 		&o.Sender.Name, &o.Sender.Phone, &o.Sender.Area.ID, &o.Sender.Area.Name,
 		&o.Sender.Address, &o.Recipient.Name, &o.Recipient.Phone, &o.Recipient.Area.ID,
 		&o.Recipient.Area.Name, &o.Recipient.Address, &o.Category.ID, &o.Category.Name,
@@ -157,6 +157,7 @@ func (o *OrderStore) Cancel(orderID uint64) (err error) {
 	if err != nil {
 		return
 	}
+
 	return
 }
 

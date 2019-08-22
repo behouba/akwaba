@@ -17,7 +17,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FirstName}} </span></a>
         <a class="red item" href="/profile/my_orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Réglages</a>
         <a class="red item" href="/auth/logout">Déconnexion</a>
@@ -60,7 +60,7 @@
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.FirstName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item" href="/profile/my_orders">Mes commandes</a>
                                 <a class="black item" href="/profile/settings">Réglages</a>

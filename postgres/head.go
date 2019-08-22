@@ -19,7 +19,7 @@ func NewHeadManagerStorage(db *sqlx.DB) *HeadManagerStorage {
 }
 
 // Authenticate head office employee
-func (es *HeadManagerStorage) Authenticate(emp *akwaba.Employee) (employee akwaba.Employee, err error) {
+func (es *HeadManagerStorage) Authenticate(emp *akwaba.Employee, ip string) (employee akwaba.Employee, err error) {
 	var passwordHash string
 	err = es.db.QueryRow(
 		`SELECT 
@@ -41,18 +41,30 @@ func (es *HeadManagerStorage) Authenticate(emp *akwaba.Employee) (employee akwab
 	if err != nil {
 		return
 	}
+	recordLogin(es.db, employee.ID, ip)
+	return
+}
+
+func recordLogin(db *sqlx.DB, empID uint, ip string) (err error) {
+	_, err = db.Exec(
+		`INSERT INTO employees_access_history (employee_id, ip_address) VALUES ($1, $2)`,
+		empID, ip,
+	)
+	if err != nil {
+		log.Println(err)
+	}
 	return
 }
 
 type OrdersManagementStore struct {
 	db *sqlx.DB
-	PricingStorage
 	OrderStore
 }
 
 func NewOrdersManagementStore(db *sqlx.DB, mapApiKey string) *OrdersManagementStore {
 	a := OrdersManagementStore{db: db}
-	a.PricingStorage.db, a.OrderStore.db, a.PricingStorage.apiKey = db, db, mapApiKey
+	os := NewOrderStore(db, mapApiKey)
+	a.OrderStore = *os
 	return &a
 }
 
@@ -61,7 +73,7 @@ func (a *OrdersManagementStore) ActiveOrders() (orders []akwaba.Order, err error
 		`select * from full_orders
 		WHERE order_state_id=$1 OR order_state_id=$2 
 		ORDER BY time_created DESC`,
-		akwaba.OrderStatePendingID, akwaba.OrderInProcessing,
+		akwaba.OrderStatePendingID, akwaba.OrderInProcessingID,
 	)
 	if err != nil {
 		return
@@ -69,7 +81,7 @@ func (a *OrdersManagementStore) ActiveOrders() (orders []akwaba.Order, err error
 	for rows.Next() {
 		var o akwaba.Order
 		err = rows.Scan(
-			&o.OrderID, &o.ShipmentID, &o.CustomerID, &o.TimeCreated, &o.TimeClosed,
+			&o.ID, &o.ShipmentID, &o.UserID, &o.TimeCreated, &o.TimeClosed,
 			&o.Sender.Name, &o.Sender.Phone, &o.Sender.Area.ID, &o.Sender.Area.Name,
 			&o.Sender.Address, &o.Recipient.Name, &o.Recipient.Phone, &o.Recipient.Area.ID,
 			&o.Recipient.Area.Name, &o.Recipient.Address, &o.Category.ID, &o.Category.Name,
@@ -87,7 +99,7 @@ func (a *OrdersManagementStore) ActiveOrders() (orders []akwaba.Order, err error
 
 func (a *OrdersManagementStore) ClosedOrders(date string) (orders []akwaba.Order, err error) {
 	rows, err := a.db.Query(
-		`select * from closed_orders
+		`select * from full_orders
 		WHERE time_closed::date = date($1) ORDER BY time_created DESC`,
 		date,
 	)
@@ -97,7 +109,7 @@ func (a *OrdersManagementStore) ClosedOrders(date string) (orders []akwaba.Order
 	for rows.Next() {
 		var o akwaba.Order
 		err = rows.Scan(
-			&o.OrderID, &o.CustomerID, &o.TimeCreated, &o.TimeClosed,
+			&o.ID, &o.UserID, &o.TimeCreated, &o.TimeClosed,
 			&o.Sender.Name, &o.Sender.Phone, &o.Sender.Area.ID, &o.Sender.Area.Name,
 			&o.Sender.Address, &o.Recipient.Name,
 			&o.Recipient.Phone, &o.Recipient.Area.ID, &o.Recipient.Area.Name,
@@ -139,7 +151,7 @@ func (a *OrdersManagementStore) Save(o *akwaba.Order) (err error) {
 		o.Sender.Name, o.Sender.Phone, o.Sender.Area.ID, o.Sender.Address,
 		o.Recipient.Name, o.Recipient.Phone, o.Recipient.Area.ID, o.Recipient.Address,
 		o.Category.ID, o.Nature, o.PaymentOption.ID, o.Cost, o.Distance, akwaba.OrderStatePendingID,
-	).Scan(&o.OrderID)
+	).Scan(&o.ID)
 	if err != nil {
 		return
 	}
@@ -203,14 +215,14 @@ func (a *OrdersManagementStore) CreateShipment(orderID uint64) (shipmentID uint6
 	// retreiving order data from orders table
 	err = a.db.QueryRow(
 		`SELECT
-			order_id, customer_id, sender_name, sender_phone,
+			order_id, user_id, sender_name, sender_phone,
 			sender_area_id, sender_address, recipient_name,
 			recipient_phone, recipient_area_id, recipient_address, shipment_category_id,
 			nature, payment_option_id, cost, distance
 		FROM orders WHERE order_id=$1`,
 		orderID,
 	).Scan(
-		&o.OrderID, &o.CustomerID, &o.Sender.Name, &o.Sender.Phone,
+		&o.ID, &o.UserID, &o.Sender.Name, &o.Sender.Phone,
 		&o.Sender.Area.ID, &o.Sender.Address, &o.Recipient.Name,
 		&o.Recipient.Phone, &o.Recipient.Area.ID, &o.Recipient.Address, &o.Category.ID, &o.Nature,
 		&o.PaymentOption.ID, &o.Cost, &o.Distance,
@@ -223,7 +235,7 @@ func (a *OrdersManagementStore) CreateShipment(orderID uint64) (shipmentID uint6
 	// inserting order data in shipment table
 	err = a.db.QueryRow(
 		`INSERT INTO shipments
-		(order_id, customer_id, sender_name, sender_phone, 
+		(order_id, user_id, sender_name, sender_phone, 
 		sender_area_id, sender_address, recipient_name,
 		recipient_phone, recipient_area_id, recipient_address, 
 		shipment_category_id,cost, 
@@ -231,7 +243,7 @@ func (a *OrdersManagementStore) CreateShipment(orderID uint64) (shipmentID uint6
 		VALUES 
 		($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 		RETURNING shipment_id`,
-		o.OrderID, o.CustomerID, o.Sender.Name, o.Sender.Phone, o.Sender.Area.ID,
+		o.ID, o.UserID, o.Sender.Name, o.Sender.Phone, o.Sender.Area.ID,
 		o.Sender.Address, o.Recipient.Name, o.Recipient.Phone, o.Recipient.Area.ID,
 		o.Recipient.Address, o.Category.ID, o.Cost,
 		o.Nature, o.PaymentOption.ID, o.Distance, shipmentStateID,
@@ -275,37 +287,37 @@ func (a *OrdersManagementStore) addPendingTracking(shipmentID uint64, areaID uin
 	return
 }
 
-type CustomerStorage struct {
+type UserStorage struct {
 	db *sqlx.DB
 }
 
-func NewCustomerStorage(db *sqlx.DB) *CustomerStorage {
-	return &CustomerStorage{db: db}
+func NewUserStorage(db *sqlx.DB) *UserStorage {
+	return &UserStorage{db: db}
 }
 
-func (a *CustomerStorage) Customers() (customers []akwaba.Customer) {
+func (a *UserStorage) Users() (users []akwaba.User) {
 	rows, err := a.db.Query(
 		`SELECT 
-		customer_id, full_name, phone, email, 
+		user_id, first_name, last_name, phone, email, 
 		password, account_type_id, is_email_verified, 
-		is_phone_verified, address 
-		FROM customers LIMIT 500`,
+		is_phone_verified 
+		FROM users LIMIT 500`,
 	)
 	if err != nil {
 		return
 	}
 
 	for rows.Next() {
-		var c akwaba.Customer
+		var c akwaba.User
 		err = rows.Scan(
-			&c.ID, &c.FullName, &c.Phone, &c.Email, &c.Password,
+			&c.ID, &c.FirstName, &c.LastName, &c.Phone, &c.Email, &c.Password,
 			&c.AccountTypeID, &c.IsEmailVerified,
-			&c.IsPhoneVerified, &c.Address,
+			&c.IsPhoneVerified,
 		)
 		if err != nil {
 			return
 		}
-		customers = append(customers, c)
+		users = append(users, c)
 	}
 	return
 }
@@ -318,7 +330,7 @@ func (a *CustomerStorage) Customers() (customers []akwaba.Customer) {
 // 	return &OrderStateStore{db: db}
 // }
 
-// func (o *OrderStateStore) UpdateState(orderID uint64, stateID uint8) (err error) {
+// func (o *OrderStateStore) UpdateState(ID uint64, stateID uint8) (err error) {
 
 // 	return
 // }

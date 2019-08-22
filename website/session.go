@@ -8,16 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func sessionUser(c *gin.Context) (cust akwaba.Customer) {
+func sessionUser(c *gin.Context) (user akwaba.User) {
 	s := sessions.Default(c)
-	cust, _ = s.Get("sessionUser").(akwaba.Customer)
-	fmt.Println(cust)
+	user, _ = s.Get("sessionUser").(akwaba.User)
+	fmt.Println(user)
 	return
 }
 
-func saveSessionUser(cust *akwaba.Customer, c *gin.Context) {
+func saveSessionUser(user *akwaba.User, c *gin.Context) {
+	// make password empty before saving user data into session
+	user.Password = ""
 	s := sessions.Default(c)
-	s.Set("sessionUser", *cust)
+	s.Set("sessionUser", *user)
 	s.Save()
 }
 

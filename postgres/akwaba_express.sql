@@ -5,7 +5,7 @@
 -- Dumped from database version 11.4
 -- Dumped by pg_dump version 11.4
 
--- Started on 2019-07-24 13:08:24 MSK
+-- Started on 2019-08-06 17:06:15 MSK
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,10 +18,12 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+SET default_tablespace = '';
+
 SET default_with_oids = false;
 
 --
--- TOC entry 196 (class 1259 OID 49578)
+-- TOC entry 196 (class 1259 OID 50033)
 -- Name: account_types; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -33,7 +35,7 @@ CREATE TABLE public.account_types (
 
 
 --
--- TOC entry 197 (class 1259 OID 49584)
+-- TOC entry 197 (class 1259 OID 50039)
 -- Name: addresses; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -42,12 +44,12 @@ CREATE TABLE public.addresses (
     phone character varying NOT NULL,
     google_place character varying NOT NULL,
     description character varying NOT NULL,
-    customer_id integer NOT NULL
+    user_id integer NOT NULL
 );
 
 
 --
--- TOC entry 198 (class 1259 OID 49590)
+-- TOC entry 198 (class 1259 OID 50045)
 -- Name: areas; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -59,7 +61,7 @@ CREATE TABLE public.areas (
 
 
 --
--- TOC entry 199 (class 1259 OID 49596)
+-- TOC entry 199 (class 1259 OID 50051)
 -- Name: areas_area_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -73,7 +75,7 @@ CREATE SEQUENCE public.areas_area_id_seq
 
 
 --
--- TOC entry 3381 (class 0 OID 0)
+-- TOC entry 3394 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: areas_area_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -82,7 +84,7 @@ ALTER SEQUENCE public.areas_area_id_seq OWNED BY public.areas.area_id;
 
 
 --
--- TOC entry 200 (class 1259 OID 49598)
+-- TOC entry 200 (class 1259 OID 50053)
 -- Name: assignments; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -96,7 +98,7 @@ CREATE TABLE public.assignments (
 
 
 --
--- TOC entry 201 (class 1259 OID 49602)
+-- TOC entry 201 (class 1259 OID 50057)
 -- Name: assignments_assignment_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -109,7 +111,7 @@ CREATE SEQUENCE public.assignments_assignment_id_seq
 
 
 --
--- TOC entry 3382 (class 0 OID 0)
+-- TOC entry 3395 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: assignments_assignment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -118,7 +120,7 @@ ALTER SEQUENCE public.assignments_assignment_id_seq OWNED BY public.assignments.
 
 
 --
--- TOC entry 202 (class 1259 OID 49604)
+-- TOC entry 202 (class 1259 OID 50059)
 -- Name: cities; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -131,7 +133,7 @@ CREATE TABLE public.cities (
 
 
 --
--- TOC entry 203 (class 1259 OID 49610)
+-- TOC entry 203 (class 1259 OID 50065)
 -- Name: cities_city_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -145,7 +147,7 @@ CREATE SEQUENCE public.cities_city_id_seq
 
 
 --
--- TOC entry 3383 (class 0 OID 0)
+-- TOC entry 3396 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: cities_city_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
@@ -154,7 +156,7 @@ ALTER SEQUENCE public.cities_city_id_seq OWNED BY public.cities.city_id;
 
 
 --
--- TOC entry 204 (class 1259 OID 49612)
+-- TOC entry 204 (class 1259 OID 50067)
 -- Name: countries; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -165,13 +167,28 @@ CREATE TABLE public.countries (
 
 
 --
--- TOC entry 205 (class 1259 OID 49618)
--- Name: customers; Type: TABLE; Schema: public; Owner: -
+-- TOC entry 227 (class 1259 OID 50408)
+-- Name: user_updates; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.customers (
-    customer_id integer NOT NULL,
-    full_name character varying NOT NULL,
+CREATE TABLE public.user_updates (
+    user_id integer NOT NULL,
+    first_name character varying NOT NULL,
+    last_name character varying NOT NULL,
+    phone character varying NOT NULL,
+    time_updated timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- TOC entry 205 (class 1259 OID 50073)
+-- Name: users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.users (
+    user_id integer NOT NULL,
+    first_name character varying NOT NULL,
+    last_name character varying NOT NULL,
     phone character varying NOT NULL,
     email character varying DEFAULT false NOT NULL,
     password character varying NOT NULL,
@@ -179,30 +196,29 @@ CREATE TABLE public.customers (
     is_email_verified boolean DEFAULT false NOT NULL,
     is_phone_verified boolean DEFAULT false NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
-    address text DEFAULT ''::text NOT NULL,
     recovery_token character varying
 );
 
 
 --
--- TOC entry 224 (class 1259 OID 49984)
--- Name: customers_access_history; Type: TABLE; Schema: public; Owner: -
+-- TOC entry 206 (class 1259 OID 50085)
+-- Name: users_access_history; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.customers_access_history (
-    customer_id integer NOT NULL,
-    access_time timestamp without time zone NOT NULL,
+CREATE TABLE public.users_access_history (
+    user_id integer NOT NULL,
+    access_time timestamp without time zone DEFAULT now() NOT NULL,
     ip_address character varying,
     is_from_mobile boolean
 );
 
 
 --
--- TOC entry 206 (class 1259 OID 49630)
--- Name: customers_customer_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- TOC entry 207 (class 1259 OID 50091)
+-- Name: users_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.customers_customer_id_seq
+CREATE SEQUENCE public.users_user_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -212,16 +228,16 @@ CREATE SEQUENCE public.customers_customer_id_seq
 
 
 --
--- TOC entry 3384 (class 0 OID 0)
--- Dependencies: 206
--- Name: customers_customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- TOC entry 3397 (class 0 OID 0)
+-- Dependencies: 207
+-- Name: users_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.customers_customer_id_seq OWNED BY public.customers.customer_id;
+ALTER SEQUENCE public.users_user_id_seq OWNED BY public.users.user_id;
 
 
 --
--- TOC entry 207 (class 1259 OID 49632)
+-- TOC entry 208 (class 1259 OID 50093)
 -- Name: employees; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -240,7 +256,7 @@ CREATE TABLE public.employees (
 
 
 --
--- TOC entry 225 (class 1259 OID 49995)
+-- TOC entry 209 (class 1259 OID 50101)
 -- Name: employees_access_history; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -253,7 +269,7 @@ CREATE TABLE public.employees_access_history (
 
 
 --
--- TOC entry 208 (class 1259 OID 49640)
+-- TOC entry 210 (class 1259 OID 50108)
 -- Name: employees_employee_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -267,8 +283,8 @@ CREATE SEQUENCE public.employees_employee_id_seq
 
 
 --
--- TOC entry 3385 (class 0 OID 0)
--- Dependencies: 208
+-- TOC entry 3398 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: employees_employee_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -276,7 +292,7 @@ ALTER SEQUENCE public.employees_employee_id_seq OWNED BY public.employees.employ
 
 
 --
--- TOC entry 212 (class 1259 OID 49658)
+-- TOC entry 211 (class 1259 OID 50110)
 -- Name: order_states; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -289,13 +305,13 @@ CREATE TABLE public.order_states (
 
 
 --
--- TOC entry 213 (class 1259 OID 49664)
+-- TOC entry 212 (class 1259 OID 50116)
 -- Name: orders; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.orders (
     order_id bigint NOT NULL,
-    customer_id integer DEFAULT 14 NOT NULL,
+    user_id integer DEFAULT 14 NOT NULL,
     time_created timestamp without time zone DEFAULT now() NOT NULL,
     time_closed timestamp without time zone,
     sender_name character varying NOT NULL,
@@ -316,7 +332,7 @@ CREATE TABLE public.orders (
 
 
 --
--- TOC entry 215 (class 1259 OID 49675)
+-- TOC entry 213 (class 1259 OID 50124)
 -- Name: payment_options; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -328,7 +344,7 @@ CREATE TABLE public.payment_options (
 
 
 --
--- TOC entry 217 (class 1259 OID 49687)
+-- TOC entry 214 (class 1259 OID 50130)
 -- Name: shipment_categories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -341,14 +357,14 @@ CREATE TABLE public.shipment_categories (
 
 
 --
--- TOC entry 220 (class 1259 OID 49703)
+-- TOC entry 215 (class 1259 OID 50136)
 -- Name: shipments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.shipments (
     shipment_id bigint NOT NULL,
     order_id bigint NOT NULL,
-    customer_id integer NOT NULL,
+    user_id integer NOT NULL,
     sender_name character varying NOT NULL,
     sender_phone character varying NOT NULL,
     sender_area_id integer NOT NULL,
@@ -371,14 +387,14 @@ CREATE TABLE public.shipments (
 
 
 --
--- TOC entry 226 (class 1259 OID 50022)
+-- TOC entry 216 (class 1259 OID 50144)
 -- Name: full_orders; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.full_orders AS
  SELECT o.order_id,
     s.shipment_id,
-    o.customer_id,
+    o.user_id,
     o.time_created,
     o.time_closed,
     o.sender_name,
@@ -410,7 +426,7 @@ CREATE VIEW public.full_orders AS
 
 
 --
--- TOC entry 219 (class 1259 OID 49697)
+-- TOC entry 217 (class 1259 OID 50149)
 -- Name: shipment_states; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -423,14 +439,14 @@ CREATE TABLE public.shipment_states (
 
 
 --
--- TOC entry 222 (class 1259 OID 49975)
+-- TOC entry 218 (class 1259 OID 50155)
 -- Name: full_shipments; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.full_shipments AS
  SELECT s.shipment_id,
     s.order_id,
-    s.customer_id,
+    s.user_id,
     s.sender_name,
     s.sender_phone,
     s.sender_area_id,
@@ -467,7 +483,22 @@ CREATE VIEW public.full_shipments AS
 
 
 --
--- TOC entry 209 (class 1259 OID 49642)
+-- TOC entry 228 (class 1259 OID 50421)
+-- Name: mailing_data_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.mailing_data_view WITH (security_barrier='false') AS
+ SELECT o.order_id,
+    s.shipment_id,
+    c.email,
+    c.first_name
+   FROM ((public.orders o
+     LEFT JOIN public.users c ON ((o.user_id = c.user_id)))
+     LEFT JOIN public.shipments s ON ((s.user_id = c.user_id)));
+
+
+--
+-- TOC entry 219 (class 1259 OID 50160)
 -- Name: offices; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -482,7 +513,7 @@ CREATE TABLE public.offices (
 
 
 --
--- TOC entry 210 (class 1259 OID 49648)
+-- TOC entry 220 (class 1259 OID 50166)
 -- Name: offices_office_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -496,8 +527,8 @@ CREATE SEQUENCE public.offices_office_id_seq
 
 
 --
--- TOC entry 3386 (class 0 OID 0)
--- Dependencies: 210
+-- TOC entry 3399 (class 0 OID 0)
+-- Dependencies: 220
 -- Name: offices_office_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -505,7 +536,7 @@ ALTER SEQUENCE public.offices_office_id_seq OWNED BY public.offices.office_id;
 
 
 --
--- TOC entry 211 (class 1259 OID 49650)
+-- TOC entry 221 (class 1259 OID 50168)
 -- Name: orders_history; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -517,7 +548,7 @@ CREATE TABLE public.orders_history (
 
 
 --
--- TOC entry 214 (class 1259 OID 49673)
+-- TOC entry 222 (class 1259 OID 50175)
 -- Name: orders_order_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -530,8 +561,8 @@ CREATE SEQUENCE public.orders_order_id_seq
 
 
 --
--- TOC entry 3387 (class 0 OID 0)
--- Dependencies: 214
+-- TOC entry 3400 (class 0 OID 0)
+-- Dependencies: 222
 -- Name: orders_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -539,7 +570,7 @@ ALTER SEQUENCE public.orders_order_id_seq OWNED BY public.orders.order_id;
 
 
 --
--- TOC entry 216 (class 1259 OID 49681)
+-- TOC entry 223 (class 1259 OID 50177)
 -- Name: positions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -551,7 +582,7 @@ CREATE TABLE public.positions (
 
 
 --
--- TOC entry 218 (class 1259 OID 49693)
+-- TOC entry 224 (class 1259 OID 50183)
 -- Name: shipments_history; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -564,7 +595,7 @@ CREATE TABLE public.shipments_history (
 
 
 --
--- TOC entry 221 (class 1259 OID 49711)
+-- TOC entry 225 (class 1259 OID 50187)
 -- Name: shipments_shipment_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -577,8 +608,8 @@ CREATE SEQUENCE public.shipments_shipment_id_seq
 
 
 --
--- TOC entry 3388 (class 0 OID 0)
--- Dependencies: 221
+-- TOC entry 3401 (class 0 OID 0)
+-- Dependencies: 225
 -- Name: shipments_shipment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -586,7 +617,7 @@ ALTER SEQUENCE public.shipments_shipment_id_seq OWNED BY public.shipments.shipme
 
 
 --
--- TOC entry 223 (class 1259 OID 49980)
+-- TOC entry 226 (class 1259 OID 50189)
 -- Name: shipments_tracking; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -603,7 +634,7 @@ CREATE VIEW public.shipments_tracking AS
 
 
 --
--- TOC entry 3122 (class 2604 OID 49713)
+-- TOC entry 3131 (class 2604 OID 50193)
 -- Name: areas area_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -611,7 +642,7 @@ ALTER TABLE ONLY public.areas ALTER COLUMN area_id SET DEFAULT nextval('public.a
 
 
 --
--- TOC entry 3124 (class 2604 OID 49714)
+-- TOC entry 3133 (class 2604 OID 50194)
 -- Name: assignments assignment_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -619,7 +650,7 @@ ALTER TABLE ONLY public.assignments ALTER COLUMN assignment_id SET DEFAULT nextv
 
 
 --
--- TOC entry 3125 (class 2604 OID 49715)
+-- TOC entry 3134 (class 2604 OID 50195)
 -- Name: cities city_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -627,15 +658,15 @@ ALTER TABLE ONLY public.cities ALTER COLUMN city_id SET DEFAULT nextval('public.
 
 
 --
--- TOC entry 3132 (class 2604 OID 49716)
--- Name: customers customer_id; Type: DEFAULT; Schema: public; Owner: -
+-- TOC entry 3140 (class 2604 OID 50196)
+-- Name: users user_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.customers ALTER COLUMN customer_id SET DEFAULT nextval('public.customers_customer_id_seq'::regclass);
+ALTER TABLE ONLY public.users ALTER COLUMN user_id SET DEFAULT nextval('public.users_user_id_seq'::regclass);
 
 
 --
--- TOC entry 3135 (class 2604 OID 49717)
+-- TOC entry 3144 (class 2604 OID 50197)
 -- Name: employees employee_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -643,7 +674,7 @@ ALTER TABLE ONLY public.employees ALTER COLUMN employee_id SET DEFAULT nextval('
 
 
 --
--- TOC entry 3136 (class 2604 OID 49718)
+-- TOC entry 3152 (class 2604 OID 50198)
 -- Name: offices office_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -651,7 +682,7 @@ ALTER TABLE ONLY public.offices ALTER COLUMN office_id SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 3140 (class 2604 OID 49719)
+-- TOC entry 3148 (class 2604 OID 50199)
 -- Name: orders order_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -659,7 +690,7 @@ ALTER TABLE ONLY public.orders ALTER COLUMN order_id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 3144 (class 2604 OID 49720)
+-- TOC entry 3151 (class 2604 OID 50200)
 -- Name: shipments shipment_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -667,7 +698,7 @@ ALTER TABLE ONLY public.shipments ALTER COLUMN shipment_id SET DEFAULT nextval('
 
 
 --
--- TOC entry 3348 (class 0 OID 49578)
+-- TOC entry 3360 (class 0 OID 50033)
 -- Dependencies: 196
 -- Data for Name: account_types; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -679,17 +710,17 @@ COPY public.account_types (account_type_id, name, description) FROM stdin;
 
 
 --
--- TOC entry 3349 (class 0 OID 49584)
+-- TOC entry 3361 (class 0 OID 50039)
 -- Dependencies: 197
 -- Data for Name: addresses; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.addresses (contact_name, phone, google_place, description, customer_id) FROM stdin;
+COPY public.addresses (contact_name, phone, google_place, description, user_id) FROM stdin;
 \.
 
 
 --
--- TOC entry 3350 (class 0 OID 49590)
+-- TOC entry 3362 (class 0 OID 50045)
 -- Dependencies: 198
 -- Data for Name: areas; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -814,7 +845,7 @@ COPY public.areas (area_id, name, city_id) FROM stdin;
 
 
 --
--- TOC entry 3352 (class 0 OID 49598)
+-- TOC entry 3364 (class 0 OID 50053)
 -- Dependencies: 200
 -- Data for Name: assignments; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -824,7 +855,7 @@ COPY public.assignments (assignment_id, office_id, shipment_id, time_assigned, t
 
 
 --
--- TOC entry 3354 (class 0 OID 49604)
+-- TOC entry 3366 (class 0 OID 50059)
 -- Dependencies: 202
 -- Data for Name: cities; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -846,7 +877,7 @@ COPY public.cities (city_id, name, country_id, office_id) FROM stdin;
 
 
 --
--- TOC entry 3356 (class 0 OID 49612)
+-- TOC entry 3368 (class 0 OID 50067)
 -- Dependencies: 204
 -- Data for Name: countries; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -857,30 +888,38 @@ COPY public.countries (country_id, name) FROM stdin;
 
 
 --
--- TOC entry 3357 (class 0 OID 49618)
+-- TOC entry 3388 (class 0 OID 50408)
+-- Dependencies: 227
+-- Data for Name: user_updates; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.user_updates (user_id, first_name, last_name, phone, time_updated) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3369 (class 0 OID 50073)
 -- Dependencies: 205
--- Data for Name: customers; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.customers (customer_id, full_name, phone, email, password, account_type_id, is_email_verified, is_phone_verified, is_active, address, recovery_token) FROM stdin;
-17	Manassé Kouamé behouba	+225 45 00 16 85	behouba@gmail.com	$2a$04$DKs5fQiMMAwlgbPAtTkkUODMYYpMTPnccjkMErMxO48WaLcbAoIyi	1	f	f	t		\N
-18	jean-didier	+225 09 08 09 43	behoubz@gmail.com	$2a$04$ldWwAHrD4rfukUkb.xw5f.YjexEEe3GGIIjSXXNJGWAb0gfPI4Idm	1	f	f	t		\N
+COPY public.users (user_id, first_name, last_name, phone, email, password, account_type_id, is_email_verified, is_phone_verified, is_active, recovery_token) FROM stdin;
 \.
 
 
 --
--- TOC entry 3374 (class 0 OID 49984)
--- Dependencies: 224
--- Data for Name: customers_access_history; Type: TABLE DATA; Schema: public; Owner: -
+-- TOC entry 3370 (class 0 OID 50085)
+-- Dependencies: 206
+-- Data for Name: users_access_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.customers_access_history (customer_id, access_time, ip_address, is_from_mobile) FROM stdin;
+COPY public.users_access_history (user_id, access_time, ip_address, is_from_mobile) FROM stdin;
 \.
 
 
 --
--- TOC entry 3359 (class 0 OID 49632)
--- Dependencies: 207
+-- TOC entry 3372 (class 0 OID 50093)
+-- Dependencies: 208
 -- Data for Name: employees; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -893,8 +932,8 @@ COPY public.employees (employee_id, first_name, last_name, login, password, acti
 
 
 --
--- TOC entry 3375 (class 0 OID 49995)
--- Dependencies: 225
+-- TOC entry 3373 (class 0 OID 50101)
+-- Dependencies: 209
 -- Data for Name: employees_access_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -903,8 +942,8 @@ COPY public.employees_access_history (employee_id, access_time, ip_address, is_f
 
 
 --
--- TOC entry 3361 (class 0 OID 49642)
--- Dependencies: 209
+-- TOC entry 3381 (class 0 OID 50160)
+-- Dependencies: 219
 -- Data for Name: offices; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -920,8 +959,8 @@ COPY public.offices (office_id, name, address, city_id, manager_id, area_id) FRO
 
 
 --
--- TOC entry 3364 (class 0 OID 49658)
--- Dependencies: 212
+-- TOC entry 3375 (class 0 OID 50110)
+-- Dependencies: 211
 -- Data for Name: order_states; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -934,18 +973,18 @@ COPY public.order_states (order_state_id, name, code, description) FROM stdin;
 
 
 --
--- TOC entry 3365 (class 0 OID 49664)
--- Dependencies: 213
+-- TOC entry 3376 (class 0 OID 50116)
+-- Dependencies: 212
 -- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.orders (order_id, customer_id, time_created, time_closed, sender_name, sender_phone, sender_area_id, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_address, shipment_category_id, nature, payment_option_id, cost, distance, order_state_id) FROM stdin;
+COPY public.orders (order_id, user_id, time_created, time_closed, sender_name, sender_phone, sender_area_id, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_address, shipment_category_id, nature, payment_option_id, cost, distance, order_state_id) FROM stdin;
 \.
 
 
 --
--- TOC entry 3363 (class 0 OID 49650)
--- Dependencies: 211
+-- TOC entry 3383 (class 0 OID 50168)
+-- Dependencies: 221
 -- Data for Name: orders_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -954,8 +993,8 @@ COPY public.orders_history (order_id, order_state_id, time_created) FROM stdin;
 
 
 --
--- TOC entry 3367 (class 0 OID 49675)
--- Dependencies: 215
+-- TOC entry 3377 (class 0 OID 50124)
+-- Dependencies: 213
 -- Data for Name: payment_options; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -966,8 +1005,8 @@ COPY public.payment_options (payment_option_id, name, description) FROM stdin;
 
 
 --
--- TOC entry 3368 (class 0 OID 49681)
--- Dependencies: 216
+-- TOC entry 3385 (class 0 OID 50177)
+-- Dependencies: 223
 -- Data for Name: positions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -979,22 +1018,20 @@ COPY public.positions (position_id, name, description) FROM stdin;
 
 
 --
--- TOC entry 3369 (class 0 OID 49687)
--- Dependencies: 217
+-- TOC entry 3378 (class 0 OID 50130)
+-- Dependencies: 214
 -- Data for Name: shipment_categories; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.shipment_categories (shipment_category_id, name, min_cost, max_cost) FROM stdin;
-2	Colis (jusqu'à 10kg)	1000	2300
-3	Colis (>10 - 20kg)	1400	3250
-4	Colis (>20 - 50kg)	1700	4000
-1	Documents (jusqu'à 500g)	1000	2000
+1	Documents	1000	2000
+2	Colis	1000	2300
 \.
 
 
 --
--- TOC entry 3371 (class 0 OID 49697)
--- Dependencies: 219
+-- TOC entry 3380 (class 0 OID 50149)
+-- Dependencies: 217
 -- Data for Name: shipment_states; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1012,18 +1049,18 @@ COPY public.shipment_states (shipment_state_id, name, code, description) FROM st
 
 
 --
--- TOC entry 3372 (class 0 OID 49703)
--- Dependencies: 220
+-- TOC entry 3379 (class 0 OID 50136)
+-- Dependencies: 215
 -- Data for Name: shipments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.shipments (shipment_id, order_id, customer_id, sender_name, sender_phone, sender_area_id, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_address, time_created, time_delivered, shipment_category_id, cost, nature, weight, payment_option_id, distance, shipment_state_id, current_office_id) FROM stdin;
+COPY public.shipments (shipment_id, order_id, user_id, sender_name, sender_phone, sender_area_id, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_address, time_created, time_delivered, shipment_category_id, cost, nature, weight, payment_option_id, distance, shipment_state_id, current_office_id) FROM stdin;
 \.
 
 
 --
--- TOC entry 3370 (class 0 OID 49693)
--- Dependencies: 218
+-- TOC entry 3386 (class 0 OID 50183)
+-- Dependencies: 224
 -- Data for Name: shipments_history; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1032,7 +1069,7 @@ COPY public.shipments_history (shipment_id, shipment_state_id, time_inserted, ar
 
 
 --
--- TOC entry 3389 (class 0 OID 0)
+-- TOC entry 3402 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: areas_area_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -1041,7 +1078,7 @@ SELECT pg_catalog.setval('public.areas_area_id_seq', 115, true);
 
 
 --
--- TOC entry 3390 (class 0 OID 0)
+-- TOC entry 3403 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: assignments_assignment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -1050,7 +1087,7 @@ SELECT pg_catalog.setval('public.assignments_assignment_id_seq', 1, false);
 
 
 --
--- TOC entry 3391 (class 0 OID 0)
+-- TOC entry 3404 (class 0 OID 0)
 -- Dependencies: 203
 -- Name: cities_city_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
@@ -1059,17 +1096,17 @@ SELECT pg_catalog.setval('public.cities_city_id_seq', 12, true);
 
 
 --
--- TOC entry 3392 (class 0 OID 0)
--- Dependencies: 206
--- Name: customers_customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- TOC entry 3405 (class 0 OID 0)
+-- Dependencies: 207
+-- Name: users_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.customers_customer_id_seq', 18, true);
+SELECT pg_catalog.setval('public.users_user_id_seq', 56, true);
 
 
 --
--- TOC entry 3393 (class 0 OID 0)
--- Dependencies: 208
+-- TOC entry 3406 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: employees_employee_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1077,8 +1114,8 @@ SELECT pg_catalog.setval('public.employees_employee_id_seq', 8, true);
 
 
 --
--- TOC entry 3394 (class 0 OID 0)
--- Dependencies: 210
+-- TOC entry 3407 (class 0 OID 0)
+-- Dependencies: 220
 -- Name: offices_office_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1086,25 +1123,25 @@ SELECT pg_catalog.setval('public.offices_office_id_seq', 7, true);
 
 
 --
--- TOC entry 3395 (class 0 OID 0)
--- Dependencies: 214
+-- TOC entry 3408 (class 0 OID 0)
+-- Dependencies: 222
 -- Name: orders_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.orders_order_id_seq', 1632345248, true);
+SELECT pg_catalog.setval('public.orders_order_id_seq', 1632345253, true);
 
 
 --
--- TOC entry 3396 (class 0 OID 0)
--- Dependencies: 221
+-- TOC entry 3409 (class 0 OID 0)
+-- Dependencies: 225
 -- Name: shipments_shipment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.shipments_shipment_id_seq', 1923452357, true);
+SELECT pg_catalog.setval('public.shipments_shipment_id_seq', 1923452358, true);
 
 
 --
--- TOC entry 3147 (class 2606 OID 49722)
+-- TOC entry 3157 (class 2606 OID 50202)
 -- Name: account_types account_types_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1113,16 +1150,16 @@ ALTER TABLE ONLY public.account_types
 
 
 --
--- TOC entry 3149 (class 2606 OID 49724)
+-- TOC entry 3159 (class 2606 OID 50204)
 -- Name: addresses addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.addresses
-    ADD CONSTRAINT addresses_pkey PRIMARY KEY (contact_name, phone, google_place, description, customer_id);
+    ADD CONSTRAINT addresses_pkey PRIMARY KEY (contact_name, phone, google_place, description, user_id);
 
 
 --
--- TOC entry 3151 (class 2606 OID 49726)
+-- TOC entry 3161 (class 2606 OID 50206)
 -- Name: areas areas_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1131,7 +1168,7 @@ ALTER TABLE ONLY public.areas
 
 
 --
--- TOC entry 3153 (class 2606 OID 49728)
+-- TOC entry 3163 (class 2606 OID 50208)
 -- Name: cities cities_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1140,7 +1177,7 @@ ALTER TABLE ONLY public.cities
 
 
 --
--- TOC entry 3155 (class 2606 OID 49730)
+-- TOC entry 3165 (class 2606 OID 50210)
 -- Name: cities cities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1149,7 +1186,7 @@ ALTER TABLE ONLY public.cities
 
 
 --
--- TOC entry 3157 (class 2606 OID 49732)
+-- TOC entry 3167 (class 2606 OID 50212)
 -- Name: countries countries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1158,34 +1195,34 @@ ALTER TABLE ONLY public.countries
 
 
 --
--- TOC entry 3159 (class 2606 OID 49734)
--- Name: customers customers_email_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3169 (class 2606 OID 50214)
+-- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.customers
-    ADD CONSTRAINT customers_email_key UNIQUE (email);
-
-
---
--- TOC entry 3161 (class 2606 OID 49736)
--- Name: customers customers_phone_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.customers
-    ADD CONSTRAINT customers_phone_key UNIQUE (phone);
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_email_key UNIQUE (email);
 
 
 --
--- TOC entry 3163 (class 2606 OID 49738)
--- Name: customers customers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3171 (class 2606 OID 50216)
+-- Name: users users_phone_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.customers
-    ADD CONSTRAINT customers_pkey PRIMARY KEY (customer_id);
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_phone_key UNIQUE (phone);
 
 
 --
--- TOC entry 3165 (class 2606 OID 49740)
+-- TOC entry 3173 (class 2606 OID 50218)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (user_id);
+
+
+--
+-- TOC entry 3175 (class 2606 OID 50220)
 -- Name: employees employees_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1194,7 +1231,7 @@ ALTER TABLE ONLY public.employees
 
 
 --
--- TOC entry 3167 (class 2606 OID 49742)
+-- TOC entry 3197 (class 2606 OID 50222)
 -- Name: offices offices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1203,7 +1240,7 @@ ALTER TABLE ONLY public.offices
 
 
 --
--- TOC entry 3169 (class 2606 OID 49744)
+-- TOC entry 3199 (class 2606 OID 50224)
 -- Name: orders_history order_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1212,7 +1249,7 @@ ALTER TABLE ONLY public.orders_history
 
 
 --
--- TOC entry 3171 (class 2606 OID 49746)
+-- TOC entry 3177 (class 2606 OID 50226)
 -- Name: order_states order_states_code_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1221,7 +1258,7 @@ ALTER TABLE ONLY public.order_states
 
 
 --
--- TOC entry 3173 (class 2606 OID 49748)
+-- TOC entry 3179 (class 2606 OID 50228)
 -- Name: order_states order_states_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1230,7 +1267,7 @@ ALTER TABLE ONLY public.order_states
 
 
 --
--- TOC entry 3175 (class 2606 OID 49750)
+-- TOC entry 3181 (class 2606 OID 50230)
 -- Name: order_states order_states_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1239,7 +1276,7 @@ ALTER TABLE ONLY public.order_states
 
 
 --
--- TOC entry 3177 (class 2606 OID 49752)
+-- TOC entry 3183 (class 2606 OID 50232)
 -- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1248,7 +1285,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 3179 (class 2606 OID 49754)
+-- TOC entry 3185 (class 2606 OID 50234)
 -- Name: payment_options payment_options_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1257,7 +1294,7 @@ ALTER TABLE ONLY public.payment_options
 
 
 --
--- TOC entry 3181 (class 2606 OID 49756)
+-- TOC entry 3201 (class 2606 OID 50236)
 -- Name: positions positions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1266,7 +1303,7 @@ ALTER TABLE ONLY public.positions
 
 
 --
--- TOC entry 3183 (class 2606 OID 49758)
+-- TOC entry 3187 (class 2606 OID 50238)
 -- Name: shipment_categories shipment_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1275,7 +1312,7 @@ ALTER TABLE ONLY public.shipment_categories
 
 
 --
--- TOC entry 3185 (class 2606 OID 49760)
+-- TOC entry 3191 (class 2606 OID 50240)
 -- Name: shipment_states shipment_states_code_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1284,7 +1321,7 @@ ALTER TABLE ONLY public.shipment_states
 
 
 --
--- TOC entry 3187 (class 2606 OID 49762)
+-- TOC entry 3193 (class 2606 OID 50242)
 -- Name: shipment_states shipment_states_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1293,7 +1330,7 @@ ALTER TABLE ONLY public.shipment_states
 
 
 --
--- TOC entry 3189 (class 2606 OID 49764)
+-- TOC entry 3195 (class 2606 OID 50244)
 -- Name: shipment_states shipment_states_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1302,7 +1339,7 @@ ALTER TABLE ONLY public.shipment_states
 
 
 --
--- TOC entry 3191 (class 2606 OID 49766)
+-- TOC entry 3189 (class 2606 OID 50246)
 -- Name: shipments shipments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1311,16 +1348,16 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 3192 (class 2606 OID 49767)
--- Name: addresses addresses_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3202 (class 2606 OID 50247)
+-- Name: addresses addresses_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.addresses
-    ADD CONSTRAINT addresses_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(customer_id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT addresses_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 3193 (class 2606 OID 49772)
+-- TOC entry 3203 (class 2606 OID 50252)
 -- Name: areas areas_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1329,7 +1366,7 @@ ALTER TABLE ONLY public.areas
 
 
 --
--- TOC entry 3194 (class 2606 OID 49777)
+-- TOC entry 3204 (class 2606 OID 50257)
 -- Name: assignments assignments_office_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1338,7 +1375,7 @@ ALTER TABLE ONLY public.assignments
 
 
 --
--- TOC entry 3195 (class 2606 OID 49782)
+-- TOC entry 3205 (class 2606 OID 50262)
 -- Name: cities cities_contry_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1347,7 +1384,7 @@ ALTER TABLE ONLY public.cities
 
 
 --
--- TOC entry 3196 (class 2606 OID 49787)
+-- TOC entry 3206 (class 2606 OID 50267)
 -- Name: cities cities_office_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1356,25 +1393,34 @@ ALTER TABLE ONLY public.cities
 
 
 --
--- TOC entry 3222 (class 2606 OID 49990)
--- Name: customers_access_history customers_access_history_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3234 (class 2606 OID 50415)
+-- Name: user_updates user_updates_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.customers_access_history
-    ADD CONSTRAINT customers_access_history_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(customer_id);
-
-
---
--- TOC entry 3197 (class 2606 OID 49792)
--- Name: customers customers_account_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.customers
-    ADD CONSTRAINT customers_account_type_id_fkey FOREIGN KEY (account_type_id) REFERENCES public.account_types(account_type_id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.user_updates
+    ADD CONSTRAINT user_updates_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
 
 
 --
--- TOC entry 3223 (class 2606 OID 50002)
+-- TOC entry 3208 (class 2606 OID 50272)
+-- Name: users_access_history users_access_history_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users_access_history
+    ADD CONSTRAINT users_access_history_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
+
+
+--
+-- TOC entry 3207 (class 2606 OID 50277)
+-- Name: users users_account_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_account_type_id_fkey FOREIGN KEY (account_type_id) REFERENCES public.account_types(account_type_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3211 (class 2606 OID 50282)
 -- Name: employees_access_history employees_access_history_employee_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1383,7 +1429,7 @@ ALTER TABLE ONLY public.employees_access_history
 
 
 --
--- TOC entry 3198 (class 2606 OID 49797)
+-- TOC entry 3209 (class 2606 OID 50287)
 -- Name: employees employees_office_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1392,7 +1438,7 @@ ALTER TABLE ONLY public.employees
 
 
 --
--- TOC entry 3199 (class 2606 OID 49802)
+-- TOC entry 3210 (class 2606 OID 50292)
 -- Name: employees employees_position_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1401,7 +1447,7 @@ ALTER TABLE ONLY public.employees
 
 
 --
--- TOC entry 3200 (class 2606 OID 49807)
+-- TOC entry 3226 (class 2606 OID 50297)
 -- Name: offices offices_area_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1410,7 +1456,7 @@ ALTER TABLE ONLY public.offices
 
 
 --
--- TOC entry 3201 (class 2606 OID 49812)
+-- TOC entry 3227 (class 2606 OID 50302)
 -- Name: offices offices_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1419,7 +1465,7 @@ ALTER TABLE ONLY public.offices
 
 
 --
--- TOC entry 3202 (class 2606 OID 49817)
+-- TOC entry 3228 (class 2606 OID 50307)
 -- Name: offices offices_manager_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1428,7 +1474,7 @@ ALTER TABLE ONLY public.offices
 
 
 --
--- TOC entry 3203 (class 2606 OID 49822)
+-- TOC entry 3229 (class 2606 OID 50312)
 -- Name: orders_history order_history_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1437,7 +1483,7 @@ ALTER TABLE ONLY public.orders_history
 
 
 --
--- TOC entry 3204 (class 2606 OID 49827)
+-- TOC entry 3230 (class 2606 OID 50317)
 -- Name: orders_history order_history_order_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1446,16 +1492,16 @@ ALTER TABLE ONLY public.orders_history
 
 
 --
--- TOC entry 3205 (class 2606 OID 49832)
--- Name: orders orders_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3212 (class 2606 OID 50322)
+-- Name: orders orders_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.orders
-    ADD CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(customer_id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 3210 (class 2606 OID 49931)
+-- TOC entry 3213 (class 2606 OID 50327)
 -- Name: orders orders_order_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1464,7 +1510,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 3206 (class 2606 OID 49842)
+-- TOC entry 3214 (class 2606 OID 50332)
 -- Name: orders orders_payment_option_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1473,7 +1519,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 3207 (class 2606 OID 49847)
+-- TOC entry 3215 (class 2606 OID 50337)
 -- Name: orders orders_recipient_area_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1482,7 +1528,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 3208 (class 2606 OID 49852)
+-- TOC entry 3216 (class 2606 OID 50342)
 -- Name: orders orders_sender_area_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1491,7 +1537,7 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 3209 (class 2606 OID 49857)
+-- TOC entry 3217 (class 2606 OID 50347)
 -- Name: orders orders_shipment_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1500,16 +1546,16 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 3214 (class 2606 OID 49862)
--- Name: shipments shipments_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 3218 (class 2606 OID 50352)
+-- Name: shipments shipments_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.shipments
-    ADD CONSTRAINT shipments_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(customer_id);
+    ADD CONSTRAINT shipments_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
 
 
 --
--- TOC entry 3213 (class 2606 OID 49959)
+-- TOC entry 3231 (class 2606 OID 50357)
 -- Name: shipments_history shipments_history_shipment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1518,7 +1564,7 @@ ALTER TABLE ONLY public.shipments_history
 
 
 --
--- TOC entry 3221 (class 2606 OID 49948)
+-- TOC entry 3219 (class 2606 OID 50362)
 -- Name: shipments shipments_office_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1527,7 +1573,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 3215 (class 2606 OID 49867)
+-- TOC entry 3220 (class 2606 OID 50367)
 -- Name: shipments shipments_order_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1536,7 +1582,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 3216 (class 2606 OID 49872)
+-- TOC entry 3221 (class 2606 OID 50372)
 -- Name: shipments shipments_payment_option_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1545,7 +1591,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 3217 (class 2606 OID 49877)
+-- TOC entry 3222 (class 2606 OID 50377)
 -- Name: shipments shipments_recipient_area_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1554,7 +1600,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 3218 (class 2606 OID 49882)
+-- TOC entry 3223 (class 2606 OID 50382)
 -- Name: shipments shipments_sender_area_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1563,7 +1609,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 3219 (class 2606 OID 49887)
+-- TOC entry 3224 (class 2606 OID 50387)
 -- Name: shipments shipments_shipment_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1572,7 +1618,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 3220 (class 2606 OID 49943)
+-- TOC entry 3225 (class 2606 OID 50392)
 -- Name: shipments shipments_shipment_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1581,7 +1627,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 3211 (class 2606 OID 49897)
+-- TOC entry 3232 (class 2606 OID 50397)
 -- Name: shipments_history trackings_area_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1590,7 +1636,7 @@ ALTER TABLE ONLY public.shipments_history
 
 
 --
--- TOC entry 3212 (class 2606 OID 49902)
+-- TOC entry 3233 (class 2606 OID 50402)
 -- Name: shipments_history trackings_shipment_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1598,7 +1644,7 @@ ALTER TABLE ONLY public.shipments_history
     ADD CONSTRAINT trackings_shipment_state_id_fkey FOREIGN KEY (shipment_state_id) REFERENCES public.shipment_states(shipment_state_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
--- Completed on 2019-07-24 13:08:26 MSK
+-- Completed on 2019-08-06 17:06:16 MSK
 
 --
 -- PostgreSQL database dump complete

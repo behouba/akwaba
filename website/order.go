@@ -10,6 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func sendOrderCreationEmail(orderID uint64) (err error) {
+	url := fmt.Sprintf("%s/order/creation?id=%d", akwaba.MailerBaseURL, orderID)
+	_, err = http.Get(url)
+	return
+}
+
 func (h *Handler) orderForm(c *gin.Context) {
 	categoryID, _ := strconv.Atoi(c.Query("categoryId"))
 
@@ -25,7 +31,7 @@ func (h *Handler) orderForm(c *gin.Context) {
 
 func (h *Handler) handleOrderCreation(c *gin.Context) {
 	var order akwaba.Order
-	cust := sessionUser(c)
+	user := sessionUser(c)
 
 	if err := c.ShouldBindJSON(&order); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -36,7 +42,7 @@ func (h *Handler) handleOrderCreation(c *gin.Context) {
 	}
 	log.Println(order)
 
-	order.CustomerID = cust.ID
+	order.UserID = user.ID
 	err := h.orderStore.Save(&order)
 	if err != nil {
 		log.Println(err)
@@ -45,8 +51,15 @@ func (h *Handler) handleOrderCreation(c *gin.Context) {
 		})
 		return
 	}
+
+	go func() {
+		err = sendOrderCreationEmail(order.ID)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 	c.JSON(http.StatusOK, gin.H{
-		"orderId": order.OrderID,
+		"orderId": order.ID,
 	})
 
 }
@@ -70,31 +83,6 @@ func (h *Handler) orderSuccess(c *gin.Context) {
 	c.HTML(http.StatusOK, "order-created", gin.H{
 		"orderId": orderID,
 	})
-}
-
-func (h *Handler) orderState(c *gin.Context) {
-	// var shipment []akwaba.Shipment
-	// orderID, _ := strconv.ParseUint(c.Param("id"), 10, 64)
-
-	// order, err := h.orderStore.OrderByID(orderID)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"message": err.Error(),
-	// 	})
-	// 	return
-	// }
-	// err = json.Unmarshal(order.Shipments, &shipment)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return
-	// }
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"order": order,
-	// })
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"order": order,
-	// })
 }
 
 func (h *Handler) cancelOrder(c *gin.Context) {

@@ -6,7 +6,7 @@ import (
 	"github.com/behouba/akwaba"
 )
 
-// Register Customer struct in order to be able to cast interface{} from session to Customer struct
+// Register User struct in order to be able to cast interface{} from session to User struct
 func init() {
-	gob.Register(akwaba.Customer{})
+	gob.Register(akwaba.User{})
 }

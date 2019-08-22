@@ -82,7 +82,7 @@ var orderApp = new Vue({
             }
             this.loading = true;
 
-            // create array of shipments. After business customer will be able to create many shipments in
+            // create array of shipments. After business user will be able to create many shipments in
             // one order
             try {
                 let response = await axios.post("/order/create", this.order);

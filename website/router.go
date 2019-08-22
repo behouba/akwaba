@@ -16,12 +16,11 @@ const (
 
 // Handler represents the website  handler methods set
 type Handler struct {
-	auth               akwaba.CustomerAuthentifier
-	customerStore      akwaba.CustomerStorage
-	mailer             akwaba.CustomerMailer
+	auth               akwaba.UserAuthentifier
+	userStore          akwaba.UserStorage
 	pricing            akwaba.PricingService
 	orderStore         akwaba.OrderService
-	tracker            akwaba.ParcelTracker
+	tracker            akwaba.Tracker
 	cities             akwaba.KeyVal
 	paymentOptions     akwaba.KeyVal
 	shipmentCategories akwaba.KeyVal
@@ -40,7 +39,7 @@ func NewRouter(h *Handler) *gin.Engine {
 	auth := r.Group("/auth")
 	auth.Use(alreadyAuthenticated)
 	{
-		auth.GET("/login", h.login)
+		auth.GET("/login", h.loginHTML)
 		auth.POST("/login", h.handleLogin)
 		auth.GET("/registration", h.registration)
 		auth.POST("/registration", h.handleRegistration)
@@ -58,7 +57,6 @@ func NewRouter(h *Handler) *gin.Engine {
 		// order.GET("/info/:id", authRequired, h.orderInfo)
 		order.GET("/success", authRequired, h.orderSuccess)
 		order.PATCH("/cancel/:orderId", authRequired, h.cancelOrder)
-		order.GET("/state/:orderId", authRequired, h.orderState)
 	}
 
 	profile := r.Group("/profile")
@@ -66,9 +64,11 @@ func NewRouter(h *Handler) *gin.Engine {
 	{
 		profile.GET("/settings", h.settings)
 		profile.GET("/data", h.profileData)
-		profile.GET("/my_orders", h.customerOrders)
+		profile.GET("/my_orders", h.userOrders)
 		profile.GET("/orders", h.orders)
 		profile.POST("/update", h.updateProfile)
+		profile.POST("/update-password", h.updatePassword)
+		profile.GET("/update-password", h.updatePasswordHTML)
 	}
 
 	pricing := r.Group("/pricing")
@@ -102,18 +102,18 @@ func NewRouter(h *Handler) *gin.Engine {
 }
 
 // NewHandler create take configurations info and return new user handler
-// auth               akwaba.CustomerAuthentifier
-// 	customerStore      akwaba.CustomerStorage
-// 	mailer             akwaba.CustomerMailer
+// auth               akwaba.UserAuthentifier
+// 	userStore      akwaba.UserStorage
+// 	mailer             akwaba.UserMailer
 // 	pricing         akwaba.ShipmentCalculator
 // 	orderStore         akwaba.OrderService
 // 	cities             akwaba.KeyVal
 // 	paymentOptions     akwaba.KeyVal
 // 	shipmentCategories akwaba.KeyVal
 func NewHandler(
-	auth akwaba.CustomerAuthentifier, customerStore akwaba.CustomerStorage,
-	mailer akwaba.CustomerMailer, pricing akwaba.PricingService, orderStore akwaba.OrderService,
-	tracker akwaba.ParcelTracker,
+	auth akwaba.UserAuthentifier, userStore akwaba.UserStorage,
+	pricing akwaba.PricingService, orderStore akwaba.OrderService,
+	tracker akwaba.Tracker,
 	cities akwaba.KeyVal, paymentOptions akwaba.KeyVal, shipmentCategories akwaba.KeyVal,
 ) *Handler {
 	// db, err := postgres.Open(c.DB)
@@ -124,8 +124,7 @@ func NewHandler(
 
 	return &Handler{
 		auth:               auth,
-		customerStore:      customerStore,
-		mailer:             mailer,
+		userStore:          userStore,
 		pricing:            pricing,
 		orderStore:         orderStore,
 		tracker:            tracker,

@@ -18,7 +18,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FirstName}} </span></a>
         <a class="red item" href="/profile/my_orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Réglages</a>
         <a class="red item" href="/auth/logout">Déconnexion</a>
@@ -61,7 +61,7 @@
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.FirstName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item" href="/profile/my_orders">Mes commandes</a>
                                 <a class="black item" href="/profile/settings">Réglages</a>
@@ -149,12 +149,12 @@
                                 <h2 class="ui header centered aligned">
                                     SUIVI DE COLIS EN LIGNE
                                 </h2>
-                                <p>Vous pouvez suivre l’état d’avancement votre colis en ligne en inscrivant à l’onglet
+                                <p>Vous pouvez suivre l’état d’avancement de votre colis en ligne en inscrivant à
+                                    l’onglet
                                     réservé pour la session, le numéro de suivi de votre colis déjà ramassé. Vous
                                     pourrez y voir en temps réel si votre livraison est soit en cours, livrée, reportée
                                     ou annulée.
-                                    Pour suivre votre colis, entrez le numéro de suivi ici.</p>
-                                <p>Pour suivre votre colis, entrez le numéro de suivi <a href="/tracking">ici</a></p>
+                                    Pour suivre votre colis, entrez le numéro de suivi <a href="/tracking">ici</a>.</p>
                             </div>
                             <div class="column" id="fast-shipping">
                                 <div class="service-icon">
@@ -170,10 +170,6 @@
                                     garantissons la priorité sur votre colis et de le faire livrer en un temps record
                                     quelque soit le lieu de destination.
                                     Contactez-nous afin de bénéficier du service d’extrême urgence.
-                                </p>
-                                <p>
-                                    Contactez nous pour bénéficier du service
-                                    d’extrême urgence.
                                 </p>
                             </div>
                         </div>

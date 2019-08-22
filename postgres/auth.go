@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"errors"
 	"log"
 	"time"
 
@@ -15,9 +16,10 @@ import (
 const (
 	duplicatePhoneErr  = "Un compte avec ce téléphone existe déjà"
 	duplicateEmailErrr = "Un compte avec cette adresse e-mail existe déjà"
+	noResltErr         = "sql: no rows in result set"
 )
 
-// Authenticator is the implementation of CustomerAuthentifier interface
+// Authenticator is the implementation of UserAuthentifier interface
 type Authenticator struct {
 	db *sqlx.DB
 }
@@ -31,28 +33,44 @@ func keyDuplicationError(key string) string {
 }
 
 // Authenticate check if user provided email and password match and then return the user struct
-func (d *Authenticator) Authenticate(email, password string) (cust akwaba.Customer, err error) {
+func (a *Authenticator) Authenticate(email, password, ip string) (user akwaba.User, err error) {
 	var passwordHash string
-	err = d.db.QueryRow(
+	err = a.db.QueryRow(
 		`SELECT 
-		customer_id, full_name, email, 
-		phone, password, address
-		FROM customers
+		user_id, first_name, last_name, email, 
+		phone, password
+		FROM users
 		WHERE email=$1`,
 		email,
 	).Scan(
-		&cust.ID, &cust.FullName, &cust.Email,
-		&cust.Phone, &passwordHash,
-		&cust.Address,
+		&user.ID, &user.FirstName, &user.LastName,
+		&user.Email,
+		&user.Phone, &passwordHash,
 	)
 	if err != nil {
-		cust.Password = password
+		user.Password = password
+		if err.Error() == noResltErr {
+			err = errors.New("Nom d’utilisateur ou mot de passe incorrect")
+		}
 		return
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password))
 	if err != nil {
-		cust.Password = password
+		user.Password = password
+		err = errors.New("Nom d’utilisateur ou mot de passe incorrect")
 		return
+	}
+	a.recordLogin(user.ID, ip)
+	return
+}
+
+func (a *Authenticator) recordLogin(custID uint, ip string) (err error) {
+	_, err = a.db.Exec(
+		`INSERT INTO users_access_history (user_id, ip_address) VALUES ($1, $2)`,
+		custID, ip,
+	)
+	if err != nil {
+		log.Println(err)
 	}
 	return
 }
@@ -66,7 +84,7 @@ func (d *Authenticator) SetRecoveryToken(email string) (token string, err error)
 	}
 	token = string(bs)
 	_, err = d.db.Exec(
-		`UPDATE customers SET recovery_token=$1 WHERE email=$2`,
+		`UPDATE users SET recovery_token=$1 WHERE email=$2`,
 		token, email,
 	)
 	return
@@ -74,7 +92,7 @@ func (d *Authenticator) SetRecoveryToken(email string) (token string, err error)
 
 func (d *Authenticator) CheckRecoveryToken(token string) (custID uint, err error) {
 	err = d.db.QueryRow(
-		"SELECT customer_id FROM customers WHERE recovery_token=$1",
+		"SELECT user_id FROM users WHERE recovery_token=$1",
 		token,
 	).Scan(&custID)
 	if err != nil {
@@ -88,11 +106,11 @@ func (d *Authenticator) UpdatePassword(userID uint, token, newPassword string) (
 	if err != nil {
 		return
 	}
-	_, err = d.db.Exec(`UPDATE customers SET password=$1 WHERE customer_id=$2`, string(hp), userID)
+	_, err = d.db.Exec(`UPDATE users SET password=$1 WHERE user_id=$2`, string(hp), userID)
 	if err != nil {
 		return
 	}
-	_, err = d.db.Exec("UPDATE customers SET recovery_token=null, is_email_verified=true WHERE customer_id=$1", userID)
+	_, err = d.db.Exec("UPDATE users SET recovery_token=null, is_email_verified=true WHERE user_id=$1", userID)
 	if err != nil {
 		log.Println(err)
 		// don't care about this error
@@ -100,7 +118,3 @@ func (d *Authenticator) UpdatePassword(userID uint, token, newPassword string) (
 	}
 	return
 }
-
-
-
-

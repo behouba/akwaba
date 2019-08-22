@@ -31,11 +31,37 @@ func (h *Handler) orders(c *gin.Context) {
 	})
 }
 
-func (h *Handler) updateProfile(c *gin.Context) {
+func (h *Handler) updatePassword(c *gin.Context) {
+	password := struct {
+		Current string `json:"current"`
+		New     string `json:"new"`
+	}{}
+	err := c.BindJSON(&password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 	user := sessionUser(c)
-	var data akwaba.Customer
+	err = h.userStore.UpdatePassword(password.Current, password.New, user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"user":    sessionUser(c),
+		"message": "Votre mot de passe a été mis à jour avec succès",
+	})
+}
 
-	if err := c.ShouldBindJSON(&data); err != nil {
+func (h *Handler) updateProfile(c *gin.Context) {
+	u := sessionUser(c)
+	var user akwaba.User
+
+	if err := c.ShouldBindJSON(&user); err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"user":    sessionUser(c),
@@ -43,14 +69,14 @@ func (h *Handler) updateProfile(c *gin.Context) {
 		})
 		return
 	}
-	if data.ID != user.ID {
+	if user.ID != u.ID {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "You are not allowed to update with profile.",
+			"message": "Vous n'etes pas authorisé a modifier ce profil.",
 		})
 		return
 	}
-	log.Println(data)
-	err := h.customerStore.UpdateInfo(&data)
+	log.Println(user)
+	err := h.userStore.Update(&user)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -59,7 +85,7 @@ func (h *Handler) updateProfile(c *gin.Context) {
 		})
 		return
 	}
-	saveSessionUser(&data, c)
+	saveSessionUser(&user, c)
 
 	c.JSON(http.StatusOK, gin.H{
 		"user":    sessionUser(c),
@@ -68,8 +94,7 @@ func (h *Handler) updateProfile(c *gin.Context) {
 }
 
 func (h *Handler) profileData(c *gin.Context) {
-	user := sessionUser(c)
 	c.JSON(http.StatusOK, gin.H{
-		"user": user,
+		"user": sessionUser(c),
 	})
 }

@@ -37,7 +37,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FirstName}} </span></a>
         <a class="red item active" href="/profile/my_orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Réglages</a>
         <a class="red item" href="/auth/logout">Déconnexion</a>
@@ -71,7 +71,7 @@
                             <div class="header truncate">
                                 Livraison à {o.recipient.area.name}
                             </div>
-                            <!-- <h3>Nº: {o.orderId}</h3> -->
+                            <!-- <h3>Nº: {o.id}</h3> -->
                             <div class="description">
                                 <div>
                                     {o.state.name}
@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="full-info">
                                     <div class="ui divider"></div>
-                                    <p>Nº de commande: {o.orderId}</p>
+                                    <p>Nº de commande: {o.id}</p>
                                     <p>Nº du colis: {o.shipmentId || 'INDISPONIBLE'}</p>
                                     <p>Trajet: {o.sender.area.name} - {o.recipient.area.name} ({o.distance} km) </p>
 
@@ -103,7 +103,6 @@
                                     <div class="ui dividing header">COLIS</div>
                                     <p>Nature: {o.nature}</p>
                                     <p>Catégorie: {o.category.name}</p>
-                                    <p>Poids: {o.weight || 'INDISPONIBLE'}</p>
                                     <div class="ui dividing header">PAIEMENT ({o.paymentOption.name})</div>
                                     <p>Frais de livraison: {o.cost} FCFA</p>
                                 </div>
@@ -111,13 +110,13 @@
 
                         </div>
                         <div v-if="o.state.id !== 4" class="extra content" style="text-align: right">
-                            <a v-if="o.state.id == 2 || o.state.id == 3" :href="`/tracking?id=${o.orderId}`"
+                            <a v-if="o.state.id == 2 || o.state.id == 3" :href="`/tracking?id=${o.shipmentId}`"
                                 class="ui tiny basic button" v-bind:data-index="index">
                                 <i class="search icon"></i>
                                 Suivre
                             </a>
                             <div v-if="o.state.id == 1" class="ui negative tiny button"
-                                v-on:click="showCancelModal(o.orderId)">
+                                v-on:click="showCancelModal(o.id)">
                                 <i class="trash alternate outline icon"></i>
                                 Annuler
                             </div>
@@ -132,7 +131,7 @@
                 </div>
                 <div class="no-orders" v-else v-cloak>
                     <span>
-                        Vous n'avez aucune commande active
+                        Vous n'avez aucune commande
                     </span>
                 </div>
                 <div class="ui modal mini" id="cancelModal">

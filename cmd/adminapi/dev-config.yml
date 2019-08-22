@@ -1,0 +1,14 @@
+port: ":8081"
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "behouba"
+  password: "mana"
+  dbName: "akwaba_express_dev"
+
+hSecretKey: "ablapokou"
+
+oSecreteKey: "africa"
+
+mapApiKey: "AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI"

@@ -11,6 +11,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func sendDeliveryEmail(shipmentID uint64) (err error) {
+	url := fmt.Sprintf("%s/shipment/delivery?id=%d", akwaba.MailerBaseURL, shipmentID)
+	_, err = http.Get(url)
+	if err != nil {
+		log.Println(err)
+	}
+	return
+}
+
+func sendDeliveryFailureEmail(shipmentID uint64) (err error) {
+	url := fmt.Sprintf("%s/shipment/delivery_failure?id=%d", akwaba.MailerBaseURL, shipmentID)
+	_, err = http.Get(url)
+	if err != nil {
+		log.Println(err)
+	}
+	return
+}
+
 func contextEmployee(c *gin.Context) (emp *akwaba.Employee) {
 	e, ok := c.Get("employee")
 	if !ok {
@@ -188,6 +206,9 @@ func (h *Handler) Delivered(c *gin.Context) {
 		})
 		return
 	}
+	go func() {
+		sendDeliveryEmail(shipmentID)
+	}()
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Livraison enregistrée",
 	})
@@ -216,6 +237,9 @@ func (h *Handler) FailedDelivery(c *gin.Context) {
 		})
 		return
 	}
+	go func() {
+		sendDeliveryFailureEmail(shipmentID)
+	}()
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Échec de livraison enregistré",
 	})

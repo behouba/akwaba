@@ -7,16 +7,21 @@ import (
 	"os"
 	"time"
 
-	"github.com/behouba/akwaba/mail"
 	"github.com/behouba/akwaba/postgres"
 	"github.com/behouba/akwaba/website"
 	"gopkg.in/yaml.v2"
 )
 
+type config struct {
+	Port      string           `yaml:"port"`
+	DB        *postgres.Config `yaml:"database"`
+	MapAPIKey string           `yaml:"mapApiKey"`
+}
+
 var configFile = "prod-config.yml"
 
 func main() {
-	var config website.Config
+	var c config
 
 	if len(os.Args) > 1 {
 		configFile = os.Args[1]
@@ -26,18 +31,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = yaml.Unmarshal(bs, &config)
+	err = yaml.Unmarshal(bs, &c)
 	if err != nil {
 		log.Fatal(err)
 	}
-	db, err := postgres.Open(config.DB)
+	db, err := postgres.Open(c.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	handler := website.NewHandler(
-		postgres.NewAuthenticator(db), postgres.NewCustomerStore(db), mail.NewCustomerMail(config.Mail),
-		postgres.NewPricingStorage(db, config.MapAPIKey), postgres.NewOrderStore(db, config.MapAPIKey),
+		postgres.NewAuthenticator(db), postgres.NewUserStore(db),
+		postgres.NewPricingStorage(db, c.MapAPIKey), postgres.NewOrderStore(db, c.MapAPIKey),
 		postgres.NewTrackingStore(db), postgres.CitiesMap(),
 		postgres.PaymentOptionsMap(), postgres.ShipmentCategoriesMap(),
 	)
@@ -45,7 +49,7 @@ func main() {
 	router := website.NewRouter(handler)
 
 	s := &http.Server{
-		Addr:           config.Port,
+		Addr:           c.Port,
 		Handler:        router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

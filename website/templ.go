@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) login(c *gin.Context) {
+func (h *Handler) loginHTML(c *gin.Context) {
 	_, isRedirect := c.GetQuery("redirect")
 
 	log.Println(isRedirect)
@@ -96,9 +96,15 @@ func (h *Handler) settings(c *gin.Context) {
 	})
 }
 
-func (h *Handler) customerOrders(c *gin.Context) {
+func (h *Handler) userOrders(c *gin.Context) {
 	user := sessionUser(c)
 	c.HTML(http.StatusOK, "user-orders", gin.H{
 		"user": user,
+	})
+}
+
+func (h *Handler) updatePasswordHTML(c *gin.Context) {
+	c.HTML(http.StatusOK, "update-password", gin.H{
+		"user": sessionUser(c),
 	})
 }

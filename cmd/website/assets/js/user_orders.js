@@ -78,9 +78,7 @@ new Vue({
             try {
                 var response = await axios.patch(`/order/cancel/${this.selectedOrderId}`)
                 console.log(response);
-                if (response.status === 200) {
-                    this.fetchOrders();
-                }
+                window.location.reload();
             } catch (error) {
                 alert(error);
             }

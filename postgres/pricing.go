@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 	"math"
 
 	"github.com/behouba/akwaba"
@@ -21,13 +20,38 @@ func NewPricingStorage(db *sqlx.DB, key string) *PricingStorage {
 	return &PricingStorage{db: db, apiKey: key}
 }
 
+func (c *PricingStorage) Pricing(from, to string) (pricing akwaba.Pricing, err error) {
+	dMinCost, dMaxCost, err := c.minCostMaxCost(akwaba.DocumentCateogryId)
+	if err != nil {
+		return
+	}
+	pMinCost, pMaxCost, err := c.minCostMaxCost(akwaba.ParcelCategoryId)
+	if err != nil {
+		return
+	}
+	if from == to {
+		pricing.DocumentCost, pricing.ParcelCost = uint(dMinCost), uint(pMinCost)
+		return
+	}
+	pricing.Distance, err = c.distance(from, to)
+	if err != nil {
+		return
+	}
+	if pricing.Distance <= 0 || pricing.Distance > 100 {
+		return pricing, errors.New("Cette distance n'est pas supporté par notre système")
+	}
+	if pricing.Distance <= 7 {
+		pricing.DocumentCost, pricing.ParcelCost = uint(dMinCost), uint(pMinCost)
+		return
+	}
+	dRawCost := uint((pricing.Distance * dMaxCost / 100) + dMinCost)
+	pRawCost := uint((pricing.Distance * pMaxCost / 100) + pMinCost)
+	pricing.DocumentCost, pricing.ParcelCost = roundCost(dRawCost), roundCost(pRawCost)
+	return
+}
+
 func (c *PricingStorage) Cost(from, to string, categoryId uint8) (cost uint, distance float64, err error) {
-	log.Println(to, from, categoryId)
-	var minCost, maxCost float64
-	err = c.db.QueryRow(
-		"SELECT min_cost, max_cost FROM shipment_categories WHERE shipment_category_id=$1",
-		categoryId,
-	).Scan(&minCost, &maxCost)
+	minCost, maxCost, err := c.minCostMaxCost(categoryId)
 	if err != nil {
 		return
 	}
@@ -48,6 +72,17 @@ func (c *PricingStorage) Cost(from, to string, categoryId uint8) (cost uint, dis
 	}
 	rawCost := uint((distance * maxCost / 100) + minCost)
 	cost = roundCost(rawCost)
+	return
+}
+
+func (c *PricingStorage) minCostMaxCost(categoryId uint8) (minCost, maxCost float64, err error) {
+	err = c.db.QueryRow(
+		"SELECT min_cost, max_cost FROM shipment_categories WHERE shipment_category_id=$1",
+		categoryId,
+	).Scan(&minCost, &maxCost)
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -77,7 +112,7 @@ func (c *PricingStorage) FindArea(query string) (areas []akwaba.Area) {
 
 	rows, err = c.db.Query(
 		`SELECT area_id, name, city_id FROM areas 
-			WHERE name ILIKE $1 || '%' ORDER BY name ASC LIMIT 10`,
+			WHERE name ILIKE $1 || '%' ORDER BY name ASC LIMIT 100`,
 		query,
 	)
 	if err != nil {
@@ -104,7 +139,7 @@ func (c *PricingStorage) findQueryEveryWhere(query string) (areas []akwaba.Area)
 
 	rows, err = c.db.Query(
 		`SELECT area_id, name, city_id FROM areas 
-			WHERE name ILIKE '%' || $1 || '%' ORDER BY name ASC LIMIT 10`,
+			WHERE name ILIKE '%' || $1 || '%' ORDER BY name ASC LIMIT 100`,
 		query,
 	)
 	if err != nil {

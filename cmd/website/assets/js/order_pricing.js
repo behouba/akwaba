@@ -1,9 +1,11 @@
 $.fn.search.settings.templates.message = function (message, type) {
     // returns html for message with given message and type
     if (type === "empty") {
-        html = `<div class="message empty"><div class="description">Aucun résultat ne correspond à votre recherche</div></div>`;
+        html = `<div class="message empty">
+                    <div class="description">Aucun résultat ne correspond à votre recherche</div>
+                </div>`;
     }
-    return html
+    return html;
 }
 
 
@@ -37,8 +39,8 @@ var pricingApp = new Vue({
                     `/pricing/compute?origin=${this.origin}&destination=${this.destination}&categoryId=${this.categoryId}`,
                 )
                 this.pricing = response.data;
-                this.hasError = false
-                console.log(response)
+                this.hasError = false;
+                console.log(response);
                 $('html, body').animate({ scrollTop: $("#order-summary").offset().top }, 'slow');
             } catch (error) {
                 this.hasError = true;
@@ -69,8 +71,8 @@ var pricingApp = new Vue({
 
         $("#origin").search({
             apiSettings: apiSettings,
-            minCharacters: 1,
-            maxResults: 10,
+            minCharacters: 2,
+            maxResults: 100,
             onSelect: (res, resp) => {
                 this.origin = res.title;
                 console.log('origin')
@@ -79,8 +81,8 @@ var pricingApp = new Vue({
         })
         $("#destination").search({
             apiSettings: apiSettings,
-            minCharacters: 1,
-            maxResults: 10,
+            minCharacters: 2,
+            maxResults: 100,
             onSelect: (res, resp) => {
                 this.destination = res.title;
                 this.calculateCost();

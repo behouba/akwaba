@@ -8,7 +8,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
     <link rel="stylesheet" href="../assets/css/blank.css">
-    <script src="../assets/js/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-the-mask@0.11.1/dist/vue-the-mask.min.js"></script>
@@ -16,7 +15,7 @@
 </head>
 
 <body>
-    <div id="login-app">
+    <div id="login-app" style="margin-top: 50px;">
         <div>
             <div class="page-header">
                 <a href="/" class="header_logo"></a>
@@ -29,7 +28,8 @@
                 <h3 class="ui center red">
                     CONNEXION
                 </h3>
-                <form class="ui form fluid" @submit.prevent="sendRegistration">
+                <form class="ui form fluid" id="loginForm" @submit.prevent="sendRegistration" method="POST"
+                    :action="`/auth/login${redirectPath}`">
                     <div class="ui stacked ">
                         <div v-show="error" class="center" style="margin: 10px 0px;" v-cloak>
                             <span class="error-label">{error}</span>
@@ -39,27 +39,39 @@
                             Pour commencer à envoyer des colis, connectez-vous ou inscrivez-vous.
                         </div>
                         {{end}}
+                        {{if .error }}
+                        <div class="ui negative message">{{.error}}</div>
                         <div class="field">
-                            <label for="email">E-mail</label>
-                            <input type="text" name="email" v-model="user.email"
+                            <input type="text" placeholder="Adresse e-mail" name="email" value="{{.email}}"
                                 v-validate="{required: true, email: true}" data-vv-as="email" autocomplete="disable">
                             <span class="error-label" v-cloak>{ errors.first('email') }</span>
                         </div>
                         <div class="field">
-                            <label for="password">Mot de passe</label>
-                            <input type="password" name="password" v-validate="{required: true, min: 4}"
-                                v-model="user.password" autocomplete="disable">
+                            <input type="password" placeholder="Mot de passe" name="password" value="{{.password}}"
+                                v-validate="{required: true, min: 4}" autocomplete="new-password">
                             <span class="error-label" v-cloak>{ errors.first('password') }</span>
                         </div>
-                        <div class="center">
-                            <button class="ui primary button submit"
+                        {{ else }}
+                        <div class="field">
+                            <input type="text" placeholder="Adresse e-mail" name="email"
+                                v-validate="{required: true, email: true}" data-vv-as="email" autocomplete="disable">
+                            <span class="error-label" v-cloak>{ errors.first('email') }</span>
+                        </div>
+                        <div class="field">
+                            <input type="password" placeholder="Mot de passe" name="password"
+                                v-validate="{required: true, min: 4}" autocomplete="disable">
+                            <span class="error-label" v-cloak>{ errors.first('password') }</span>
+                        </div>
+                        {{ end }}
+                        <div class="center" style="margin-top: 5px">
+                            <button class="ui fluid primary button submit"
                                 v-bind:class="{loading: loading, disabled: loading}">Connexion</button>
                             <div style="margin-top: 20px">
-                                <a href="/auth/recovery" class="red-link">Mot de passe oublié?</a>
+                                <a href="/auth/recovery">Mot de passe oublié?</a>
                             </div>
                             <div class="ui divider">
                             </div>
-                            <a :href="'/auth/registration'+redirectPath()" class="red-link">Inscription</a>
+                            <a :href="'/auth/registration'+redirectPath">Inscription</a>
                         </div>
                     </div>
                 </form>

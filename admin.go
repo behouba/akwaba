@@ -21,7 +21,7 @@ type Employee struct {
 }
 
 type EmployeeAuthentifier interface {
-	Authenticate(e *Employee) (empl Employee, err error)
+	Authenticate(e *Employee, ip string) (empl Employee, err error)
 }
 
 // Office represent office data

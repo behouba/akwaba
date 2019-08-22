@@ -48,7 +48,7 @@
     <!-- Sidebar for mobile de vices -->
     <div class="ui vertical inverted right sidebar menu">
         {{if .user.ID}}
-        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FullName}} </span></a>
+        <a class="red item truncate" style="margin-top: 10px"><span>{{.user.FirstName}} </span></a>
         <a class="red item" href="/profile/my_orders">Mes commandes</a>
         <a class="red item" href="/profile/settings">Réglages</a>
         <a class="red item" href="/auth/logout">Déconnexion</a>
@@ -92,7 +92,7 @@
                     <div class="right menu">
                         {{if .user.ID}}
                         <div class="ui dropdown item">
-                            <span class="truncate">{{.user.FullName}}</span> <i class="dropdown icon"></i>
+                            <span class="truncate">{{.user.FirstName}}</span> <i class="dropdown icon"></i>
                             <div class="menu">
                                 <a class="black item" href="/profile/my_orders">Mes commandes</a>
                                 <a class="black item" href="/profile/settings">Réglages</a>
@@ -129,11 +129,11 @@
                         <span class="error-label" v-cloak>{ errors.first('senderName') }</span>
                     </div>
                     <div class="field">
-                        <label>Adresse</label>
+                        <label>Commune</label>
                         <input readonly type="text" ref="originPlace" value="{{ .origin }}">
                     </div>
                     <div class="field required">
-                        <label>Complément d'adresse (quartier, secteur, rue)</label>
+                        <label>Adresse (quartier, secteur, rue)</label>
                         <input type="text" ref="senderAddressInput" name="senderAddress"
                             v-validate="{required: true, min: 3}" v-model="order.sender.address"
                             placeholder="Ex: Williamsville, rue Champs Élysées">
@@ -156,11 +156,11 @@
 
                     </div>
                     <div class="field">
-                        <label>Adresse</label>
+                        <label>Commune</label>
                         <input readonly type="text" ref="destinationPlace" value="{{.destination}}">
                     </div>
                     <div class="field required">
-                        <label>Complément d'adresse (quartier, secteur, rue)</label>
+                        <label>Adresse (quartier, secteur, rue)</label>
                         <input type="text" ref="recipientAddressInput" name="recipientAddress"
                             v-validate="{required: true, min: 3}" v-model="order.recipient.address"
                             placeholder="Ex: Williamsville, rue Champs Élysées">
@@ -176,7 +176,7 @@
                     <h3 class="ui dividing header">INFORMATION SUR LE COLIS</h3>
                     <div class="two fields">
                         <div class="field">
-                            <label>Poids du colis</label>
+                            <label>Catégorie</label>
                             <input readonly type="text" id="category" ref="category" data-category-id="{{.categoryID}}"
                                 value="{{.categoryName}}">
                         </div>

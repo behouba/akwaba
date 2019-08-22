@@ -20,8 +20,8 @@ type Tracking struct {
 	Events   []Event  `json:"events"`
 }
 
-// ParcelTracker interface define shipment tracking method Track
-type ParcelTracker interface {
+// Tracker interface define shipment tracking method Track
+type Tracker interface {
 	TrackByShipmentID(shipmentID uint64) (tracking Tracking, err error)
 	TrackByOrderID(orderID uint64) (tracking Tracking, err error)
 }

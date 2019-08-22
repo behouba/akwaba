@@ -8,7 +8,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {{ template "common-head" .}}
     <link rel="stylesheet" href="../assets/css/blank.css">
-    <script src="../assets/js/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-the-mask@0.11.1/dist/vue-the-mask.min.js"></script>
@@ -35,43 +34,71 @@
             </p>
             <div class="ui divider"></div>
 
-            <form class="ui form" @submit.prevent="sendRegistration">
+            <form class="ui form" @submit.prevent="sendRegistration" method="POST" action="/auth/registration"
+                id="registrationForm">
                 <div class="ui stacked ">
+                    {{if .error}}
+                    <div class="ui negative message">{{.error}}</div>
                     <div class="field">
-                        <label for="name">Nom et prénom</label>
-                        <input type="text" name="name" autocomplete="off" v-validate="{required: true, min: 3}"
-                            v-model="user.FullName">
-                        <span class="error-label" v-cloak>{ errors.first('name') }</span>
+                        <input type="text" placeholder="Nom de famille" name="lastName" value="{{.user.LastName}}"
+                            autocomplete="off" v-validate="{required: true, min: 3}">
+                        <span class="error-label" v-cloak>{ errors.first('lastName') }</span>
                     </div>
                     <div class="field">
-                        <label for="email">E-mail</label>
-                        <input type="text" name="email" v-model="user.email" v-validate="{required: true, email: true}"
-                            data-vv-as="email" autocomplete="off">
+                        <input type="text" placeholder="Prénom" name="firstName" value="{{.user.FirstName}}"
+                            autocomplete="off" v-validate="{required: true, min: 3}">
+                        <span class="error-label" v-cloak>{ errors.first('firstName') }</span>
+                    </div>
+                    <div class="field">
+                        <input type="text" placeholder="Adresse e-mail" name="email" value="{{.user.Email}}"
+                            v-validate="{required: true, email: true}" data-vv-as="email" autocomplete="off">
                         <span class="error-label" v-cloak>{ errors.first('email') }</span>
                     </div>
                     <div class="field">
-                        <label for="phone">Numéro de mobile</label>
-                        <input type="tel" name="phone" v-model="user.phone" v-validate="{required: true, length: 16}"
-                            v-mask="'+225 ## ## ## ##'" autocomplete="off">
-                        <span class="error-label" v-cloak>{ errors.first('phone') }</span>
+                        <input type="tel" placeholder="Numéro de mobile" name="phone" value="{{.user.Phone}}"
+                            v-validate="{length: 16}" v-mask="'+225 ## ## ## ##'" autocomplete="off">
+                        <span class="error-label" v-cloak>{errors.first('phone')}</span>
                     </div>
                     <div class="field">
-                        <label for="password">Mot de passe</label>
-                        <input type="password" name="password" v-validate="{required: true, min: 4}"
-                            v-model="user.password" autocomplete="off">
+                        <div class="ui icon input">
+                            <i class="eye link icon" @click="showPassword"></i>
+                            <input placeholder="Mot de passe" type="password" value="{{.user.Password}}" name="password"
+                                id="password" v-validate="{required: true, min: 4}" autocomplete="new-password">
+                        </div>
                         <span class="error-label" v-cloak>{ errors.first('password') }</span>
                     </div>
+                    {{ else }}
                     <div class="field">
-                        <label for="password2">Répétez le mot de passe</label>
-                        <input type="password" name="password2" v-validate="{is: user.password}"
-                            v-model="confirmPassword" autocomplete="off">
-                        <span class="error-label" v-cloak>{ errors.first('password2') }</span>
+                        <input type="text" placeholder="Nom de famille" name="lastName" autocomplete="off"
+                            v-validate="{required: true, min: 3}">
+                        <span class="error-label" v-cloak>{ errors.first('lastName') }</span>
                     </div>
-                    <div v-if="error" class="center" style="margin: 10px 0px;" v-cloak>
-                        <span class="error-label">{error}</span>
+                    <div class="field">
+                        <input type="text" placeholder="Prénom" name="firstName" autocomplete="off"
+                            v-validate="{required: true, min: 3}">
+                        <span class="error-label" v-cloak>{ errors.first('firstName') }</span>
                     </div>
+                    <div class="field">
+                        <input type="text" placeholder="Adresse e-mail" name="email"
+                            v-validate="{required: true, email: true}" data-vv-as="email" autocomplete="off">
+                        <span class="error-label" v-cloak>{ errors.first('email') }</span>
+                    </div>
+                    <div class="field">
+                        <input type="tel" placeholder="Numéro de mobile" name="phone" v-validate="{length: 16}"
+                            v-mask="'+225 ## ## ## ##'" autocomplete="off">
+                        <span class="error-label" v-cloak>{errors.first('phone')}</span>
+                    </div>
+                    <div class="field">
+                        <div class="ui icon input">
+                            <i class="eye link icon" @click="showPassword"></i>
+                            <input placeholder="Mot de passe" type="password" name="password" id="password"
+                                v-validate="{required: true, min: 4}" autocomplete="new-password">
+                        </div>
+                        <span class="error-label" v-cloak>{ errors.first('password') }</span>
+                    </div>
+                    {{end}}
                     <div class="center">
-                        <button class="ui primary button submit"
+                        <button class="ui fluid primary button submit"
                             v-bind:class="{loading: loading, disabled: loading}">Inscritpion</button>
                     </div>
                     <div class="ui divider"></div>

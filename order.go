@@ -13,23 +13,27 @@ import (
 // Order states
 const (
 	OrderStatePendingID   uint8 = 1
-	OrderInProcessing     uint8 = 2
+	OrderInProcessingID   uint8 = 2
 	OrderStateCompletedID uint8 = 3
 	OrderStateCanceledID  uint8 = 4
 )
 
 // Order struct represent order that will be created by users
 type Order struct {
-	OrderID       uint64           `json:"orderId"`
-	ShipmentID    NullInt64        `json:"shipmentId"`
-	CustomerID    uint             `json:"customerId"`
+	ID          uint64     `json:"id"`
+	ShipmentID  NullInt64  `json:"shipmentId"`
+	UserID      uint       `json:"userId"`
+	State       OrderState `json:"state"`
+	TimeCreated time.Time  `json:"timeCreated"`
+	TimeClosed  NullTime   `json:"timeClosed"`
+	OrderData
+}
+
+type OrderData struct {
 	Sender        Address          `json:"sender"`
 	Recipient     Address          `json:"recipient"`
 	Category      ShipmentCategory `json:"category"`
 	PaymentOption PaymentOption    `json:"paymentOption"`
-	State         OrderState       `json:"state"`
-	TimeCreated   time.Time        `json:"timeCreated"`
-	TimeClosed    NullTime         `json:"timeClosed"`
 	Nature        string           `json:"nature"`
 	Cost          uint             `json:"cost"`
 	Distance      float64          `json:"distance"`
@@ -72,8 +76,8 @@ type StateUpdater interface {
 }
 
 type OrderPicker interface {
-	Orders(customerID uint, offset uint64) (orders []Order, err error)
-	Order(orderID uint64, customerID uint) (order Order, err error)
+	Orders(userID uint, offset uint64) (orders []Order, err error)
+	Order(orderID uint64, userID uint) (order Order, err error)
 }
 
 type OrderSaverCanceler interface {
@@ -95,8 +99,8 @@ type OrderManager interface {
 	UpdateState(orderID uint64, stateID uint8) error
 }
 
-type CustomerPicker interface {
-	Customers() []Customer
+type UserPicker interface {
+	Users() []User
 }
 
 // OrderState data type represent order state id and corresponding label

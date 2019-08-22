@@ -20,7 +20,7 @@ func (s *TrackingStore) TrackByShipmentID(shipmentID uint64) (t akwaba.Tracking,
 	// retreive shipment info
 	err = s.db.QueryRow(
 		`SELECT 
-		shipment_id, order_id, customer_id, sender_name, sender_phone, sender_area_id,
+		shipment_id, order_id, user_id, sender_name, sender_phone, sender_area_id,
 		sender_area, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_area,
 		recipient_address, time_created, shipment_category_id, shipment_category, cost, shipment_state_id,
 		shipment_state, weight, payment_option_id, payment_option, distance, nature
@@ -28,7 +28,7 @@ func (s *TrackingStore) TrackByShipmentID(shipmentID uint64) (t akwaba.Tracking,
 	WHERE shipment_id=$1;`,
 		shipmentID,
 	).Scan(
-		&t.Shipment.ID, &t.Shipment.OrderID, &t.Shipment.CustomerID,
+		&t.Shipment.ID, &t.Shipment.OrderID, &t.Shipment.UserID,
 		&t.Shipment.Sender.Name, &t.Shipment.Sender.Phone,
 		&t.Shipment.Sender.Area.ID, &t.Shipment.Sender.Area.Name,
 		&t.Shipment.Sender.Address, &t.Shipment.Recipient.Name,
@@ -72,7 +72,7 @@ func (s *TrackingStore) TrackByOrderID(orderID uint64) (t akwaba.Tracking, err e
 	// retreive shipment info
 	err = s.db.QueryRow(
 		`SELECT 
-		shipment_id, order_id, customer_id, sender_name, sender_phone, sender_area_id,
+		shipment_id, order_id, user_id, sender_name, sender_phone, sender_area_id,
 		sender_area, sender_address, recipient_name, recipient_phone, recipient_area_id, recipient_area,
 		recipient_address, time_created, shipment_category_id, shipment_category, cost, shipment_state_id,
 		shipment_state, weight, payment_option_id, payment_option, distance, nature
@@ -80,7 +80,7 @@ func (s *TrackingStore) TrackByOrderID(orderID uint64) (t akwaba.Tracking, err e
 	WHERE order_id=$1;`,
 		orderID,
 	).Scan(
-		&t.Shipment.ID, &t.Shipment.OrderID, &t.Shipment.CustomerID,
+		&t.Shipment.ID, &t.Shipment.OrderID, &t.Shipment.UserID,
 		&t.Shipment.Sender.Name, &t.Shipment.Sender.Phone,
 		&t.Shipment.Sender.Area.ID, &t.Shipment.Sender.Area.Name,
 		&t.Shipment.Sender.Address, &t.Shipment.Recipient.Name,

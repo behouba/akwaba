@@ -1,39 +1,56 @@
 package website
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/behouba/akwaba"
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) handleLogin(c *gin.Context) {
-	var cust akwaba.Customer
-	if err := c.ShouldBindJSON(&cust); err != nil {
-		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"user":    cust,
-			"message": "Adresse e-mail ou mot de passe invalide",
-		})
+func sendWelcomeEmail(firstName, email string) (err error) {
+	url := fmt.Sprintf("%s/welcome?first_name=%s&email=%s", akwaba.MailerBaseURL, firstName, email)
+	_, err = http.Get(url)
+	if err != nil {
 		return
 	}
+	return
+}
 
-	cust, err := h.auth.Authenticate(cust.Email, cust.Password)
+func sendRecoveryEmail(email, token string) (err error) {
+	url := fmt.Sprintf("%s/recovery?email=%s&token=%s", akwaba.MailerBaseURL, email, token)
+	_, err = http.Get(url)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (h *Handler) handleLogin(c *gin.Context) {
+	email, password := c.PostForm("email"), c.PostForm("password")
+
+	user, err := h.auth.Authenticate(email, password, c.ClientIP())
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"user":    cust,
-			"message": "Adresse e-mail ou mot de passe invalide",
+		c.HTML(http.StatusUnauthorized, "login", gin.H{
+			"email":    email,
+			"password": password,
+			"error":    err.Error(),
 		})
 		return
 	}
 
-	saveSessionUser(&cust, c)
-	c.JSON(http.StatusOK, gin.H{
-		"user":    cust,
-		"message": "connection effectuée avec succès",
-	})
+	saveSessionUser(&user, c)
+
+	urlParts := strings.Split(c.Request.URL.String(), "redirect=")
+	if len(urlParts) > 1 {
+		c.Redirect(http.StatusFound, urlParts[1])
+		return
+	}
+
+	c.Redirect(http.StatusFound, "/")
 }
 
 func (h *Handler) registration(c *gin.Context) {
@@ -41,28 +58,37 @@ func (h *Handler) registration(c *gin.Context) {
 }
 
 func (h *Handler) handleRegistration(c *gin.Context) {
-	var data akwaba.Customer
-	if err := c.ShouldBindJSON(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"data": data,
-		})
-	}
-	log.Println(data)
+	var user akwaba.User
+	user.FirstName = c.PostForm("firstName")
+	user.LastName = c.PostForm("lastName")
+	user.Email = c.PostForm("email")
+	user.Phone = c.PostForm("phone")
+	user.Password = c.PostForm("password")
 
-	cust, err := h.customerStore.Save(&data)
+	err := h.userStore.Save(&user)
 	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"data":    data,
-			"message": err.Error(),
+		log.Println("has error", err)
+		c.HTML(http.StatusOK, "registration", gin.H{
+			"user":  user,
+			"error": err.Error(),
 		})
 		return
 	}
-	go h.mailer.WelcomeEmail(&cust)
-	saveSessionUser(&cust, c)
-	c.JSON(http.StatusOK, gin.H{
-		"user": cust,
-	})
+	// make request to notifier server to send email to user
+	saveSessionUser(&user, c)
+	urlParts := strings.Split(c.Request.URL.String(), "redirect=")
+	if len(urlParts) > 1 {
+		c.Redirect(http.StatusFound, urlParts[1])
+		return
+	}
+
+	go func() {
+		err = sendWelcomeEmail(user.FirstName, user.Email)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+	c.Redirect(http.StatusFound, "/")
 }
 
 func (h *Handler) recovery(c *gin.Context) {
@@ -71,7 +97,7 @@ func (h *Handler) recovery(c *gin.Context) {
 
 func (h *Handler) handleRecovery(c *gin.Context) {
 	email := c.Query("email")
-	cust, err := h.customerStore.CustomerByEmail(email)
+	user, err := h.userStore.UserByEmail(email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"email":   email,
@@ -79,19 +105,21 @@ func (h *Handler) handleRecovery(c *gin.Context) {
 		})
 		return
 	}
+	token, err := h.auth.SetRecoveryToken(user.Email)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(token)
+	// use token to send request to notifier server.
 	go func() {
-		token, err := h.auth.SetRecoveryToken(cust.Email)
+		err = sendRecoveryEmail(email, token)
 		if err != nil {
 			log.Println(err)
 		}
-		err = h.mailer.ResetPasswordEmail(&cust, token)
-		if err != nil {
-			log.Println(err)
-		}
+		log.Println(err)
 	}()
-
 	c.JSON(http.StatusOK, gin.H{
-		"email": cust.Email,
+		"email": user.Email,
 	})
 }
 

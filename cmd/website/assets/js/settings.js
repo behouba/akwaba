@@ -1,9 +1,13 @@
 const dictionary = {
     en: {
         custom: {
-            name: {
-                required: 'Veuillez saisir votre nom et prénom.',
-                min: 'Votre nom et prénom ne peuvent pas être trop courts',
+            lastName: {
+                required: 'Veuillez saisir votre nom.',
+                min: 'Votre nom ne peut pas être trop court',
+            },
+            firstName: {
+                required: 'Veuillez saisir votre prénom.',
+                min: 'Votre prénom ne peut pas être trop court',
             },
             phone: {
                 required: 'Veuillez saisir un numéro de mobile valide',
@@ -12,10 +16,6 @@ const dictionary = {
             email: {
                 required: 'Veuillez saisir une adresse e-mail valide',
                 email: 'Veuillez saisir une adresse e-mail valide',
-            },
-            password: {
-                required: 'Votre mot de passe doit contenir au moins 4 caractères',
-                min: 'Votre mot de passe doit contenir au moins 4 caractères'
             }
         }
     }

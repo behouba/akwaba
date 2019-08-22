@@ -8,7 +8,7 @@ body{
 
 .page-header {
     margin: 0 auto 30px;
-    padding-top: 48px;
+    padding-top: 30px;
     display: table;
 }
 
@@ -16,7 +16,8 @@ body{
     display: block;
     width: 196px;
     height: 85px;
-    background-image:url(../img/logo-196.png);
+    background-size: contain;
+    background-image:url(../img/logo_red.png);
     background-repeat: no-repeat;
 }
 

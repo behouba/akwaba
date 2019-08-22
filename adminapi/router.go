@@ -6,9 +6,8 @@ import (
 	"time"
 
 	"github.com/behouba/akwaba"
-	"github.com/behouba/akwaba/adminapi/headoffice"
+	"github.com/behouba/akwaba/adminapi/head"
 	"github.com/behouba/akwaba/adminapi/office"
-	"github.com/behouba/akwaba/postgres"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +19,7 @@ const (
 	authBaseURL       = "/auth"
 	ordersBaseURL     = "/orders"
 	shipmentsBaseURL  = "/shipments"
-	custBaseURL       = "/customer"
+	custBaseURL       = "/user"
 )
 
 var corsConfig = cors.New(cors.Config{
@@ -32,7 +31,7 @@ var corsConfig = cors.New(cors.Config{
 })
 
 // NewRouter create routes and return *gin.Engine
-func NewRouter(h *headoffice.Handler, o *office.Handler, g *Handler) *gin.Engine {
+func NewRouter(h *head.Handler, o *office.Handler, g *Handler) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(corsConfig)
@@ -62,7 +61,7 @@ func NewRouter(h *headoffice.Handler, o *office.Handler, g *Handler) *gin.Engine
 			user := head.Group(custBaseURL)
 			user.Use(h.AuthMiddleware())
 			{
-				user.GET("/customers", h.Customers)
+				user.GET("/users", h.Users)
 			}
 		}
 
@@ -95,23 +94,13 @@ func NewRouter(h *headoffice.Handler, o *office.Handler, g *Handler) *gin.Engine
 }
 
 type Handler struct {
-	tracker akwaba.ParcelTracker
+	tracker akwaba.Tracker
 	sysData akwaba.SystemData
 }
 
-func NewHandler(tracker akwaba.ParcelTracker, sysData akwaba.SystemData) *Handler {
+func NewHandler(tracker akwaba.Tracker, sysData akwaba.SystemData) *Handler {
 	return &Handler{
 		tracker: tracker,
 		sysData: sysData,
 	}
-}
-
-// Config hold configuration data for the adminapi
-type Config struct {
-	Port       string           `yaml:"port"`
-	DB         *postgres.Config `yaml:"database"`
-	HSecretKey string           `yaml:"hSecretKey"`
-	OSecretKey string           `yaml:"oSecretKey"`
-	// Mail      *mail.Config     `yaml:"mail"`
-	MapAPIKey string `yaml:"mapApiKey"`
 }
