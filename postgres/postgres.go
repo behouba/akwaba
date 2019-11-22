@@ -1,12 +1,14 @@
 package postgres
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/behouba/akwaba"
 	"github.com/jmoiron/sqlx"
+	"github.com/ttacon/libphonenumber"
 )
 
 // DB hold database connection for users
@@ -22,6 +24,7 @@ var (
 	orderStatesMap        akwaba.KeyVal
 	orderStates           []akwaba.OrderState
 	areas                 []akwaba.Area
+	offices               []akwaba.Office
 )
 
 type Config struct {
@@ -67,6 +70,10 @@ func Open(c *Config) (db *sqlx.DB, err error) {
 		return
 	}
 	areas, err = queryAreas(db)
+	if err != nil {
+		return
+	}
+	offices, err = queryOffices(db)
 	if err != nil {
 		return
 	}
@@ -177,6 +184,31 @@ func queryAreas(db *sqlx.DB) (areas []akwaba.Area, err error) {
 	return
 }
 
+func queryOffices(db *sqlx.DB) (offices []akwaba.Office, err error) {
+	rows, err := db.Query(
+		`SELECT 
+		office_id, name, address, longitude, latitude, phone1, phone2
+		FROM offices ORDER BY office_id`,
+	)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		var o akwaba.Office
+		var p1 sql.NullString
+		var p2 sql.NullString
+		err = rows.Scan(&o.ID, &o.Name, &o.Address, &o.Lng, &o.Lat, &p1, &p2)
+		if err != nil {
+			return
+		}
+		o.Phone1, _ = formatPhoneNumber(p1.String)
+		o.Phone2, _ = formatPhoneNumber(p2.String)
+		offices = append(offices, o)
+	}
+	return
+}
+
 func CitiesMap() akwaba.KeyVal {
 	return citiesMap
 }
@@ -216,4 +248,17 @@ func (s *SytemDataStore) ShipmentCategories() []akwaba.ShipmentCategory {
 
 func (s *SytemDataStore) Areas() []akwaba.Area {
 	return areas
+}
+
+func (s *SytemDataStore) Offices() []akwaba.Office {
+	return offices
+}
+
+func formatPhoneNumber(phone string) (formattedNum string, err error) {
+	num, err := libphonenumber.Parse(phone, "CI")
+	if err != nil {
+		return
+	}
+	formattedNum = libphonenumber.Format(num, libphonenumber.NATIONAL)
+	return
 }

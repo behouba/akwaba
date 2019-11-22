@@ -26,8 +26,13 @@ type EmployeeAuthentifier interface {
 
 // Office represent office data
 type Office struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
-	City City   `json:"city"`
-	Area Area   `json:"area"`
+	ID      uint    `json:"id"`
+	Name    string  `json:"name"`
+	City    City    `json:"city"`
+	Area    Area    `json:"area"`
+	Address string  `json:"address"`
+	Lng     float64 `json:"lng"`
+	Lat     float64 `json:"lat"`
+	Phone1  string  `json:"phone1"`
+	Phone2  string  `json:"phone2"`
 }

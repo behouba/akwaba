@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/behouba/akwaba/jwt"
 	"github.com/behouba/akwaba/postgres"
 	"github.com/behouba/akwaba/website"
 	"gopkg.in/yaml.v2"
@@ -15,6 +16,7 @@ import (
 type config struct {
 	Port      string           `yaml:"port"`
 	DB        *postgres.Config `yaml:"database"`
+	SecretKey string           `yaml:"secretKey"`
 	MapAPIKey string           `yaml:"mapApiKey"`
 }
 
@@ -40,10 +42,16 @@ func main() {
 		log.Fatal(err)
 	}
 	handler := website.NewHandler(
-		postgres.NewAuthenticator(db), postgres.NewUserStore(db),
-		postgres.NewPricingStorage(db, c.MapAPIKey), postgres.NewOrderStore(db, c.MapAPIKey),
-		postgres.NewTrackingStore(db), postgres.CitiesMap(),
-		postgres.PaymentOptionsMap(), postgres.ShipmentCategoriesMap(),
+		jwt.NewUserAuthenticator(c.SecretKey),
+		postgres.NewSystemData(),
+		postgres.NewAuthenticator(db),
+		postgres.NewUserStore(db),
+		postgres.NewPricingStorage(db, c.MapAPIKey),
+		postgres.NewOrderStore(db, c.MapAPIKey),
+		postgres.NewTrackingStore(db),
+		postgres.CitiesMap(),
+		postgres.PaymentOptionsMap(),
+		postgres.ShipmentCategoriesMap(),
 	)
 
 	router := website.NewRouter(handler)

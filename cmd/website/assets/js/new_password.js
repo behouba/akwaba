@@ -1,5 +1,13 @@
-//  action="/auth/password_request?uuid={{.uuid}}"
+//  action="/auth/change-password?uuid={{.uuid}}"
 //  method="POST"
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
+
 const dictionary = {
     en: {
         custom: {
@@ -20,7 +28,7 @@ Vue.use(VeeValidate, {
     events: 'blur',
     dictionary: dictionary,
 });
-var newPasswordApp = new Vue({
+new Vue({
     el: "#new-passsword-app",
     data() {
         return {
@@ -29,7 +37,7 @@ var newPasswordApp = new Vue({
             loading: false,
             done: false,
             error: null,
-            token: "{{.token}}",
+            token: getUrlParameter("token"),
         }
     },
     methods: {
@@ -41,7 +49,7 @@ var newPasswordApp = new Vue({
             }
             this.loading = true;
             try {
-                let response = await axios.post("/auth/password_request", { newPassword: this.password, token: this.token });
+                let response = await axios.post("/api/v0/auth/change-password", { newPassword: this.password, token: this.token });
                 console.log(response);
                 this.loading = false;
                 if (response.status === 200) {
@@ -53,7 +61,7 @@ var newPasswordApp = new Vue({
                 if (error.response) {
                     var status = error.response.status;
                     if (status === 409 || status === 500) {
-                        this.error = error.response.data.message;
+                        this.error = error.response.data.error;
                         window.location.reload();
                         return
                     }

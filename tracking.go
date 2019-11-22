@@ -64,7 +64,8 @@ func (s *Shipment) FormatTimeFR() (formatted string) {
 	formatted = fmt.Sprintf(
 		"%d %s, %d à %s",
 		s.TimeCreated.Day(),
-		s.TimeCreated.Month(), s.TimeCreated.Year(),
+		s.TimeCreated.Month(),
+		s.TimeCreated.Year(),
 		timeString,
 	)
 	return

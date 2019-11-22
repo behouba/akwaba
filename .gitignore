@@ -5,3 +5,5 @@ deploy*
 .ssh
 cmd/website/website
 cmd/admin/adminapi
+cmd/mailer/mailer
+DS_Store

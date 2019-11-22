@@ -27,8 +27,6 @@ var pricingApp = new Vue({
     methods: {
         async calculateCost() {
             this.loading = true;
-            // this.origin = this.$refs.origin.value;
-            // this.destination = this.$refs.destination.value;
             if (!this.origin || !this.destination || !this.categoryId) {
                 this.pricing = null;
                 this.loading = false;
@@ -36,7 +34,7 @@ var pricingApp = new Vue({
             }
             try {
                 let response = await axios.get(
-                    `/pricing/compute?origin=${this.origin}&destination=${this.destination}&categoryId=${this.categoryId}`,
+                    `/api/v0/pricing?origin=${this.origin}&destination=${this.destination}&categoryId=${this.categoryId}`,
                 )
                 this.pricing = response.data;
                 this.hasError = false;
@@ -51,7 +49,7 @@ var pricingApp = new Vue({
     },
     mounted() {
         const apiSettings = {
-            url: '/search/area?q={query}',
+            url: '/api/v0/areas?q={query}',
             onResponse: function (apiResponse) {
                 var response = {
                     results: [],
@@ -71,7 +69,7 @@ var pricingApp = new Vue({
 
         $("#origin").search({
             apiSettings: apiSettings,
-            minCharacters: 2,
+            minCharacters: 1,
             maxResults: 100,
             onSelect: (res, resp) => {
                 this.origin = res.title;
@@ -81,7 +79,7 @@ var pricingApp = new Vue({
         })
         $("#destination").search({
             apiSettings: apiSettings,
-            minCharacters: 2,
+            minCharacters: 1,
             maxResults: 100,
             onSelect: (res, resp) => {
                 this.destination = res.title;

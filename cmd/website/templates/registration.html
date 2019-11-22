@@ -9,8 +9,8 @@
     {{ template "common-head" .}}
     <link rel="stylesheet" href="../assets/css/blank.css">
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-the-mask@0.11.1/dist/vue-the-mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vee-validate/2.2.15/vee-validate.min.js"
+        integrity="sha256-m+taJnCBUpRECKCx5pbA0mw4ckdM2SvoNxgPMeUJU6E=" crossorigin="anonymous"></script>
     <title>INSCRIPTION</title>
 </head>
 
@@ -63,7 +63,7 @@
                         <div class="ui icon input">
                             <i class="eye link icon" @click="showPassword"></i>
                             <input placeholder="Mot de passe" type="password" value="{{.user.Password}}" name="password"
-                                id="password" v-validate="{required: true, min: 4}" autocomplete="new-password">
+                                id="password" v-validate="{required: true, min: 4}" autocomplete="change-password">
                         </div>
                         <span class="error-label" v-cloak>{ errors.first('password') }</span>
                     </div>
@@ -84,15 +84,22 @@
                         <span class="error-label" v-cloak>{ errors.first('email') }</span>
                     </div>
                     <div class="field">
-                        <input type="tel" placeholder="Numéro de mobile" name="phone" v-validate="{length: 16}"
-                            v-mask="'+225 ## ## ## ##'" autocomplete="off">
-                        <span class="error-label" v-cloak>{errors.first('phone')}</span>
+                        <div class="ui labeled input">
+                            <div class="ui basic label">
+                                +225
+                            </div>
+                            <input type="tel" placeholder="Numéro de mobile" name="phone" v-validate="{length: 8}"
+                                autocomplete="off">
+
+                            <span class="error-label" v-cloak>{errors.first('phone')}</span>
+                        </div>
+
                     </div>
                     <div class="field">
                         <div class="ui icon input">
                             <i class="eye link icon" @click="showPassword"></i>
                             <input placeholder="Mot de passe" type="password" name="password" id="password"
-                                v-validate="{required: true, min: 4}" autocomplete="new-password">
+                                v-validate="{required: true, min: 4}" autocomplete="change-password">
                         </div>
                         <span class="error-label" v-cloak>{ errors.first('password') }</span>
                     </div>

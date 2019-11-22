@@ -15,5 +15,5 @@ mail:
 
 
 websiteURL: "http://localhost:8080"
-logoURL: "https://test.akwabaexpress.ci/assets/img/logo-196.png"
-templatesDir: "./templates"
+logoURL: "https://akwabaexpress.ci/assets/img/logo-196.png"
+templatesDir: "templates/"

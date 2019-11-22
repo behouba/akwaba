@@ -26,7 +26,6 @@ const dictionary = {
 }
 
 Vue.options.delimiters = ['{', '}'];
-Vue.use(VueTheMask)
 Vue.use(VeeValidate, {
     mode: 'lazy',
     events: 'blur',
@@ -54,31 +53,6 @@ var registrationApp = new Vue({
             }
 
             $("#registrationForm").submit();
-
-            // this.loading = true;
-            // try {
-            //     let response = await axios.post("/auth/registration", this.user);
-            //     console.log(response);
-            //     const splitedURL = window.location.href.split('redirect=')
-            //     window.location.href = splitedURL.length > 1 ? splitedURL[1] : '/';
-            // } catch (error) {
-            //     this.loading = false;
-            //     console.log(error.response)
-            //     if (error.response) {
-            //         var status = error.response.status;
-            //         if (status === 401) {
-            //             this.error = error.response.data.message;
-            //             return
-            //         }
-            //         this.user = error.response.data.user;
-            //         console.log(error.response);
-            //     } else if (error.request) {
-            //         console.log(error.request);
-            //     } else {
-            //         // Something happened in setting up the request and triggered an Error
-            //         console.log('Error', error.message);
-            //     }
-            // }
             this.loading = false;
         }
     },

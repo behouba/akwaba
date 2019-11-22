@@ -28,7 +28,7 @@ func NewUserAuthenticator(secretKey string) *UserAuthenticator {
 
 // NewToken take User struct and create new jwt and return jwt string
 func (a *UserAuthenticator) NewToken(u *akwaba.User) (token string, err error) {
-	var duration = time.Now().Add(time.Hour * 1)
+	var duration = time.Now().Add(time.Hour * 8760)
 
 	a.claims = &userClaims{
 		User: *u,

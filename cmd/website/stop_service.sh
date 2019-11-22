@@ -1,2 +1,2 @@
 sudo su 
-systemctl restart website
+systemctl stop website

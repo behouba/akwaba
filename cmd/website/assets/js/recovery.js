@@ -41,7 +41,7 @@ var recoveryApp = new Vue({
                 return
             }
             try {
-                let response = await axios.post("/auth/recovery?email=" + this.email);
+                let response = await axios.post("/api/v0/auth/recovery?email=" + this.email);
                 console.log(response);
                 this.loading = false;
                 this.error = null;
@@ -54,7 +54,7 @@ var recoveryApp = new Vue({
                 this.loading = false;
                 console.log(error.response)
                 if (error.response) {
-                    this.error = error.response.data.message;
+                    this.error = error.response.data.error;
                 } else if (error.request) {
                     console.log(error.request);
                 } else {

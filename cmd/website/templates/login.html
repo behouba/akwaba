@@ -9,7 +9,8 @@
     {{ template "common-head" .}}
     <link rel="stylesheet" href="../assets/css/blank.css">
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vee-validate/2.2.15/vee-validate.min.js"
+        integrity="sha256-m+taJnCBUpRECKCx5pbA0mw4ckdM2SvoNxgPMeUJU6E=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-the-mask@0.11.1/dist/vue-the-mask.min.js"></script>
     <title>Connectez vous à votre compte personnel Akwaba Express</title>
 </head>
@@ -21,9 +22,6 @@
                 <a href="/" class="header_logo"></a>
                 </a>
             </div>
-            <!-- <P class="center">Inscrivez-vous pour enregistrer les numéros de suivi de vos colis et recevoir des
-                notifications.
-            </P> -->
             <div class="id-container">
                 <h3 class="ui center red">
                     CONNEXION
@@ -36,7 +34,7 @@
                         </div>
                         {{if .isRedirect }}
                         <div class="ui message positive">
-                            Pour commencer à envoyer des colis, connectez-vous ou inscrivez-vous.
+                            Merci de vous connecter ou de créer votre compte avant de poursuivre.
                         </div>
                         {{end}}
                         {{if .error }}
@@ -48,7 +46,7 @@
                         </div>
                         <div class="field">
                             <input type="password" placeholder="Mot de passe" name="password" value="{{.password}}"
-                                v-validate="{required: true, min: 4}" autocomplete="new-password">
+                                v-validate="{required: true, min: 4}" autocomplete="change-password">
                             <span class="error-label" v-cloak>{ errors.first('password') }</span>
                         </div>
                         {{ else }}
@@ -80,7 +78,7 @@
     </div>
 </body>
 <script src="../assets/js/semantic.min.js"></script>
-<script src="../assets/js/login.js"></script>
+<script defer src="../assets/js/login.js"></script>
 
 </html>
 {{end}}

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 
@@ -109,11 +110,10 @@ func (a *OrdersManagementStore) ClosedOrders(date string) (orders []akwaba.Order
 	for rows.Next() {
 		var o akwaba.Order
 		err = rows.Scan(
-			&o.ID, &o.UserID, &o.TimeCreated, &o.TimeClosed,
+			&o.ID, &o.ShipmentID, &o.UserID, &o.TimeCreated, &o.TimeClosed,
 			&o.Sender.Name, &o.Sender.Phone, &o.Sender.Area.ID, &o.Sender.Area.Name,
-			&o.Sender.Address, &o.Recipient.Name,
-			&o.Recipient.Phone, &o.Recipient.Area.ID, &o.Recipient.Area.Name,
-			&o.Recipient.Address, &o.Category.ID, &o.Category.Name,
+			&o.Sender.Address, &o.Recipient.Name, &o.Recipient.Phone, &o.Recipient.Area.ID,
+			&o.Recipient.Area.Name, &o.Recipient.Address, &o.Category.ID, &o.Category.Name,
 			&o.Nature, &o.PaymentOption.ID, &o.PaymentOption.Name, &o.Cost, &o.Distance,
 			&o.State.ID, &o.State.Name,
 		)
@@ -158,6 +158,7 @@ func (a *OrdersManagementStore) Save(o *akwaba.Order) (err error) {
 	return
 }
 
+// Cancel function take order id and cancel
 func (o *OrdersManagementStore) Cancel(orderID uint64) (err error) {
 	var shipmentID uint64
 	var shipmentStateID uint8
@@ -165,6 +166,16 @@ func (o *OrdersManagementStore) Cancel(orderID uint64) (err error) {
 		`SELECT shipment_id, shipment_state_id FROM shipments WHERE order_id=$1`,
 		orderID,
 	).Scan(&shipmentID, &shipmentStateID)
+	if err == sql.ErrNoRows {
+		_, err = o.db.Exec(
+			`UPDATE orders 
+			SET order_state_id=$1 
+			WHERE order_id=$2 AND order_state_id=$3`,
+			akwaba.OrderStateCanceledID, orderID, akwaba.OrderStatePendingID,
+		)
+		return
+	}
+
 	if err != nil {
 		return
 	}

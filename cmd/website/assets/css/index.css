@@ -41,6 +41,10 @@ a, img, .logo, .link, .red, .item {
         margin-top: 35px;
     }
 
+    .ui.labeled.input:not([class*="corner labeled"]) .label:first-child {
+        border-radius: 0;
+    }
+
 
     header {
         font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
@@ -49,16 +53,20 @@ a, img, .logo, .link, .red, .item {
     /* end of header styling */
 
     #home-landing {
-        background-image: url("https://upload.wikimedia.org/wikipedia/commons/6/61/Wegmann_Abidjan_IvoryCoast.jpg");
-        min-height: 470px;
+        background-image: url("../img/Abidjan01.jpeg");
+        width: 100%;
+        height: auto;
         background-size: cover;
         padding: 100px 0px;
     }
 
+    #tracking-form{
+        margin-top: 30px;
+    }
 
     #presentation-section {
-        background-image: url("https://pargo.co.za/wp-content/uploads/2019/01/cross-border-click-and-collect-south-africa.jpg");
-        background-size: cover;
+        /* background-image: url("https://www.mapcom.com/wp-content/uploads/2015/11/dept-osp-banner-forweb.jpg");
+        background-size: cover; */
         min-height: 470px;
         padding-top: 100px;
         padding-bottom: 100px;
@@ -70,7 +78,14 @@ a, img, .logo, .link, .red, .item {
         color: #B02025 !important;
     }
 
+.explanation-icon {
+    text-align: center !important;
+    margin-top: 50px;
+}
 
+.explanation p {
+    text-align: center !important;
+}
     .big-text {
         font-size: 3rem;
         line-height: 1.28;
@@ -197,20 +212,16 @@ a, img, .logo, .link, .red, .item {
     /* service */
     #services-head {
         width: 100%;
-        min-height: 300px;
-        background-image: url("https://www.wapecc.com/wp-content/uploads/2018/08/CP54TP_70_cropped-1-1168x695.jpg");
+        height: auto;
+        background-image: url("../img/Abidjan03.jpg");
         background-size: cover;
     }
 
-    #services-head p {
-        line-height: 1.28;
+    #services-head h3 {
         font-weight: 500;
-        line-height: 1.6;
-        font-size: 2em;
-        text-transform: uppercase;
         color: white;
-        text-align: center;
-        padding: 50px 0px;
+        /* text-align: center; */
+        padding: 100px 0px;
     }
 
     .service-row {
@@ -378,7 +389,7 @@ select {
     }
 
     .search-input {
-        min-width: 500px;
+        min-width: 400px;
     }
     #map {
         min-height: 550px;

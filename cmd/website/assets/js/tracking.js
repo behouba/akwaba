@@ -28,7 +28,7 @@ new Vue({
             this.error.hasError = false;
             this.error.message = ''
             try {
-                var response = await axios.get(`/shipment/tracking?id=${this.shipmentId}`)
+                var response = await axios.get(`/api/v0/tracking?id=${this.shipmentId}`)
                 this.tracking = response.data.tracking || null;
 
                 $(".details").slideToggle(300);
@@ -37,7 +37,7 @@ new Vue({
                 console.log(error)
                 this.error.hasError = true;
                 if (error.response) {
-                    this.error.message = error.response.data.message || error;
+                    this.error.message = error.response.data.error || error;
                 }
             }
             this.loading = false;

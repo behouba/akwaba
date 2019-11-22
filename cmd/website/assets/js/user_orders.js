@@ -50,7 +50,7 @@ new Vue({
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
                     console.log(error.response);
-                    alert(error.response.data.message || error.response)
+                    alert(error.response.data.error || error.response)
                 } else if (error.request) {
                     // The request was made but no response was received
                     // `error.request` is an instance of XMLHttpRequest in the browser and an instance of

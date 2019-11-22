@@ -34,7 +34,6 @@ const dictionary = {
 }
 
 Vue.options.delimiters = ['{', '}'];
-Vue.use(VueTheMask)
 Vue.use(VeeValidate, {
     mode: 'lazy',
     events: 'blur',
@@ -100,7 +99,7 @@ var orderApp = new Vue({
                 if (error.response) {
                     var status = error.response.status;
                     if (status === 409 || status === 500) {
-                        this.error = error.response.data.message;
+                        this.error = error.response.data.error;
                         return
                     }
                 } else if (error.request) {
@@ -120,7 +119,7 @@ var orderApp = new Vue({
         this.order.recipient.area.name = urlParams.get('destination') || this.$refs.destinationPlace.value;
         this.order.category.id = Number(urlParams.get('categoryId') || this.$refs.category.dataset.categoryId);
         axios.get(
-            `/pricing/compute?origin=${this.order.sender.area.name}&destination=${this.order.recipient.area.name}&categoryId=${this.order.category.id}`,
+            `/api/v0/pricing?origin=${this.order.sender.area.name}&destination=${this.order.recipient.area.name}&categoryId=${this.order.category.id}`,
         ).then(response => {
             this.cost = response.data.cost;
             console.log(response);

@@ -7,4 +7,7 @@ database:
   password: "mana"
   dbName: "akwaba_express_dev"
 
+
+secretKey: "$GPzMX9x~jn5R#,A"
+
 mapApiKey: "AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI"

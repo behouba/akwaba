@@ -15,7 +15,6 @@ const dictionary = {
 }
 
 Vue.options.delimiters = ['{', '}'];
-Vue.use(VueTheMask)
 Vue.use(VeeValidate, {
     mode: 'lazy',
     events: 'blur',
@@ -23,7 +22,7 @@ Vue.use(VeeValidate, {
 });
 // action="/auth/registration" method="POST"
 
-var loginApp = new Vue({
+new Vue({
     el: "#login-app",
     data() {
         return {

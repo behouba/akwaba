@@ -8,14 +8,20 @@ import (
 )
 
 const (
-	templatesPath = "./templates/*"
-	assetsPath    = "./assets"
-	// templatesPath = "./cmd/website/templates/*"
-	// assetsPath    = "./cmd/website/assets"
+	templatesPath = "templates/*"
+	assetsPath    = "assets/"
+	apiPath       = "/api"
+	version       = "/v0"
+	authPath      = "/auth"
+	orderPath     = "/order"
+	profilePah    = "/profile"
+	pricingPath   = "/pricing"
 )
 
 // Handler represents the website  handler methods set
 type Handler struct {
+	jwt                akwaba.UserTokenService
+	sysData            akwaba.SystemData
 	auth               akwaba.UserAuthentifier
 	userStore          akwaba.UserStorage
 	pricing            akwaba.PricingService
@@ -33,96 +39,106 @@ func NewRouter(h *Handler) *gin.Engine {
 	r.Static("/assets", assetsPath)
 	store := cookie.NewStore([]byte("akwaba"))
 	r.Use(sessions.Sessions("akwaba-auth", store))
+	// gin.SetMode(gin.ReleaseMode)
 
-	gin.SetMode(gin.ReleaseMode)
-
-	auth := r.Group("/auth")
-	auth.Use(alreadyAuthenticated)
+	auth := r.Group(authPath)
+	auth.Use(h.alreadyAuthenticated)
 	{
 		auth.GET("/login", h.loginHTML)
-		auth.POST("/login", h.handleLogin)
-		auth.GET("/registration", h.registration)
-		auth.POST("/registration", h.handleRegistration)
-		auth.GET("/recovery", h.recovery)
-		auth.POST("/recovery", h.handleRecovery)
-		auth.GET("/password_request", h.newPasswordRequest)
-		auth.POST("/password_request", h.handleNewPasswordRequest)
+		auth.POST("/login", h.handleLoginForm)
+		auth.GET("/registration", h.registrationHTML)
+		auth.POST("/registration", h.handleRegistrationForm)
+		auth.GET("/recovery", h.recoveryHTML)
+		auth.GET("/change-password", h.changePasswordHTML)
 	}
 
-	order := r.Group("/order")
+	order := r.Group(orderPath)
 	{
-		order.GET("/pricing", h.orderPricing)
-		order.GET("/form", authRequired, h.orderForm)
-		order.POST("/create", authRequired, h.handleOrderCreation)
-		// order.GET("/info/:id", authRequired, h.orderInfo)
-		order.GET("/success", authRequired, h.orderSuccess)
-		order.PATCH("/cancel/:orderId", authRequired, h.cancelOrder)
+		order.GET("/pricing", h.orderPricingHTML)
+		order.GET("/form", h.authRequired, h.orderForm)
+		order.POST("/create", h.authRequired, h.handleOrderCreation)
+		order.GET("/success", h.authRequired, h.orderSuccess)
+		order.PATCH("/cancel/:orderId", h.authRequired, h.cancelOrder)
 	}
 
-	profile := r.Group("/profile")
-	profile.Use(authRequired)
+	profile := r.Group(profilePah)
+	profile.Use(h.authRequired)
 	{
-		profile.GET("/settings", h.settings)
+		profile.GET("/settings", h.settingsHTML)
 		profile.GET("/data", h.profileData)
-		profile.GET("/my_orders", h.userOrders)
+		profile.GET("/my_orders", h.userOrdersHTML)
 		profile.GET("/orders", h.orders)
 		profile.POST("/update", h.updateProfile)
 		profile.POST("/update-password", h.updatePassword)
 		profile.GET("/update-password", h.updatePasswordHTML)
 	}
 
-	pricing := r.Group("/pricing")
-	{
-		pricing.GET("/compute", h.computePrice)
-	}
-
-	search := r.Group("/search")
-	{
-		search.GET("/area", h.searchArea)
-	}
-	shipment := r.Group("/shipment")
-	{
-		shipment.GET("/tracking", h.trackShipment)
-	}
-
 	r.GET("/auth/logout", h.logout)
 
-	r.GET("/", h.home)
-	r.GET("/services", h.services)
-	r.GET("/tracking", h.tracking)
-	r.GET("/about", h.about)
-	r.GET("/general-conditions", h.conditions)
-	r.GET("/privacy-policy", h.privacyPolicy)
+	r.GET("/", h.homeHTML)
+	r.GET("/services", h.servicesHTML)
+	r.GET("/tracking", h.trackingHTML)
+	r.GET("/about", h.aboutHTML)
+	r.GET("/general-conditions", h.conditionsHTML)
+	r.GET("/privacy-policy", h.privacyPolicyHTML)
+
+	// API Handlers, plan to make this api only server to serve spa and mobile app
+	api := r.Group(apiPath)
+	{
+		v := api.Group(version)
+		{
+
+			auth := v.Group(authPath)
+			auth.GET("/check", h.jwtAuthRequired)
+
+			auth.Use(h.nonJWTAuthenticated)
+			{
+				auth.POST("/login", h.handleLogin)
+				auth.POST("/registration", h.handleRegistration)
+				auth.POST("/recovery", h.handleRecovery)
+				auth.POST("/change-password", h.alreadyAuthenticated, h.handleChangePassword)
+			}
+
+			order := v.Group(orderPath)
+			order.Use(h.jwtAuthRequired)
+			{
+				order.POST("/create", h.handleOrderCreation)
+				order.PATCH("/cancel", h.cancelOrder)
+			}
+
+			profile := v.Group(profilePah)
+			profile.Use(h.jwtAuthRequired)
+			{
+				profile.GET("/data", h.profileData)
+				profile.GET("/orders", h.orders)
+				profile.POST("/update", h.updateProfile)
+				profile.POST("/update-password", h.updatePassword)
+			}
+
+			v.GET("/pricing", h.computePrice)
+			v.GET("/areas", h.areas)
+			v.GET("/tracking", h.trackShipment)
+			v.GET("/offices", h.offices)
+		}
+	}
 
 	r.NoRoute(func(c *gin.Context) {
 		c.HTML(404, "404", nil)
 	})
-
 	return r
 }
 
-// NewHandler create take configurations info and return new user handler
-// auth               akwaba.UserAuthentifier
-// 	userStore      akwaba.UserStorage
-// 	mailer             akwaba.UserMailer
-// 	pricing         akwaba.ShipmentCalculator
-// 	orderStore         akwaba.OrderService
-// 	cities             akwaba.KeyVal
-// 	paymentOptions     akwaba.KeyVal
-// 	shipmentCategories akwaba.KeyVal
 func NewHandler(
+	jwt akwaba.UserTokenService,
+	sysData akwaba.SystemData,
 	auth akwaba.UserAuthentifier, userStore akwaba.UserStorage,
 	pricing akwaba.PricingService, orderStore akwaba.OrderService,
 	tracker akwaba.Tracker,
 	cities akwaba.KeyVal, paymentOptions akwaba.KeyVal, shipmentCategories akwaba.KeyVal,
 ) *Handler {
-	// db, err := postgres.Open(c.DB)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	panic(err)
-	// }
-
 	return &Handler{
+		jwt:                jwt,
+		sysData:            sysData,
 		auth:               auth,
 		userStore:          userStore,
 		pricing:            pricing,

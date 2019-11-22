@@ -8,6 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (h *Handler) trackingHTML(c *gin.Context) {
+
+	c.HTML(http.StatusOK, "tracking", gin.H{
+		"user": sessionUser(c),
+	})
+}
+
 func (h *Handler) trackShipment(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Query("id"), 10, 64)
 	if err != nil {
@@ -23,7 +30,7 @@ func (h *Handler) trackShipment(c *gin.Context) {
 		tracking, err = h.tracker.TrackByOrderID(id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": err.Error(),
+				"error": err.Error(),
 			})
 			return
 		}
@@ -33,4 +40,8 @@ func (h *Handler) trackShipment(c *gin.Context) {
 		"tracking": tracking,
 	})
 
+}
+
+func (h *Handler) offices(c *gin.Context) {
+	c.JSON(http.StatusOK, h.sysData.Offices())
 }

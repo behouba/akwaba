@@ -6,4 +6,5 @@ type SystemData interface {
 	Areas() []Area
 	PaymentOptions() []PaymentOption
 	ShipmentCategories() []ShipmentCategory
+	Offices() []Office
 }

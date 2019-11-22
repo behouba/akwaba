@@ -6,8 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../assets/js/axios.min.js"></script>
     {{ template "common-head" .}}
-    <title>QUI SOMMES NOUS ?</title>
+    <title>Qui sommes nous ?</title>
 </head>
 
 
@@ -104,48 +105,16 @@
             <div style="margin-top: 30px">
                 <h3 class="ui dividing header center">TROUVEZ L'AGENCE LA PLUS PROCHE DE CHEZ VOUS </h3>
                 <div class="ui grid stackable center" style="margin-top: 20px;">
+                    {{ range .offices }}
                     <div class="four wide column">
                         <h3 class="ui header">
-                            Adjamé Williamsville
+                            {{ .Name }}
                         </h3>
-                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
+                        <div class="phone">
+                            <a href="tel:{{.Phone1}}">{{.Phone1}}</a> /
+                            <a href="tel:{{.Phone2}}">{{.Phone2}}</a></div>
                     </div>
-                    <div class="four wide column">
-                        <h3 class="ui header">
-                            Adjamé Saint Michel
-                        </h3>
-                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
-                    </div>
-                    <div class="four wide column">
-                        <h3 class="ui header">
-                            Abobo
-                        </h3>
-                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
-                    </div>
-                    <div class="four wide column">
-                        <h3 class="ui header">
-                            Cocody
-                        </h3>
-                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
-                    </div>
-                    <div class="four wide column">
-                        <h3 class="ui header">
-                            Koumassi
-                        </h3>
-                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
-                    </div>
-                    <div class="four wide column">
-                        <h3 class="ui header">
-                            Yopougon
-                        </h3>
-                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
-                    </div>
-                    <div class="four wide column">
-                        <h3 class="ui header">
-                            Port-Bouët
-                        </h3>
-                        <div class="phone"><a href="tel:+22520370174">+225 20 37 01 74</a></div>
-                    </div>
+                    {{ end}}
                 </div>
             </div>
         </div>
@@ -153,22 +122,7 @@
         {{template "footer" ""}}
     </div>
 </body>
-<script>
-    function initMap() {
-        var myLatLng = { lat: 5.345317, lng: -4.024429 };
-
-        var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 11,
-            center: myLatLng
-        });
-
-        var marker = new google.maps.Marker({
-            position: { lat: 5.363538, lng: -4.018281 },
-            map: map,
-            title: 'Akwaba Express',
-        });
-    }
-</script>
+<script src="../assets/js/about.js"></script>
 
 <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAI1zZziSSz60c-2tYf2HteTS77X71kWI4&callback=initMap"></script>

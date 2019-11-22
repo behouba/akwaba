@@ -21,7 +21,7 @@ type config struct {
 	TemplatesDir string           `yaml:"templatesDir"`
 }
 
-var configFile = "dev-config.yml"
+var configFile = "prod-config.yml"
 
 func main() {
 	var c config

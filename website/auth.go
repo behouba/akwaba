@@ -28,7 +28,17 @@ func sendRecoveryEmail(email, token string) (err error) {
 	return
 }
 
-func (h *Handler) handleLogin(c *gin.Context) {
+/* ---HTML--- */
+func (h *Handler) loginHTML(c *gin.Context) {
+	_, isRedirect := c.GetQuery("redirect")
+
+	log.Println(isRedirect)
+	c.HTML(http.StatusOK, "login", gin.H{
+		"isRedirect": isRedirect,
+	})
+}
+
+func (h *Handler) handleLoginForm(c *gin.Context) {
 	email, password := c.PostForm("email"), c.PostForm("password")
 
 	user, err := h.auth.Authenticate(email, password, c.ClientIP())
@@ -53,11 +63,11 @@ func (h *Handler) handleLogin(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/")
 }
 
-func (h *Handler) registration(c *gin.Context) {
+func (h *Handler) registrationHTML(c *gin.Context) {
 	c.HTML(http.StatusOK, "registration", gin.H{})
 }
 
-func (h *Handler) handleRegistration(c *gin.Context) {
+func (h *Handler) handleRegistrationForm(c *gin.Context) {
 	var user akwaba.User
 	user.FirstName = c.PostForm("firstName")
 	user.LastName = c.PostForm("lastName")
@@ -91,8 +101,125 @@ func (h *Handler) handleRegistration(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/")
 }
 
-func (h *Handler) recovery(c *gin.Context) {
+func (h *Handler) recoveryHTML(c *gin.Context) {
 	c.HTML(http.StatusOK, "recovery", gin.H{})
+}
+
+func (h *Handler) changePasswordHTML(c *gin.Context) {
+	token := c.Query("token")
+	_, err := h.auth.CheckRecoveryToken(token)
+	if err != nil {
+		log.Println(err)
+		c.HTML(http.StatusOK, "recovery-exp", gin.H{
+			"error": "Ce lien de récuperation n'est plus valide ou n'existe pas",
+		})
+		return
+	}
+	c.HTML(http.StatusOK, "change-password", gin.H{
+		"token": token,
+	})
+}
+
+func (h *Handler) authRequired(c *gin.Context) {
+	user := sessionUser(c)
+	if user.ID == 0 {
+		c.Redirect(http.StatusTemporaryRedirect, "/auth/login"+"?redirect="+c.Request.URL.String())
+		c.Abort()
+		return
+	}
+	c.Next()
+}
+
+func (h *Handler) alreadyAuthenticated(c *gin.Context) {
+	user := sessionUser(c)
+	if user.ID != 0 {
+		c.Redirect(http.StatusSeeOther, "/")
+		return
+	}
+	c.Next()
+}
+
+func handleRegistrationError(c *gin.Context) {
+
+}
+
+func (h *Handler) logout(c *gin.Context) {
+	destroySessionUser(c)
+	c.Redirect(http.StatusSeeOther, "/")
+}
+
+/* ---API--- */
+func (h *Handler) handleLogin(c *gin.Context) {
+
+	data := struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}{}
+
+	err := c.ShouldBindJSON(&data)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	user, err := h.auth.Authenticate(data.Email, data.Password, c.ClientIP())
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	token, err := h.jwt.NewToken(&user)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+		"user":  user,
+	})
+}
+
+func (h *Handler) handleRegistration(c *gin.Context) {
+	var user akwaba.User
+
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = h.userStore.Save(&user)
+	if err != nil {
+		log.Println("has error", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	token, err := h.jwt.NewToken(&user)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+		"user":  user,
+	})
 }
 
 func (h *Handler) handleRecovery(c *gin.Context) {
@@ -100,14 +227,17 @@ func (h *Handler) handleRecovery(c *gin.Context) {
 	user, err := h.userStore.UserByEmail(email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"email":   email,
-			"message": "L'email saisi est inconnu",
+			"error": err.Error(),
 		})
 		return
 	}
 	token, err := h.auth.SetRecoveryToken(user.Email)
 	if err != nil {
 		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
 	log.Println(token)
 	// use token to send request to notifier server.
@@ -123,29 +253,14 @@ func (h *Handler) handleRecovery(c *gin.Context) {
 	})
 }
 
-func (h *Handler) newPasswordRequest(c *gin.Context) {
-	token := c.Query("token")
-	_, err := h.auth.CheckRecoveryToken(token)
-	if err != nil {
-		log.Println(err)
-		c.HTML(http.StatusOK, "recovery-exp", gin.H{
-			"error": "Ce lien de récuperation n'est plus valide ou n'existe pas",
-		})
-		return
-	}
-	c.HTML(http.StatusOK, "new-password", gin.H{
-		"token": token,
-	})
-}
-
-func (h *Handler) handleNewPasswordRequest(c *gin.Context) {
+func (h *Handler) handleChangePassword(c *gin.Context) {
 	data := struct {
 		Token       string `json:"token"`
 		NewPassword string `json:"newPassword"`
 	}{}
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"error": err.Error(),
 		})
 		return
 	}
@@ -176,31 +291,26 @@ func (h *Handler) handleNewPasswordRequest(c *gin.Context) {
 	})
 }
 
-func authRequired(c *gin.Context) {
-	user := sessionUser(c)
+func (h *Handler) jwtAuthRequired(c *gin.Context) {
+	user := h.apiUser(c)
+	fmt.Println(user.ID)
 	if user.ID == 0 {
-		c.Redirect(http.StatusTemporaryRedirect, "/auth/login"+"?redirect="+c.Request.URL.String())
-		c.Abort()
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"error": "L'access à cet API ne vous est pas authorisé.",
+		})
 		return
-	} else {
-		c.Next()
 	}
-}
 
-func alreadyAuthenticated(c *gin.Context) {
-	user := sessionUser(c)
-	if user.ID != 0 {
-		c.Redirect(http.StatusSeeOther, "/")
-		return
-	}
 	c.Next()
 }
 
-func handleRegistrationError(c *gin.Context) {
-
-}
-
-func (h *Handler) logout(c *gin.Context) {
-	destroySessionUser(c)
-	c.Redirect(http.StatusSeeOther, "/")
+func (h *Handler) nonJWTAuthenticated(c *gin.Context) {
+	user := h.apiUser(c)
+	if user.ID != 0 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "Vous êtes déja authentifié.",
+		})
+		return
+	}
+	c.Next()
 }

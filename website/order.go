@@ -16,6 +16,13 @@ func sendOrderCreationEmail(orderID uint64) (err error) {
 	return
 }
 
+func (h *Handler) orderPricingHTML(c *gin.Context) {
+	c.HTML(http.StatusOK, "order-pricing", gin.H{
+		"user":               sessionUser(c),
+		"shipmentCategories": h.shipmentCategories,
+	})
+}
+
 func (h *Handler) orderForm(c *gin.Context) {
 	categoryID, _ := strconv.Atoi(c.Query("categoryId"))
 
@@ -31,11 +38,11 @@ func (h *Handler) orderForm(c *gin.Context) {
 
 func (h *Handler) handleOrderCreation(c *gin.Context) {
 	var order akwaba.Order
-	user := sessionUser(c)
+	user := h.contextUser(c)
 
 	if err := c.ShouldBindJSON(&order); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"error": err.Error(),
 		})
 		log.Println(err)
 		return
@@ -47,7 +54,7 @@ func (h *Handler) handleOrderCreation(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
+			"error": err.Error(),
 		})
 		return
 	}
@@ -89,15 +96,15 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 	orderID, err := strconv.ParseUint(c.Param("orderId"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"error": err.Error(),
 		})
 		return
 	}
-	user := sessionUser(c)
+	user := h.contextUser(c)
 	order, err := h.orderStore.Order(orderID, user.ID)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": err.Error(),
+			"error": err.Error(),
 		})
 		return
 	}
@@ -110,7 +117,7 @@ func (h *Handler) cancelOrder(c *gin.Context) {
 	err = h.orderStore.Cancel(orderID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
+			"error": err.Error(),
 		})
 		return
 	}

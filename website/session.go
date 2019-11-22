@@ -1,17 +1,22 @@
 package website
 
 import (
-	"fmt"
-
 	"github.com/behouba/akwaba"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
+func (h *Handler) contextUser(c *gin.Context) (user akwaba.User) {
+	user = sessionUser(c)
+	if user.ID != 0 {
+		return
+	}
+	return h.apiUser(c)
+}
+
 func sessionUser(c *gin.Context) (user akwaba.User) {
 	s := sessions.Default(c)
 	user, _ = s.Get("sessionUser").(akwaba.User)
-	fmt.Println(user)
 	return
 }
 

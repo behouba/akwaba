@@ -22,7 +22,6 @@ const dictionary = {
 }
 
 Vue.options.delimiters = ['{', '}'];
-Vue.use(VueTheMask)
 Vue.use(VeeValidate, {
     mode: 'lazy',
     events: 'blur',
@@ -63,7 +62,7 @@ var app = new Vue({
                     $('html,body').animate({ scrollTop: 0 }, 200);
                     var status = error.response.status;
                     if (status === 409 || status === 500) {
-                        this.error = error.response.data.message;
+                        this.error = error.response.data.error;
                         return
                     }
                     this.user = error.response.data.user;

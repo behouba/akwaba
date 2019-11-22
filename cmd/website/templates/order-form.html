@@ -9,7 +9,8 @@
     {{ template "common-head" .}}
     <script src="../assets/js/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vee-validate/2.2.15/vee-validate.min.js"
+        integrity="sha256-m+taJnCBUpRECKCx5pbA0mw4ckdM2SvoNxgPMeUJU6E=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-the-mask@0.11.1/dist/vue-the-mask.min.js"></script>
     <title>Commande de livraison Akwaba Express</title>
 </head>
@@ -142,8 +143,13 @@
                     </div>
                     <div class="field required">
                         <label>Téléphone</label>
-                        <input type="tel" ref="senderPhoneInput" v-validate="{required: true, length: 16}"
-                            v-mask="'+225 ## ## ## ##'" name="senderPhone" v-model="order.sender.phone">
+                        <div class="ui labeled input">
+                            <div class="ui basic label">
+                                +225
+                            </div>
+                            <input type="tel" ref="senderPhoneInput" v-validate="{required: true, length: 8}"
+                                name="senderPhone" v-model="order.sender.phone">
+                        </div>
                         <span class="error-label" class="error-label" v-cloak>{ errors.first('senderPhone') }</span>
                     </div>
 
@@ -168,10 +174,15 @@
                     </div>
                     <div class="field required">
                         <label>Téléphone</label>
-                        <input type="tel" ref="recipientPhoneInput" name="recipientPhone"
-                            v-model="order.recipient.phone" v-validate="{required: true, length: 16}"
-                            v-mask="'+225 ## ## ## ##'">
+                        <div class="ui labeled input">
+                            <div class="ui basic label">
+                                +225
+                            </div>
+                            <input type="tel" ref="recipientPhoneInput" name="recipientPhone"
+                                v-model="order.recipient.phone" v-validate="{required: true, length: 8}">
+                        </div>
                         <span class="error-label" v-cloak>{errors.first('recipientPhone')}</span>
+
                     </div>
                     <h3 class="ui dividing header">INFORMATION SUR LE COLIS</h3>
                     <div class="two fields">
@@ -219,7 +230,7 @@
                     <img src="../assets/img/dots_loader.gif">
                 </div>
                 <div v-else id="price" v-cloak>
-                    Frais de la livraison <strong>{cost.toLocaleString()} FCFA</strong>
+                    Frais de livraison <strong>{cost.toLocaleString()} FCFA</strong>
                 </div>
             </div>
         </div>
