@@ -1,5 +1,7 @@
 package akwaba
 
+import "context"
+
 // User account type eather regular or professional
 const (
 	RegularAccountTypeID      uint8 = 1
@@ -21,18 +23,30 @@ type User struct {
 	IsActive        bool   `json:"isActive"`
 }
 
-// UserAuthentifier define user authentication interface
-type UserAuthentifier interface {
-	Authenticate(email, password, ip string) (User, error)
-	SetRecoveryToken(email string) (string, error)
-	CheckRecoveryToken(token string) (uint, error)
-	UpdatePassword(userID uint, uuid, newPassword string) error
+// AccountStore define user storage interface
+type AccountStore interface {
+	UserByEmail(ctx context.Context, email string) (user User, err error)
+	// UserByID(ctx context.Context, userID string) (user User, err error)
+	Save(ctx context.Context, c *User) error
+	UpdateUserInfo(ctx context.Context, data *User) error
+	UpdatePassword(ctx context.Context, userID uint, current, new string) error
+	Authenticate(ctx context.Context, email, password, ip string) (User, error)
+	SetRecoveryToken(ctx context.Context, email string) (string, error)
+	CheckRecoveryToken(ctx context.Context, token string) (uint, error)
+	SaveNewPassword(ctx context.Context, userID uint, uuid, newPassword string) error
 }
 
-// UserStorage define user storage interface
-type UserStorage interface {
-	UserByEmail(email string) (user User, err error)
-	Save(c *User) error
-	Update(data *User) error
-	UpdatePassword(current, new string, custID uint) error
+type OrderStore interface {
+	OrderPicker
+	OrderSaverCanceler
+}
+
+type OrderPicker interface {
+	Orders(ctx context.Context, userID uint, offset uint64) (orders []Order, err error)
+	Order(ctx context.Context, orderID uint64, userID uint) (order Order, err error)
+}
+
+type OrderSaverCanceler interface {
+	SaveOrder(ctx context.Context, o *Order) (err error)
+	CancelOrder(ctx context.Context, id uint64) (err error)
 }

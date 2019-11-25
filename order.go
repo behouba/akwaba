@@ -66,23 +66,8 @@ func (nt *NullTime) MarshalJSON() ([]byte, error) {
 	return []byte(val), nil
 }
 
-type OrderService interface {
-	OrderPicker
-	OrderSaverCanceler
-}
-
 type StateUpdater interface {
 	UpdateState(ID uint64, stateID uint8) error
-}
-
-type OrderPicker interface {
-	Orders(userID uint, offset uint64) (orders []Order, err error)
-	Order(orderID uint64, userID uint) (order Order, err error)
-}
-
-type OrderSaverCanceler interface {
-	Save(o *Order) (err error)
-	Cancel(id uint64) (err error)
 }
 
 type OrdersGatherer interface {

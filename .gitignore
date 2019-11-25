@@ -3,7 +3,5 @@ store/*
 prod-*.yml
 deploy*
 .ssh
-cmd/website/website
-cmd/adminapi/adminapi
-cmd/mailer/mailer
-DS_Store
+/bin
+*DS_Store*

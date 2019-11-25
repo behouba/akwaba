@@ -1,0 +1,16 @@
+port: ":8088"
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "behouba"
+  password: "mana"
+  dbName: "akwaba_express_dev"
+
+
+secretKey: "$GPzMX9x~jn5R#,A"
+
+mapApiKey: "AIzaSyC3yF2GOndSJqklHFWyMoEIHus91xFYjaI"
+
+templatesPath: "web/site/templates/*"
+assetsPath: "web/site/assets/"

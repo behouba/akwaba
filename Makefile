@@ -14,13 +14,11 @@ A_ENTRY_DIR=./cmd/adminapi
 # notifier entry directory
 N_ENTRY_DIR=./cmd/mailer
 # mobileapi entrey directory
-M_ENTRY_DIR=./cmd/mobileapi
 
 # binary names
-W_BINARY=website
-A_BINARY=adminapi
-N_BINARY=mailer
-M_BINARY=mobileapi
+W_BINARY=./bin/website
+A_BINARY=./bin/adminapi
+N_BINARY=./bin/mailer
 
 # configuration files
 CONFIG_FILE=dev-config.yml

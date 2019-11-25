@@ -7,21 +7,21 @@ import (
 	"os"
 	"time"
 
-	"github.com/behouba/akwaba/mailer"
-	"github.com/behouba/akwaba/postgres"
+	"github.com/behouba/akwaba/mailserver"
+	postgres "github.com/behouba/akwaba/storage"
 	"gopkg.in/yaml.v2"
 )
 
 type config struct {
-	Port         string           `yaml:"port"`
-	DB           *postgres.Config `yaml:"database"`
-	MailConfig   *mailer.Config   `yaml:"mail"`
-	WebsiteURL   string           `yaml:"websiteURL"`
-	LogoURL      string           `yaml:"logoURL"`
-	TemplatesDir string           `yaml:"templatesDir"`
+	Port             string             `yaml:"port"`
+	DB               *postgres.Config   `yaml:"database"`
+	MailServerConfig *mailserver.Config `yaml:"mail"`
+	WebsiteURL       string             `yaml:"websiteURL"`
+	LogoURL          string             `yaml:"logoURL"`
+	TemplatesDir     string             `yaml:"templatesDir"`
 }
 
-var configFile = "prod-config.yml"
+var configFile = "~/.config/prod-config.yml"
 
 func main() {
 	var c config
@@ -41,9 +41,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handler := mailer.NewHandler(c.MailConfig, c.TemplatesDir, postgres.NewMailingStore(db))
+	handler := mailserver.NewHandler(c.MailServerConfig, c.TemplatesDir, postgres.NewMailingStore(db))
 
-	router := mailer.NewRouter(handler)
+	router := mailserver.NewRouter(handler)
 
 	s := &http.Server{
 		Addr:           c.Port,

@@ -9,7 +9,7 @@ import (
 	"github.com/behouba/akwaba/adminapi/head"
 	"github.com/behouba/akwaba/adminapi/office"
 	"github.com/behouba/akwaba/jwt"
-	"github.com/behouba/akwaba/postgres"
+	"github.com/behouba/akwaba/storage"
 	"gopkg.in/yaml.v2"
 )
 
@@ -21,7 +21,7 @@ type config struct {
 	MapAPIKey  string           `yaml:"mapApiKey"`
 }
 
-var configFile = "prod-config.yml"
+var configFile = "~/.config/prod-config.yml"
 
 func main() {
 	var c config

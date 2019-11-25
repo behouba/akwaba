@@ -5,7 +5,7 @@ type AdminTokenService interface {
 	Authenticate(token string) (emp Employee, err error)
 }
 
-type UserTokenService interface {
+type TokenService interface {
 	NewToken(u *User) (token string, err error)
 	Authenticate(token string) (u User, err error)
 }

@@ -1,5 +1,7 @@
 package akwaba
 
+import "context"
+
 // shipment category ids
 const (
 	DocumentCateogryId uint8 = 1
@@ -8,9 +10,11 @@ const (
 
 // PricingService interface for shipment cost calculation
 type PricingService interface {
-	FindArea(query string) (areas []Area)
-	Pricing(from, to string) (pricing Pricing, err error)
-	Cost(from, to string, categoryID uint8) (cost uint, distance float64, err error)
+	FindAreas(ctx context.Context, query string) (areas []Area)
+	Pricing(ctx context.Context, from, to string) (pricing Pricing, err error)
+	Cost(ctx context.Context, categoryID uint8, from, to string) (cost uint, distance float64, err error)
+	PaymentOptions() (poMap map[uint8]string, po []PaymentOption, err error)
+	ShipmentCategories() (catMap map[uint8]string, cats []ShipmentCategory, err error)
 }
 
 // Pricing data type

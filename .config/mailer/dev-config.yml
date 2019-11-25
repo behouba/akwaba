@@ -1,0 +1,19 @@
+port: ":8082"
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "behouba"
+  password: "mana"
+  dbName: "akwaba_express_dev"
+
+mail:
+  smtp: "mail.spamora.net"
+  email: "notifications@akwabaexpress.ci"
+  password: "akwabaexpress"
+  port: 587
+
+
+websiteURL: "http://localhost:8080"
+logoURL: "https://akwabaexpress.ci/assets/img/logo-196.png"
+templatesDir: "mailer/templates/"

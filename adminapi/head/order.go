@@ -77,7 +77,7 @@ func (h *Handler) CancelOrder(c *gin.Context) {
 		})
 		return
 	}
-	err = h.orderStore.Cancel(orderID)
+	err = h.orderStore.CancelOrder(c, orderID)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -155,7 +155,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		})
 		return
 	}
-	err := h.orderStore.Save(&order)
+	err := h.orderStore.SaveOrder(c, &order)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{

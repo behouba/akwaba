@@ -1,6 +1,7 @@
 package akwaba
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -22,8 +23,10 @@ type Tracking struct {
 
 // Tracker interface define shipment tracking method Track
 type Tracker interface {
-	TrackByShipmentID(shipmentID uint64) (tracking Tracking, err error)
-	TrackByOrderID(orderID uint64) (tracking Tracking, err error)
+	// TrackShipment retreive tracking for the given shipmentID or orderID
+	// if id is not the shipmentID will be treated as orderID
+	TrackShipment(ctx context.Context, ID uint64) (tracking Tracking, err error)
+	// TrackByOrderID(ctx context.Context, orderID uint64) (tracking Tracking, err error)
 }
 
 // FormatTimeFR method set Formatted field of EventTime datatype
@@ -34,33 +37,7 @@ func (s *Shipment) FormatTimeFR() (formatted string) {
 			fmt.Sprintf(s.TimeCreated.Format("15:04:05")), ":",
 		)[:2], ":",
 	)
-	// var month string
-	// switch e.RealTime.Month().String() {
-	// case "January":
-	// 	month = "Janvier"
-	// case "February":
-	// 	month = "Février"
-	// case "March":
-	// 	month = "Mars"
-	// case "April":
-	// 	month = "Avril"
-	// case "May":
-	// 	month = "Mai"
-	// case "June":
-	// 	month = "Juin"
-	// case "July":
-	// 	month = "Juillet"
-	// case "August":
-	// 	month = "Août"
-	// case "September":
-	// 	month = "Septembre"
-	// case "October":
-	// 	month = "Octobre"
-	// case "November":
-	// 	month = "Novembre"
-	// case "December":
-	// 	month = "Décembre"
-	// }
+
 	formatted = fmt.Sprintf(
 		"%d %s, %d à %s",
 		s.TimeCreated.Day(),
