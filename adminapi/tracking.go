@@ -20,15 +20,12 @@ func (h *Handler) trackOrder(c *gin.Context) {
 
 	var tracking akwaba.Tracking
 
-	tracking, err = h.tracker.TrackByShipmentID(id)
+	tracking, err = h.tracker.TrackShipment(c, id)
 	if err != nil {
-		tracking, err = h.tracker.TrackByOrderID(id)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": err.Error(),
-			})
-			return
-		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

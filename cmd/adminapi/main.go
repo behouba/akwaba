@@ -9,7 +9,7 @@ import (
 	"github.com/behouba/akwaba/adminapi/head"
 	"github.com/behouba/akwaba/adminapi/office"
 	"github.com/behouba/akwaba/jwt"
-	"github.com/behouba/akwaba/storage"
+	postgres "github.com/behouba/akwaba/storage"
 	"gopkg.in/yaml.v2"
 )
 
