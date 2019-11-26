@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 
 	"github.com/behouba/akwaba"
 )
@@ -58,5 +59,6 @@ func (s *statements) getTracking(
 		}
 		t.Events = append(t.Events, e)
 	}
+	log.Println(t.Events)
 	return
 }

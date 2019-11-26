@@ -32,6 +32,7 @@ func Setup(
 		engine, authenticator, locationService, pricingService,
 		accountStorage, orderStorage, tracker,
 	)
+
 	if err != nil {
 		return nil, err
 	}

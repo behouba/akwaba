@@ -41,4 +41,8 @@ func (s *Service) Areas(ctx context.Context) (areas []akwaba.Area) {
 	return
 }
 
+func (s *Service) SetAreaID(ctx context.Context, name string, id *uint) (err error) {
+	return s.stmts.setAreaID(ctx, name, id)
+}
+
 // Areas() []Area

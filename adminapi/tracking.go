@@ -9,7 +9,7 @@ import (
 )
 
 // this should be deleted asap. Should rely on the ver
-func (h *Handler) trackOrder(c *gin.Context) {
+func (h *handler) trackOrder(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Query("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

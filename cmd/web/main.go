@@ -3,9 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/behouba/akwaba/storage/tracking"
 
@@ -13,9 +11,9 @@ import (
 
 	"github.com/behouba/akwaba/storage/pricing"
 
-	"github.com/behouba/akwaba/storage/users/orders"
+	"github.com/behouba/akwaba/web/storage/orders"
 
-	"github.com/behouba/akwaba/storage/users/account"
+	"github.com/behouba/akwaba/web/storage/accounts"
 
 	postgres "github.com/behouba/akwaba/storage"
 	"github.com/behouba/akwaba/web"
@@ -72,34 +70,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	accountStorage, err := account.New(db)
+	accountsStorage, err := accounts.New(db)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	orderStorage, err := orders.New(db, pricingService)
+	orderStorage, err := orders.New(db)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	engine, err := web.Setup(
 		tokenAuthenticator, locationService, pricingService,
-		accountStorage, orderStorage, trackingService,
+		accountsStorage, orderStorage, trackingService,
 		cfg.TemplatesPath, cfg.AssetsPath,
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server := &http.Server{
-		Addr:           cfg.Port,
-		Handler:        engine,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-	err = server.ListenAndServe()
-	if err != nil {
-		log.Fatal(err)
-	}
+	engine.Run(cfg.Port)
 }

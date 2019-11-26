@@ -15,6 +15,7 @@ import (
 // Areas() []Area
 
 const (
+	selectAreaIDSQL     = "SELECT area_id FROM areas WHERE name LIKE '%' || $1 || '%'"
 	selectAllAreasSQL   = "SELECT area_id, name, city_id FROM areas"
 	selectAllOfficesSQL = "" +
 		"SELECT office_id, name, address, longitude, latitude, phone1, phone2 " +
@@ -24,6 +25,7 @@ const (
 type statements struct {
 	selectAllAreasStmt   *sql.Stmt
 	selectAllOfficesStmt *sql.Stmt
+	selectAreaIDStmt     *sql.Stmt
 }
 
 func (s *statements) prepare(db *sqlx.DB) (err error) {
@@ -31,6 +33,9 @@ func (s *statements) prepare(db *sqlx.DB) (err error) {
 		return
 	}
 	if s.selectAllOfficesStmt, err = db.Prepare(selectAllOfficesSQL); err != nil {
+		return
+	}
+	if s.selectAreaIDStmt, err = db.Prepare(selectAreaIDSQL); err != nil {
 		return
 	}
 	return
@@ -71,6 +76,10 @@ func (s *statements) selectOffices(ctx context.Context) (offices []akwaba.Office
 		offices = append(offices, o)
 	}
 	return
+}
+
+func (o *statements) setAreaID(ctx context.Context, name string, id *uint) (err error) {
+	return o.selectAreaIDStmt.QueryRowContext(ctx, name).Scan(id)
 }
 
 func formatPhoneNumber(phone string) (formattedNum string, err error) {

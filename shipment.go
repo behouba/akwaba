@@ -1,6 +1,9 @@
 package akwaba
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // Shipment state ids
 const (
@@ -57,13 +60,13 @@ type Area struct {
 }
 
 type ShipmentManager interface {
-	Pickups(office *Office) (shipments []Shipment, err error)
-	PickedUp(office *Office, shipmentID uint64, weight float64) (err error)
-	UpdateState(shipmentID uint64, stateID uint8, areaID uint) (err error)
-	Stock(office *Office) (shipments []Shipment, err error)
-	CheckIn(office *Office, shipmentID uint64) (err error)
-	CheckOut(office *Office, shipmentID uint64) (err error)
-	Deliveries(office *Office) (shipments []Shipment, err error)
-	Delivered(office *Office, shipmentID uint64) (err error)
-	DeliveryFailed(office *Office, shipmentID uint64) (err error)
+	Pickups(ctx context.Context, office *Office) (shipments []Shipment, err error)
+	PickedUp(ctx context.Context, office *Office, shipmentID uint64, weight float64) (err error)
+	UpdateState(ctx context.Context, shipmentID uint64, stateID uint8, areaID uint) (err error)
+	Stock(ctx context.Context, office *Office) (shipments []Shipment, err error)
+	CheckIn(ctx context.Context, office *Office, shipmentID uint64) (err error)
+	CheckOut(ctx context.Context, office *Office, shipmentID uint64) (err error)
+	Deliveries(ctx context.Context, office *Office) (shipments []Shipment, err error)
+	Delivered(ctx context.Context, office *Office, shipmentID uint64) (err error)
+	DeliveryFailed(ctx context.Context, office *Office, shipmentID uint64) (err error)
 }
