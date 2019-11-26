@@ -5,17 +5,17 @@ import (
 	"log"
 	"os"
 
-	"github.com/behouba/akwaba/storage/tracking"
+	"github.com/behouba/akwaba/postgres/tracking"
 
-	"github.com/behouba/akwaba/storage/location"
+	"github.com/behouba/akwaba/postgres/location"
 
-	"github.com/behouba/akwaba/storage/pricing"
+	"github.com/behouba/akwaba/postgres/pricing"
 
-	"github.com/behouba/akwaba/web/storage/orders"
+	"github.com/behouba/akwaba/postgres/web/orders"
 
-	"github.com/behouba/akwaba/web/storage/accounts"
+	"github.com/behouba/akwaba/postgres/web/accounts"
 
-	postgres "github.com/behouba/akwaba/storage"
+	"github.com/behouba/akwaba/postgres"
 	"github.com/behouba/akwaba/web"
 	"github.com/behouba/akwaba/web/jwt"
 	"gopkg.in/yaml.v2"

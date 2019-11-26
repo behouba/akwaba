@@ -19,7 +19,9 @@ func New(db *sqlx.DB) (*Storage, error) {
 	return &Storage{&stmts}, nil
 }
 
-func (s *Storage) Pickups(ctx context.Context, office *akwaba.Office) (shipments []akwaba.Shipment, err error) {
+func (s *Storage) Pickups(
+	ctx context.Context, office *akwaba.Office,
+) (shipments []akwaba.Shipment, err error) {
 	return s.stmts.pickups(ctx, office)
 }
 func (s *Storage) PickedUp(
@@ -27,10 +29,14 @@ func (s *Storage) PickedUp(
 ) (err error) {
 	return s.stmts.pickedUp(ctx, office, shipmentID, weight)
 }
-func (s *Storage) UpdateState(ctx context.Context, shipmentID uint64, stateID uint8, areaID uint) (err error) {
+func (s *Storage) UpdateState(
+	ctx context.Context, shipmentID uint64, stateID uint8, areaID uint,
+) (err error) {
 	return s.stmts.updateState(ctx, shipmentID, stateID, areaID)
 }
-func (s *Storage) Stock(ctx context.Context, office *akwaba.Office) (shipments []akwaba.Shipment, err error) {
+func (s *Storage) Stock(
+	ctx context.Context, office *akwaba.Office,
+) (shipments []akwaba.Shipment, err error) {
 	return s.stmts.stock(ctx, office)
 }
 func (s *Storage) CheckIn(ctx context.Context, office *akwaba.Office, shipmentID uint64) (err error) {
@@ -47,6 +53,8 @@ func (s *Storage) Deliveries(
 func (s *Storage) Delivered(ctx context.Context, office *akwaba.Office, shipmentID uint64) (err error) {
 	return s.stmts.delivered(ctx, office, shipmentID)
 }
-func (s *Storage) DeliveryFailed(ctx context.Context, office *akwaba.Office, shipmentID uint64) (err error) {
+func (s *Storage) DeliveryFailed(
+	ctx context.Context, office *akwaba.Office, shipmentID uint64,
+) (err error) {
 	return s.stmts.deliveryFailed(ctx, office, shipmentID)
 }

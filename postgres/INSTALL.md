@@ -8,7 +8,5 @@ Akwaba Express requires a postgres database engine, version 9.5 or later.
   ```
 * Create databases:
   ```bash
-  for i in users deliveries employees ; do
-      sudo -u postgres createdb -O akwaba akwaba_$i
-  done
+      sudo -u postgres createdb -O akwaba akwaba_express
   ```

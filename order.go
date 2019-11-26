@@ -68,7 +68,7 @@ func (nt *NullTime) MarshalJSON() ([]byte, error) {
 }
 
 type StateUpdater interface {
-	UpdateState(ID uint64, stateID uint8) error
+	UpdateState(ctx context.Context, ID uint64, stateID uint8) error
 }
 
 type OrdersGatherer interface {
@@ -86,7 +86,7 @@ type OrderManager interface {
 }
 
 type UserPicker interface {
-	Users() []User
+	Users(ctx context.Context) []User
 }
 
 // OrderState data type represent order state id and corresponding label

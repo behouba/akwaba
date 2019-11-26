@@ -8,6 +8,6 @@ import (
 
 func (h *handler) Users(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"users": h.userStore.Users(),
+		"users": h.userStore.Users(c),
 	})
 }

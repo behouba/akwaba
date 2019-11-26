@@ -13,11 +13,11 @@ const (
 )
 
 type handler struct {
-	auth            akwaba.AdminTokenService
-	employeeStore   akwaba.AdminAuthentifier
-	orderStore      akwaba.OrderManager
-	userStore       akwaba.UserPicker
-	shipmentState   akwaba.StateUpdater
+	auth          akwaba.AdminTokenService
+	employeeStore akwaba.AdminAuthentifier
+	orderStore    akwaba.OrderManager
+	userStore     akwaba.UserPicker
+	// shipmentState   akwaba.StateUpdater
 	pricingService  akwaba.PricingService
 	locationService akwaba.LocationService
 }
@@ -27,14 +27,13 @@ func SetupOrdersAPIEngine(
 	orderStore akwaba.OrderManager,
 	employeeStore akwaba.AdminAuthentifier,
 	userStore akwaba.UserPicker,
-	shipmentState akwaba.StateUpdater,
 	pricingService akwaba.PricingService,
 	locationService akwaba.LocationService,
 ) {
 
 	h := handler{
 		auth, employeeStore, orderStore, userStore,
-		shipmentState, pricingService, locationService,
+		pricingService, locationService,
 	}
 	// head office api for orders management
 	head := r.Group(headOfficeBaseURL)

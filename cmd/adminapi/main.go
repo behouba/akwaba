@@ -6,15 +6,16 @@ import (
 	"os"
 
 	"github.com/behouba/akwaba"
-	"github.com/behouba/akwaba/adminapi/storage/employees"
-	"github.com/behouba/akwaba/adminapi/storage/order"
-	"github.com/behouba/akwaba/adminapi/storage/shipment"
-	"github.com/behouba/akwaba/storage/location"
-	"github.com/behouba/akwaba/storage/pricing"
+	"github.com/behouba/akwaba/postgres/adminapi/employees"
+	"github.com/behouba/akwaba/postgres/adminapi/order"
+	"github.com/behouba/akwaba/postgres/adminapi/shipment"
+	"github.com/behouba/akwaba/postgres/adminapi/user"
+	"github.com/behouba/akwaba/postgres/location"
+	"github.com/behouba/akwaba/postgres/pricing"
 
 	"github.com/behouba/akwaba/adminapi"
 	"github.com/behouba/akwaba/adminapi/jwt"
-	postgres "github.com/behouba/akwaba/storage"
+	"github.com/behouba/akwaba/postgres"
 	"gopkg.in/yaml.v2"
 )
 
@@ -72,16 +73,20 @@ func main() {
 	}
 	orderStore, err := order.New(db)
 	if err != nil {
-		log.Fatal("order Store failed", err)
+		log.Fatal(err)
 	}
 	shipmentStore, err := shipment.New(db)
 	if err != nil {
-		log.Fatal("shipment Store failed", err)
+		log.Fatal(err)
+	}
+	userStore, err := user.New(db)
+	if err != nil {
+		log.Fatal(err)
 	}
 	engine, err := adminapi.SetupAdminAPIEngine(
 		ordersManagerJWT, shipemntsManagerJWT, orderStore,
-		ordersManagerAuth, shipmentsManagerAuth, nil, nil, shipmentStore,
-		pricingService, locationService,
+		ordersManagerAuth, shipmentsManagerAuth, userStore,
+		shipmentStore, pricingService, locationService,
 	)
 	engine.Run(c.Port)
 }

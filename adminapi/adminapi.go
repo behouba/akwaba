@@ -39,7 +39,6 @@ func SetupAdminAPIEngine(
 	ordersManagerAuthentifier akwaba.AdminAuthentifier,
 	shipmentsManagerAuthentifier akwaba.AdminAuthentifier,
 	userStore akwaba.UserPicker,
-	shipmentState akwaba.StateUpdater,
 	shipmentStore akwaba.ShipmentManager,
 	pricingService akwaba.PricingService,
 	locationService akwaba.LocationService,
@@ -55,8 +54,7 @@ func SetupAdminAPIEngine(
 		orders.SetupOrdersAPIEngine(
 			v, ordersManagerAuthToken, orderStore,
 			ordersManagerAuthentifier,
-			userStore, shipmentState,
-			pricingService, locationService,
+			userStore, pricingService, locationService,
 		)
 
 		err := shipments.SetupShipmentsAPIEngine(

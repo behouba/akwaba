@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/behouba/akwaba/mailserver"
-	postgres "github.com/behouba/akwaba/storage"
+	"github.com/behouba/akwaba/postgres"
 	"gopkg.in/yaml.v2"
 )
 
