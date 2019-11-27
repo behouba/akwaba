@@ -9,6 +9,7 @@ import (
 
 	"github.com/behouba/akwaba/mailserver"
 	"github.com/behouba/akwaba/postgres"
+	"github.com/behouba/akwaba/postgres/mailstore"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,9 +42,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handler := mailserver.NewHandler(c.MailServerConfig, c.TemplatesDir, postgres.NewMailingStore(db))
+	mailingStore, err := mailstore.New(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	router := mailserver.NewRouter(handler)
+	router := mailserver.NewEngine(
+		c.MailServerConfig, c.TemplatesDir, mailingStore,
+	)
 
 	s := &http.Server{
 		Addr:           c.Port,

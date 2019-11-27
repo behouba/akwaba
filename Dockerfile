@@ -1,7 +1,7 @@
 FROM golang
 
-WORKDIR /akwaba/website
+WORKDIR /akwaba
 
 COPY . /akwaba
 
-RUN go build -o website .
+RUN GOBIN=$PWD/`dirname $0`/bin go install -v ./cmd/...
