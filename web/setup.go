@@ -9,7 +9,7 @@ import (
 	"github.com/behouba/akwaba"
 )
 
-// Setup setup the website and return *gin.Engine that can be used later as handler
+// Setup setup the website with api and return *gin.Engine that can be used later as handler
 func Setup(
 	authenticator akwaba.TokenService, locationService akwaba.LocationService,
 	pricingService akwaba.PricingService, accountStorage akwaba.AccountStore,
@@ -32,6 +32,7 @@ func Setup(
 		engine, authenticator, locationService, pricingService,
 		accountStorage, orderStorage, tracker,
 	)
+
 	if err != nil {
 		return nil, err
 	}

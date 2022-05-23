@@ -3,21 +3,19 @@ package main
 import (
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
-	"time"
 
-	"github.com/behouba/akwaba/storage/tracking"
+	"github.com/behouba/akwaba/postgres/tracking"
 
-	"github.com/behouba/akwaba/storage/location"
+	"github.com/behouba/akwaba/postgres/location"
 
-	"github.com/behouba/akwaba/storage/pricing"
+	"github.com/behouba/akwaba/postgres/pricing"
 
-	"github.com/behouba/akwaba/storage/users/orders"
+	"github.com/behouba/akwaba/postgres/web/orders"
 
-	"github.com/behouba/akwaba/storage/users/account"
+	"github.com/behouba/akwaba/postgres/web/accounts"
 
-	postgres "github.com/behouba/akwaba/storage"
+	"github.com/behouba/akwaba/postgres"
 	"github.com/behouba/akwaba/web"
 	"github.com/behouba/akwaba/web/jwt"
 	"gopkg.in/yaml.v2"
@@ -72,34 +70,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	accountStorage, err := account.New(db)
+	accountsStorage, err := accounts.New(db)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	orderStorage, err := orders.New(db, pricingService)
+	orderStorage, err := orders.New(db)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	engine, err := web.Setup(
 		tokenAuthenticator, locationService, pricingService,
-		accountStorage, orderStorage, trackingService,
+		accountsStorage, orderStorage, trackingService,
 		cfg.TemplatesPath, cfg.AssetsPath,
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server := &http.Server{
-		Addr:           cfg.Port,
-		Handler:        engine,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-	err = server.ListenAndServe()
-	if err != nil {
-		log.Fatal(err)
-	}
+	engine.Run(cfg.Port)
 }

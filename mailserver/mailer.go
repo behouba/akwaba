@@ -23,15 +23,16 @@ type Config struct {
 	Port     int    `yaml:"port"`
 }
 
-type Handler struct {
+type handler struct {
 	dialer *gomail.Dialer
 	config *Config
 	templ  *template.Template
-	store  akwaba.MailingDataStorage
+	store  akwaba.MailingStorage
 }
 
-// NewHandler return new handler struct
-func NewHandler(c *Config, templatesDir string, store akwaba.MailingDataStorage) *Handler {
+func NewEngine(c *Config, templatesDir string, store akwaba.MailingStorage) (r *gin.Engine) {
+	r = gin.Default()
+
 	templ, err := template.ParseGlob(templatesDir + "/*")
 	if err != nil {
 		log.Println(err)
@@ -39,16 +40,12 @@ func NewHandler(c *Config, templatesDir string, store akwaba.MailingDataStorage)
 	}
 	log.Println(c)
 	d := gomail.NewDialer(c.SMTP, c.Port, c.Email, c.Password)
-	return &Handler{
+	h := &handler{
 		dialer: d,
 		config: c,
 		templ:  templ,
 		store:  store,
 	}
-}
-
-func NewRouter(h *Handler) (r *gin.Engine) {
-	r = gin.Default()
 	v := r.Group(version)
 	{
 		v.GET("/welcome", h.welcomeEmail)   // user_name and user_email queries are required

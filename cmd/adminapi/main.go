@@ -5,11 +5,17 @@ import (
 	"log"
 	"os"
 
+	"github.com/behouba/akwaba"
+	"github.com/behouba/akwaba/postgres/adminapi/employees"
+	"github.com/behouba/akwaba/postgres/adminapi/order"
+	"github.com/behouba/akwaba/postgres/adminapi/shipment"
+	"github.com/behouba/akwaba/postgres/adminapi/user"
+	"github.com/behouba/akwaba/postgres/location"
+	"github.com/behouba/akwaba/postgres/pricing"
+
 	"github.com/behouba/akwaba/adminapi"
-	"github.com/behouba/akwaba/adminapi/head"
-	"github.com/behouba/akwaba/adminapi/office"
-	"github.com/behouba/akwaba/jwt"
-	"github.com/behouba/akwaba/storage"
+	"github.com/behouba/akwaba/adminapi/jwt"
+	"github.com/behouba/akwaba/postgres"
 	"gopkg.in/yaml.v2"
 )
 
@@ -38,32 +44,49 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	db, err := postgres.Open(c.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
-	headHandler := head.NewHandler(
-		jwt.NewAdminAuthenticator(c.HSecretKey),
-		postgres.NewOrdersManagementStore(db, c.MapAPIKey),
-		postgres.NewHeadManagerStorage(db),
-		postgres.NewUserStorage(db),
-	)
+	ordersManagerJWT := jwt.NewAuthenticator(c.HSecretKey)
+	shipemntsManagerJWT := jwt.NewAuthenticator(c.OSecretKey)
 
-	officesHandler := office.NewHandler(
-		jwt.NewAdminAuthenticator(c.OSecretKey),
-		postgres.NewOfficeEmployeeStorage(db),
-		postgres.NewShipmentStorage(db),
-	)
+	ordersManagerAuth, err := employees.New(db, akwaba.OrdersManagerPositionID)
 	if err != nil {
 		log.Fatal(err)
 	}
-	globalHandler := adminapi.NewHandler(
-		postgres.NewTrackingStore(db),
-		postgres.NewSystemData(),
-	)
+
+	shipmentsManagerAuth, err := employees.New(db, akwaba.ShipmentsManagerPositionID)
 	if err != nil {
 		log.Fatal(err)
 	}
-	r := adminapi.NewRouter(headHandler, officesHandler, globalHandler)
-	r.Run(c.Port)
+
+	pricingService, err := pricing.New(db, c.MapAPIKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	locationService, err := location.New(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	orderStore, err := order.New(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	shipmentStore, err := shipment.New(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	userStore, err := user.New(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+	engine, err := adminapi.SetupAdminAPIEngine(
+		ordersManagerJWT, shipemntsManagerJWT, orderStore,
+		ordersManagerAuth, shipmentsManagerAuth, userStore,
+		shipmentStore, pricingService, locationService,
+	)
+	engine.Run(c.Port)
 }

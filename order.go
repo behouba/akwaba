@@ -1,6 +1,7 @@
 package akwaba
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -67,25 +68,25 @@ func (nt *NullTime) MarshalJSON() ([]byte, error) {
 }
 
 type StateUpdater interface {
-	UpdateState(ID uint64, stateID uint8) error
+	UpdateState(ctx context.Context, ID uint64, stateID uint8) error
 }
 
 type OrdersGatherer interface {
-	ActiveOrders() (o []Order, err error)
-	ClosedOrders(date string) (o []Order, err error)
+	ActiveOrders(ctx context.Context) (o []Order, err error)
+	ClosedOrders(ctx context.Context, date string) (o []Order, err error)
 }
 
 type OrderManager interface {
-	Confirm(orderID uint64) (shipmentID uint64, err error)
-	CreateShipment(orderID uint64) (shipmentID uint64, err error)
-	Cost(origin, destination string, categoryID uint8) (cost uint, distance float64, err error)
+	ConfirmOrder(ctx context.Context, orderID uint64) (shipmentID uint64, err error)
+	CreateShipment(ctx context.Context, orderID uint64) (shipmentID uint64, err error)
+	// Cost(origin, destination string, categoryID uint8) (cost uint, distance float64, err error)
 	OrdersGatherer
 	OrderSaverCanceler
-	UpdateState(orderID uint64, stateID uint8) error
+	UpdateState(ctx context.Context, orderID uint64, stateID uint8) error
 }
 
 type UserPicker interface {
-	Users() []User
+	Users(ctx context.Context) []User
 }
 
 // OrderState data type represent order state id and corresponding label

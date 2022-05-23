@@ -1,10 +1,12 @@
 package akwaba
 
+import "context"
+
 // Positions ids
 const (
-	HeadOfficeManagerPositionID uint8 = 1
-	OfficesManagerPositionID    uint8 = 2
-	CourierPositionID           uint8 = 3
+	OrdersManagerPositionID    uint8 = 1
+	ShipmentsManagerPositionID uint8 = 2
+	CourierPositionID          uint8 = 3
 )
 
 // Employee represent an employee with it identifiers
@@ -20,8 +22,8 @@ type Employee struct {
 	PositionID uint8  `json:"positionId"`
 }
 
-type EmployeeAuthentifier interface {
-	Authenticate(e *Employee, ip string) (empl Employee, err error)
+type AdminAuthentifier interface {
+	Authenticate(ctx context.Context, e *Employee, ip string) (empl Employee, err error)
 }
 
 // Office represent office data

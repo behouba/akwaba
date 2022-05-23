@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/behouba/akwaba"
-	"github.com/behouba/akwaba/web/mail"
+	"github.com/behouba/akwaba/mail"
 	"github.com/behouba/akwaba/web/session"
 	"github.com/gin-gonic/gin"
 )

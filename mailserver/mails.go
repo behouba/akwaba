@@ -41,7 +41,7 @@ func generateHTML(templ *template.Template, templateName string, data interface{
 }
 
 // WelcomeEmail send welcome email to new registred user
-func (h *Handler) welcomeEmail(c *gin.Context) {
+func (h *handler) welcomeEmail(c *gin.Context) {
 	firstName, email := c.Query("first_name"), c.Query("email")
 	if firstName == "" || email == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -70,7 +70,7 @@ func (h *Handler) welcomeEmail(c *gin.Context) {
 	})
 }
 
-func (h *Handler) recoveryEmail(c *gin.Context) {
+func (h *handler) recoveryEmail(c *gin.Context) {
 	userEmail, token := c.Query("email"), c.Query("token")
 	if userEmail == "" || token == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -78,7 +78,7 @@ func (h *Handler) recoveryEmail(c *gin.Context) {
 		})
 		return
 	}
-	firstName, err := h.store.FromEmail(userEmail)
+	firstName, err := h.store.FromEmail(c, userEmail)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -111,10 +111,10 @@ func (h *Handler) recoveryEmail(c *gin.Context) {
 	})
 }
 
-func (h *Handler) orderCreationEmail(c *gin.Context) {
+func (h *handler) orderCreationEmail(c *gin.Context) {
 	orderID, err := strconv.ParseUint(c.Query("id"), 10, 64)
 	var user akwaba.User
-	user.FirstName, user.Email, err = h.store.FromOrderID(orderID)
+	user.FirstName, user.Email, err = h.store.FromOrderID(c, orderID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -141,10 +141,10 @@ func (h *Handler) orderCreationEmail(c *gin.Context) {
 		"message": fmt.Sprintf("Order creation email sent to %s", user.Email),
 	})
 }
-func (h *Handler) orderConfirmationEmail(c *gin.Context) {
+func (h *handler) orderConfirmationEmail(c *gin.Context) {
 	orderID, err := strconv.ParseUint(c.Query("id"), 10, 64)
 	var user akwaba.User
-	user.FirstName, user.Email, err = h.store.FromOrderID(orderID)
+	user.FirstName, user.Email, err = h.store.FromOrderID(c, orderID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -169,10 +169,10 @@ func (h *Handler) orderConfirmationEmail(c *gin.Context) {
 	})
 }
 
-func (h *Handler) orderCancelationEmail(c *gin.Context) {
+func (h *handler) orderCancelationEmail(c *gin.Context) {
 	orderID, err := strconv.ParseUint(c.Query("id"), 10, 64)
 	var user akwaba.User
-	user.FirstName, user.Email, err = h.store.FromOrderID(orderID)
+	user.FirstName, user.Email, err = h.store.FromOrderID(c, orderID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -200,15 +200,15 @@ func (h *Handler) orderCancelationEmail(c *gin.Context) {
 	})
 }
 
-// func (h *Handler) trackingStateChangeEmail(c *gin.Context) {
+// func (h *handler) trackingStateChangeEmail(c *gin.Context) {
 
 // 	return
 // }
 
-func (h *Handler) deliveryEmail(c *gin.Context) {
+func (h *handler) deliveryEmail(c *gin.Context) {
 	shipmentID, err := strconv.ParseUint(c.Query("id"), 10, 64)
 	var user akwaba.User
-	user.FirstName, user.Email, err = h.store.FromShipmentID(shipmentID)
+	user.FirstName, user.Email, err = h.store.FromShipmentID(c, shipmentID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
@@ -236,10 +236,10 @@ func (h *Handler) deliveryEmail(c *gin.Context) {
 	})
 }
 
-func (h *Handler) deliveryFailureEmail(c *gin.Context) {
+func (h *handler) deliveryFailureEmail(c *gin.Context) {
 	shipmentID, err := strconv.ParseUint(c.Query("id"), 10, 64)
 	var user akwaba.User
-	user.FirstName, user.Email, err = h.store.FromShipmentID(shipmentID)
+	user.FirstName, user.Email, err = h.store.FromShipmentID(c, shipmentID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),

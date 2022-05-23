@@ -7,13 +7,14 @@ import (
 	"strconv"
 
 	"github.com/behouba/akwaba"
-	"github.com/behouba/akwaba/web/mail"
+	"github.com/behouba/akwaba/mail"
 	"github.com/behouba/akwaba/web/session"
 	"github.com/gin-gonic/gin"
 )
 
 func (h *handler) handleOrderCreation(c *gin.Context) {
 	var order akwaba.Order
+	var err error
 	user := session.GetContextUser(c, h.authenticator)
 
 	if err := c.ShouldBindJSON(&order); err != nil {
@@ -26,7 +27,24 @@ func (h *handler) handleOrderCreation(c *gin.Context) {
 	log.Println(order)
 
 	order.UserID = user.ID
-	err := h.orderStore.SaveOrder(c, &order)
+
+	// Set areas ids and recompute shipping cost before saving to database
+	err = h.locationService.SetAreaID(c, order.Sender.Area.Name, &order.Sender.Area.ID)
+	if err != nil {
+		return
+	}
+	err = h.locationService.SetAreaID(c, order.Recipient.Area.Name, &order.Recipient.Area.ID)
+	if err != nil {
+		return
+	}
+	order.Cost, order.Distance, err = h.pricingService.Cost(
+		c, order.Category.ID, order.Sender.Area.Name, order.Recipient.Area.Name,
+	)
+	if err != nil {
+		return
+	}
+
+	err = h.orderStore.SaveOrder(c, &order)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
