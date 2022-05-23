@@ -1,1 +1,5 @@
-dsapi
+### Build
+
+```bash
+./build.sh
+```
